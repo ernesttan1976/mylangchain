@@ -84,7 +84,7 @@ export default function Home() {
   useEffect(() => {
     const m = messages.length;
     if (m >= 3) {
-      const newHistory = [...messages.slice(-2)];
+      const newHistory = [...messages.slice(-1)];
       setHistory(newHistory);
     }
 
