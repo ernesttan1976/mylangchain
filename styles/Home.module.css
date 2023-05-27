@@ -59,6 +59,10 @@
   position: relative;
 }
 
+.cloudform2 {
+  position: relative;
+}
+
 .textarea {
   position: relative;
   resize: none;
@@ -72,6 +76,14 @@
   outline: none;
 }
 
+.label {
+  font-size: 1rem;
+  padding: 8px 0;
+  color:rgb(165, 162, 162);
+  width: 75vw;
+  display: flex;
+}
+
 .textarea:disabled {
   opacity: 0.5;
 }
@@ -82,19 +94,21 @@
 
 .generatebutton {
   position: absolute;
-  top: 0.87rem;
+  bottom: 0.87rem;
   right: 1rem;
   color: rgb(165, 162, 162);
   background: none;
   padding: 0.3rem;
   border: none;
   display: flex;
+  z-index: 10;
 }
 
 .loadingwheel {
   position: absolute;
   top: 0.2rem;
   right: 0.25rem;
+  z-index: 10;
 }
 
 .svgicon {
@@ -102,6 +116,7 @@
   width: 1.2em;
   height: 1.2em;
   fill: currentColor;
+  z-index: 10;
 }
 
 .generatebutton:hover {
@@ -209,8 +224,28 @@
   justify-content: center;
   align-items: center;
   position: relative;
-  padding: 2rem 0;
+  padding: 1rem 0;
   flex-direction: column;
+}
+
+.leftform {
+  display: flex;
+  justify-content: center;
+  align-items: flex-start;
+  position: relative;
+  padding: 0.5rem 0 0;
+  flex-direction: column;
+}
+
+.left {
+  display: flex;
+  width: 75vw;
+  padding: 1rem 0 0;
+}
+
+.summary {
+  margin-bottom: 8px;
+  color:rgb(165, 162, 162);
 }
 
 .cloud {
