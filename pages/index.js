@@ -10,6 +10,7 @@ import { Button } from 'antd'
 import { AIChatMessage, ChatMessage, SystemChatMessage, HumanChatMessage } from "langchain/schema";
 
 import { ApiChat, PostEmbedding } from '../lib/chat'
+import MyTreeSelect from '../components/treeselect'
 
 export default function Home() {
 
@@ -17,7 +18,8 @@ export default function Home() {
   const [userInputEmbedding, setUserInputEmbedding] = useState("");
   const [history, setHistory] = useState([]);
   const [loading, setLoading] = useState(false);
-  const [messages, setMessages] = useState([new SystemChatMessage("Hi there, I am an expert in Javascript, Next.js 13, Java, Langchain, and LLMs. Please feel free to ask me.")]);
+  const [bot, setBot] = useState("You are an expert pair programmer in React, Typescript, Next.JS 13. You will provide code, answer questions, give programming challenges based on the user level of proficiency. You will give web links as reference to your answers.");
+  const [messages, setMessages] = useState([new SystemChatMessage("I am an expert pair programmer in React, Typescript, Next.JS 13. I will provide code, answer questions, give programming challenges based on the user level of proficiency. I will give web links as references")]);
 
   const messageListRef = useRef(null);
   const textAreaRef = useRef(null);
@@ -114,10 +116,14 @@ export default function Home() {
       <div className={styles.topnav}>
         <div className={styles.navlogo}>
           <a href="/">LangChain</a>
+
         </div>
         <div className={styles.navlinks}>
-          <a href="https://langchain.readthedocs.io/en/latest/" target="_blank">Docs</a>
-          <a href="https://github.com/ernesttan1976/mylangchain" target="_blank">GitHub</a>
+          <MyTreeSelect setBot={setBot}/>
+          <div className={styles.navlinks2}>
+            <a href="https://langchain.readthedocs.io/en/latest/" target="_blank">Docs</a>
+            <a href="https://github.com/ernesttan1976/mylangchain" target="_blank">GitHub</a>
+          </div>
         </div>
       </div>
       <main className={styles.main}>

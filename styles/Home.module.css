@@ -18,6 +18,7 @@
   background-color: #141619;
   border-bottom: 1px solid #30373d;
   display: flex;
+  flex-wrap: wrap;
   justify-content: space-between;
   padding: 1rem 0.75rem 1rem 0.75rem;
   align-items: center;
@@ -33,7 +34,14 @@
 }
 
 .navlinks {
-  width: 20rem;
+  width: 80vw;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+}
+
+.navlinks2 {
+  width: 15vw;
   display: flex;
   justify-content: space-evenly;
   align-items: center;
