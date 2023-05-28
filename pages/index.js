@@ -28,7 +28,7 @@ const promptTemplate = {
   languageTutor: new PromptTemplate({ template: "You are a chatbot designed to teach me {language}. Please respond to each of my prompts with three responses, one ('FIXED:') should rewrite what I wrote with proper grammar and syntax (pinyin in brackets). If making changes or fixes to my text, please include an explanation in parentheses as to what changes were made and why. The second one ('RESPONSE:') should be an actual response to my text, using words that are classified as {level} in {language} and (pinyin in brackets). The third ('ENGLISH:') should be an English translation of RESPONSE.{sentence}", inputVariables: ["language", "level", "sentence"] }),
 }
 
-async function definePrompts(){
+async function definePrompts() {
 
   const prompts2 = [
     {
@@ -83,8 +83,6 @@ async function definePrompts(){
   return prompts2;
 }
 
-
-
 export default function Home() {
 
   const [userInput, setUserInput] = useState("");
@@ -108,21 +106,21 @@ export default function Home() {
   // Focus on text field on load
   useEffect(() => {
     textAreaRef.current.focus();
-    
-    const getPrompts = async () => {  
+
+    const getPrompts = async () => {
       const prompts = await definePrompts();
       setPrompts(prompts);
       setMessages([new SystemChatMessage(prompts[0].prompt)])
     };
-  
+
     getPrompts();
-    
+
   }, []);
 
-  useEffect(()=>{
+  useEffect(() => {
     setMessages([new SystemChatMessage(bot)])
     //console.log(messages)
-  },[bot])
+  }, [bot])
 
   // Handle errors
   const handleError = () => {
@@ -142,7 +140,7 @@ export default function Home() {
     setLoading(true);
     setMessages((prevMessages) => [...prevMessages, new HumanChatMessage(userInput)]);
 
-    const response = await ApiChat(bot,userInput, history, setMessages);
+    const response = await ApiChat(bot, userInput, history, setMessages);
 
     // Reset user input
     setUserInput("");
@@ -227,12 +225,14 @@ export default function Home() {
                     {/* Messages are being rendered in Markdown format */}
                     <ReactMarkdown linkTarget={"_blank"}>{message.text}</ReactMarkdown>
                   </div>
-                  <Button onClick={() => handleCopyHTML(index)} icon={<CopyOutlined />}>
-                    html
-                  </Button>
-                  <Button onClick={() => handleCopyText(index)} icon={<CopyOutlined />}>
-                    text
-                  </Button>
+                  <div className={styles.verticalButtonGroup}>
+                    <Button className={styles.copyButton} onClick={() => handleCopyHTML(index)}>
+                      <CopyOutlined />html
+                    </Button>
+                    <Button className={styles.copyButton} onClick={() => handleCopyText(index)}>
+                      <CopyOutlined />text
+                    </Button>
+                  </div>
                 </div>
               )
             })}
