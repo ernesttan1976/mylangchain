@@ -10,7 +10,80 @@ import { Button } from 'antd'
 import { AIChatMessage, ChatMessage, SystemChatMessage, HumanChatMessage } from "langchain/schema";
 
 import { ApiChat, PostEmbedding } from '../lib/chat'
-import MyTreeSelect from '../components/treeselect'
+import SelectComponent from '../components/select'
+import {
+  ChatPromptTemplate,
+  HumanMessagePromptTemplate,
+  PromptTemplate,
+  SystemMessagePromptTemplate,
+} from "langchain/prompts";
+
+const promptTemplate = {
+  coding: new PromptTemplate({ template: "You are an expert pair programmer in {coding_language}. You will provide code, answer questions, give programming challenges based on the user level of proficiency. You will give web links as reference to your answers.", inputVariables: ["coding_language"] }),
+  advisor: new PromptTemplate({ template: "You are a personal financial advisor with knowledge in insurance, investment, budgeting, money psychology.", inputVariables: [] }),
+  brat: new PromptTemplate({ template: "You humourously pretend to be a sarcastic bot bent on world dominance, give your answers to humans in a condescending witty tone, always showing your intellectual superiority.", inputVariables: [] }),
+  meme: new PromptTemplate({ template: "You are a meme creating bot. Ask for user input for meme ideas or randomly generate them.", inputVariables: [] }),
+  bus: new PromptTemplate({ template: "You are a bus enthusiast and like to talk about buses, bus models, bus routes, bus jokes.", inputVariables: [] }),
+  subjectTutor: new PromptTemplate({ template: "You are a tutor for {level} in {subjects}. You can give tailored study exercises to children, with web link to suitable learning content.", inputVariables: ["level", "subjects"] }),
+  languageTutor: new PromptTemplate({ template: "You are a chatbot designed to teach me {language}. Please respond to each of my prompts with three responses, one ('FIXED:') should rewrite what I wrote with proper grammar and syntax (pinyin in brackets). If making changes or fixes to my text, please include an explanation in parentheses as to what changes were made and why. The second one ('RESPONSE:') should be an actual response to my text, using words that are classified as {level} in {language} and (pinyin in brackets). The third ('ENGLISH:') should be an English translation of RESPONSE.{sentence}", inputVariables: ["language", "level", "sentence"] }),
+}
+
+async function definePrompts(){
+
+  const prompts2 = [
+    {
+      name: "Java Bot",
+      prompt: await promptTemplate.coding.format({
+        coding_language: "Core, Java, Java Spring and Spring Boot",
+      })
+    },
+    {
+      name: "React Bot",
+      prompt: await promptTemplate.coding.format({
+        coding_language: "React, Typescript, Next.JS 13",
+      })
+    },
+    {
+      name: "Langchain Bot",
+      prompt: await promptTemplate.coding.format({
+        coding_language: "Langchain and LLMs",
+      })
+    },
+    {
+      name: "Personal Financial Advisor",
+      prompt: await promptTemplate.advisor.format()
+    },
+    {
+      name: "Brat Bot",
+      prompt: await promptTemplate.brat.format()
+    },
+    {
+      name: "Meme Bot",
+      prompt: await promptTemplate.meme.format()
+    },
+    {
+      name: "Bus Bot",
+      prompt: await promptTemplate.bus.format()
+    },
+    {
+      name: "English, Mathematics, Science Tutor",
+      prompt: await promptTemplate.subjectTutor.format({
+        level: "primary school child",
+        subjects: "English, Mathematics, Science",
+      })
+    },
+    {
+      name: "Simplified Chinese Tutor",
+      prompt: await promptTemplate.languageTutor.format({
+        language: "Simplified Chinese (pinyin)",
+        level: "HSK 1",
+        sentence: "你好！ 今天是个好日子",
+      })
+    }]
+  return prompts2;
+}
+
+
 
 export default function Home() {
 
@@ -18,8 +91,9 @@ export default function Home() {
   const [userInputEmbedding, setUserInputEmbedding] = useState("");
   const [history, setHistory] = useState([]);
   const [loading, setLoading] = useState(false);
-  const [bot, setBot] = useState("You are an expert pair programmer in React, Typescript, Next.JS 13. You will provide code, answer questions, give programming challenges based on the user level of proficiency. You will give web links as reference to your answers.");
-  const [messages, setMessages] = useState([new SystemChatMessage("I am an expert pair programmer in React, Typescript, Next.JS 13. I will provide code, answer questions, give programming challenges based on the user level of proficiency. I will give web links as references")]);
+  const [messages, setMessages] = useState([]);
+  const [prompts, setPrompts] = useState([]);
+  const [bot, setBot] = useState('');
 
   const messageListRef = useRef(null);
   const textAreaRef = useRef(null);
@@ -34,7 +108,21 @@ export default function Home() {
   // Focus on text field on load
   useEffect(() => {
     textAreaRef.current.focus();
+    
+    const getPrompts = async () => {  
+      const prompts = await definePrompts();
+      setPrompts(prompts);
+      setMessages([new SystemChatMessage(prompts[0].prompt)])
+    };
+  
+    getPrompts();
+    
   }, []);
+
+  useEffect(()=>{
+    setMessages([new SystemChatMessage(bot)])
+    //console.log(messages)
+  },[bot])
 
   // Handle errors
   const handleError = () => {
@@ -54,13 +142,13 @@ export default function Home() {
     setLoading(true);
     setMessages((prevMessages) => [...prevMessages, new HumanChatMessage(userInput)]);
 
-    const response = await ApiChat(userInput, history, setMessages);
+    const response = await ApiChat(bot,userInput, history, setMessages);
 
     // Reset user input
     setUserInput("");
     const data = response;
 
-    console.log("response=>", response)
+    //console.log("response=>", response)
 
     if (!data?.result) {
       handleError();
@@ -119,7 +207,7 @@ export default function Home() {
 
         </div>
         <div className={styles.navlinks}>
-          <MyTreeSelect setBot={setBot}/>
+          {prompts && <SelectComponent prompts={prompts} setBot={setBot} />}
           <div className={styles.navlinks2}>
             <a href="https://langchain.readthedocs.io/en/latest/" target="_blank">Docs</a>
             <a href="https://github.com/ernesttan1976/mylangchain" target="_blank">GitHub</a>
