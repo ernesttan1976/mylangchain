@@ -16,18 +16,21 @@
 }
 
 .video {
-    width: 240px !important;
-    height: 320px !important;
-    padding: 8px;
+    width: 75vw;
+    display: flex;
+    justify-content: center;
+    align-items: center;
 }
 
 .canvas{
-    width: 240px !important;
-    height: 320px !important;
-    padding: 8px;
+    width: 75vw;
+    display: flex;
+    justify-content: center;
+    align-items: center;
 }
 .image {
-    width: 240px !important;
-    height: 320px !important;
-    padding: 8px;
+    width: 75vw;
+    display: flex;
+    justify-content: center;
+    align-items: center;
 }
