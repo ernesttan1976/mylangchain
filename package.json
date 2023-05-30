@@ -1,6 +1,6 @@
 {
-  "name": "langchain-chat",
-  "version": "0.1.0",
+  "name": "mylangchain",
+  "version": "0.2.0",
   "private": true,
   "scripts": {
     "dev": "next dev",
@@ -16,10 +16,18 @@
     "@next/font": "13.1.1",
     "antd": "^5.5.1",
     "langchain": "^0.0.82",
+    "lodash": "^4.17.21",
     "next": "13.1.1",
     "openai": "^3.1.0",
+    "p5": "^1.6.0",
     "react": "18.2.0",
     "react-dom": "18.2.0",
-    "react-markdown": "^8.0.4"
+    "react-easy-crop": "^4.7.4",
+    "react-markdown": "^8.0.4",
+    "tesseract.js": "^4.0.5"
+  },
+  "devDependencies": {
+    "@types/node": "20.2.5",
+    "typescript": "5.0.4"
   }
 }

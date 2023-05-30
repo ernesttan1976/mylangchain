@@ -2,7 +2,7 @@ import { PlusOutlined } from '@ant-design/icons';
 import { Button, Divider, Input, Select, Space } from 'antd';
 import { useRef, useState, useEffect } from 'react';
 let index = 0;
-const SelectComponent = ({prompts, setBot}) => {
+const SelectComponent = ({ prompts, setBot }) => {
   const [items, setItems] = useState([]);
   const [name, setName] = useState('');
   const [prompt, setPrompt] = useState('');
@@ -10,9 +10,9 @@ const SelectComponent = ({prompts, setBot}) => {
   const inputRef2 = useRef(null);
   const botRef = useRef(null);
 
-  useEffect(()=>{
+  useEffect(() => {
     setItems(prompts);
-  },[prompts])
+  }, [prompts])
 
   const onNameChange = (event) => {
     setName(event.target.value);
@@ -22,7 +22,7 @@ const SelectComponent = ({prompts, setBot}) => {
   };
   const addItem = (e) => {
     e.preventDefault();
-    setItems([...items, {name, prompt}]);
+    setItems([...items, { name, prompt }]);
     setName('');
     setPrompt('');
     setTimeout(() => {
@@ -30,8 +30,8 @@ const SelectComponent = ({prompts, setBot}) => {
     }, 0);
   };
 
-  const handleBotChange = (value)=> {
-    setBot(value); 
+  const handleBotChange = (value) => {
+    setBot(value);
   }
 
   const defaultBotValue = "You are an expert pair programmer in Core, Java, Java Spring and Spring Boot. You will provide code, answer questions, give programming challenges based on the user level of proficiency. You will give web links as reference to your answers."
@@ -39,7 +39,7 @@ const SelectComponent = ({prompts, setBot}) => {
   return (
     <Select
       style={{
-        width: 400,
+        width: 250,
       }}
       placeholder="Choose Your Bot"
       defaultValue={defaultBotValue}
@@ -63,15 +63,24 @@ const SelectComponent = ({prompts, setBot}) => {
               value={name}
               onChange={onNameChange}
             />
-            <Input
-              placeholder="Prompt"
-              ref={inputRef2}
-              value={prompt}
-              onChange={onPromptChange}
-            />
             <Button type="text" icon={<PlusOutlined />} onClick={addItem}>
               Add item
             </Button>
+          </Space>
+          <Space style={{
+              padding: '0 8px 4px',
+            }}>
+            <textarea
+              ref={inputRef2}
+              rows={3}
+              maxLength={500}
+              type="text"
+              id="userInput"
+              name="userInput"
+              placeholder="Prompt"
+              value={prompt}
+              onChange={onPromptChange}
+            />
           </Space>
         </>
       )}

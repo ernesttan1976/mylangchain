@@ -1,0 +1,21 @@
+.row {
+    display: flex;
+    justify-content: flex-start;
+    align-items: center;
+    width: 100%;
+    padding: 8px 0px;
+}
+
+.column {
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    align-items: center;
+    width: 100%;
+    padding: 0 8px;
+}
+
+.video,.canvas {
+    width: 45%;
+    padding: 8px;
+}
