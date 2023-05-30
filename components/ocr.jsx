@@ -52,6 +52,8 @@ function OCR({ ocrResult, setOcrResult }) {
                 const dataUrl = canvasRef.current.toDataURL('image/png');
 
                 imageRef.current.style.display = "flex";
+                imageRef.current.width = videoRef.current.width;
+                imageRef.current.height = videoRef.current.height;
                 setImageSrc(dataUrl);
                 sharpenImage();
             })

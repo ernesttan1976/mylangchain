@@ -24,9 +24,6 @@
 
 .canvas{
     width: 75vw;
-    display: flex;
-    justify-content: center;
-    align-items: center;
 }
 .image {
     width: 75vw;
