@@ -16,7 +16,7 @@
 }
 
 .video,.canvas,.image {
-    width: 45vw;
+    max-width: 300px;
     height: auto;
     padding: 8px;
 }
