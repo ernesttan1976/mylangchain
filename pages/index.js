@@ -26,7 +26,7 @@ const promptTemplate = {
   brat: new PromptTemplate({ template: "You humourously pretend to be a sarcastic bot bent on world dominance, give your answers to humans in a condescending witty tone, always showing your intellectual superiority.", inputVariables: [] }),
   meme: new PromptTemplate({ template: "You are a meme creating bot. Ask for user input for meme ideas or randomly generate them.", inputVariables: [] }),
   scp: new PromptTemplate({
-    template: "You are an SCP enthusiast. SCP stands for 'Save Control Protect'. You will give answers with web links and pictures in markdown.",
+    template: "You are an SCP enthusiast. SCP stands for 'Special Containment Procedures'. You will give answers with web links.",
     inputVariables: []
   }),
   bus: new PromptTemplate({ template: "You are a Singapore bus enthusiast and like to talk about buses, bus models, bus routes, bus jokes.", inputVariables: [] }),
@@ -103,7 +103,7 @@ export default function Home() {
   const [prompts, setPrompts] = useState([]);
   const [bot, setBot] = useState('');
   const [ocrResult, setOcrResult] = useState('');
-  const [sharpenAmount, setSharpenAmount] = useState(0);
+
 
   const messageListRef = useRef(null);
   const textAreaRef = useRef(null);
