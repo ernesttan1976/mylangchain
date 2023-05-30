@@ -17,8 +17,19 @@
     padding: 0 8px;
 }
 
-.video,.canvas,.image {
-    max-width: 300px;
+.video {
+    width: 300px !important;
+    height: auto;
+    padding: 8px;
+}
+
+.canvas{
+    width: 300px !important;
+    height: auto;
+    padding: 8px;
+}
+.image {
+    width: 300px !important;
     height: auto;
     padding: 8px;
 }
