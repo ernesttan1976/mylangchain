@@ -30,7 +30,7 @@ function OCR({ ocrResult, setOcrResult }) {
             size: 5,
             matrix: "-1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 25 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1",
         }
-        
+
     ]
 
     const handleCapture = async () => {
@@ -40,21 +40,25 @@ function OCR({ ocrResult, setOcrResult }) {
             videoRef.current.play();
             videoRef.current.style.display = "flex";
             videoRef.current.style.width = "75vw";
-            videoRef.current.style.height = "75vh";
-            
+            videoRef.current.style.height = "auto";
+            console.log(videoRef.current);
+
 
             videoRef.current.addEventListener('loadedmetadata', () => {
-                canvasRef.current.width = videoRef.current.width;
-                canvasRef.current.height = videoRef.current.height;
-                canvasRef.current.style.display="block"
+                console.log("loadedmetadata");
+                canvasRef.current.style.width = "75vw";
+                canvasRef.current.style.height = "auto";
+                canvasRef.current.style.display = "flex"
+                console.log(canvasRef.current)
 
                 const context = canvasRef.current.getContext('2d');
                 context.drawImage(videoRef.current, 0, 0, canvasRef.current.width, canvasRef.current.height);
                 const dataUrl = canvasRef.current.toDataURL('image/png');
 
                 imageRef.current.style.display = "flex";
-                imageRef.current.width = videoRef.current.width;
-                imageRef.current.height = videoRef.current.height;
+                imageRef.current.style.width = "75vw";
+                imageRef.current.style.height = "auto";
+                console.log(imageRef.current)
                 setImageSrc(dataUrl);
                 sharpenImage();
             })
@@ -82,8 +86,8 @@ function OCR({ ocrResult, setOcrResult }) {
         reader.onload = () => {
             setImageSrc(reader.result);
             sharpenImage();
-            imageRef.current.style.width="75vw";
-            imageRef.current.style.height="75vh";
+            imageRef.current.style.width = "75vw";
+            imageRef.current.style.height = "auto";
 
         };
     }
@@ -127,22 +131,19 @@ function OCR({ ocrResult, setOcrResult }) {
                         accept="image/*"
                         onChange={handleFileChange}
                     />
-
+                    <label htmlFor="language-select">Choose a language:</label>
+                    <select id="language-select" value={language} onChange={(e) => setLanguage(e.target.value)}>
+                        <option value="eng">English</option>
+                        <option value="chi_sim">Simplified Chinese</option>
+                    </select>
                 </div>
-                <div className={OCR.row}>
+                <div className={OCR.column}>
                     {imageSrc && <button onClick={handleOCR}>Recognize text</button>}
-                    <div className={OCR.row}>
-                        <label htmlFor="language-select">Choose a language:</label>
-                        <select id="language-select" value={language} onChange={(e) => setLanguage(e.target.value)}>
-                            <option value="eng">English</option>
-                            <option value="chi_sim">Simplified Chinese</option>
-                        </select>
-                    </div>
                     {ocrResult ? <p>{ocrResult}</p> : "No text detected"}
                 </div>
                 <div className={OCR.column}>
                     <div className={OCR.row}>
-                        <div className={OCR.column}>
+                        <div className={OCR.columnhalf}>
                             <div className={OCR.row}>
                                 <label htmlFor="brightness">Brightness:</label>
                                 <input
@@ -203,8 +204,8 @@ function OCR({ ocrResult, setOcrResult }) {
                                 />
                             </div>
                         </div>
-                        <div className={OCR.column}>
-                            <h4>Corrected Image</h4>
+                        <div className={OCR.columnhalf}>
+                            <span>Corrected Image</span>
                             <canvas
                                 className={OCR.canvas}
                                 ref={canvasRef}
@@ -213,7 +214,7 @@ function OCR({ ocrResult, setOcrResult }) {
                             />
                         </div>
                     </div>
-                    <h4>Original Image</h4>
+                    <span>Original Image</span>
                     {/* <img ref={imageRef} src={imageSrc} alt="No image" styles={{ display: imageSrc ? "flex" : "none" }} /> */}
 
                     <img className={OCR.image} ref={imageRef} src={imageSrc} style={{ display: imageSrc ? "flex" : "none" }} alt="No image" />

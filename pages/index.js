@@ -50,6 +50,12 @@ async function definePrompts() {
       })
     },
     {
+      name: "Angular Bot",
+      prompt: await promptTemplate.coding.format({
+        coding_language: "Angular",
+      })
+    },
+    {
       name: "Langchain Bot",
       prompt: await promptTemplate.coding.format({
         coding_language: "Langchain and LLMs",
@@ -282,7 +288,7 @@ export default function Home() {
             </button>
           </form>
           <form className={`${styles.cloudform} ${styles.leftform}`}>
-            <details className={styles.left} open>
+            <details className={styles.left} closed>
               <summary className={styles.summary}>
                 Embedding
               </summary>
@@ -316,7 +322,12 @@ export default function Home() {
               </button>
             </details>
           </form>
-          <OCR ocrResult={ocrResult} setOcrResult={setOcrResult}/>
+          <details className={styles.left} closed>
+            <summary className={styles.summary}>
+              Image Capture
+            </summary>
+            <OCR ocrResult={ocrResult} setOcrResult={setOcrResult} />
+          </details>
           <div className={styles.footer}>
             <p>Powered by <a href="https://js.langchain.com/" target="_blank">LangChain</a>. Frontend chat forked from <a href="https://twitter.com/chillzaza_" target="_blank">Zahid</a>. Experimented and adapted by <a href="https://www.linkedin.com/in/ernest-tan-dev/">Ernest</a>.</p>
           </div>

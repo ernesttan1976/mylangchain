@@ -15,6 +15,15 @@
     padding: 8px;
 }
 
+.columnhalf {
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    align-items: center;
+    width: 150px;
+    padding: 8px;
+}
+
 .video {
     width: 75vw;
     display: flex;
