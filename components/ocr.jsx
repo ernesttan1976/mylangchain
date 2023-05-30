@@ -38,7 +38,7 @@ function OCR({ ocrResult, setOcrResult }) {
         if (videoRef.current && streamRef.current) {
             videoRef.current.srcObject = streamRef.current;
             videoRef.current.play();
-            videoRef.current.style.display = "block";
+            videoRef.current.style.display = "flex";
 
             videoRef.current.addEventListener('loadedmetadata', () => {
                 canvasRef.current.width = videoRef.current.width;
@@ -48,7 +48,7 @@ function OCR({ ocrResult, setOcrResult }) {
                 context.drawImage(videoRef.current, 0, 0, canvasRef.current.width, canvasRef.current.height);
                 const dataUrl = canvasRef.current.toDataURL('image/png');
 
-                imageRef.current.style.display = "block";
+                imageRef.current.style.display = "flex";
                 setImageSrc(dataUrl);
                 sharpenImage();
             })
@@ -84,7 +84,7 @@ function OCR({ ocrResult, setOcrResult }) {
 
     function sharpenImage() {
         const image = imageRef.current;
-        canvasRef.current.style.display = "block";
+        canvasRef.current.style.display = "flex";
 
         // Create a canvas element to hold the image
         const canvas = canvasRef.current;
@@ -208,9 +208,9 @@ function OCR({ ocrResult, setOcrResult }) {
                         </div>
                     </div>
                     <h4>Original Image</h4>
-                    {/* <img ref={imageRef} src={imageSrc} alt="No image" styles={{ display: imageSrc ? "block" : "none" }} /> */}
+                    {/* <img ref={imageRef} src={imageSrc} alt="No image" styles={{ display: imageSrc ? "flex" : "none" }} /> */}
 
-                    <img className={OCR.image} ref={imageRef} src={imageSrc} style={{ display: imageSrc ? "block" : "none" }} alt="No image" />
+                    <img className={OCR.image} ref={imageRef} src={imageSrc} style={{ display: imageSrc ? "flex" : "none" }} alt="No image" />
                     <svg>
                         <filter id="sharpen-filter">
                             <feConvolveMatrix order={sharpenMatrix[sharpenIndex].size} kernelMatrix={sharpenMatrix[sharpenIndex].matrix} preserveAlpha="true" />
@@ -220,7 +220,7 @@ function OCR({ ocrResult, setOcrResult }) {
             </div>
             <div className={OCR.column}>
                 <button onClick={debouncedHandleCapture}>Take Photo</button>
-                {videoRef.current?.style.display === "block" && <button onClick={handleCloseVideo}>Close Camera</button>}
+                {videoRef.current?.style.display === "flex" && <button onClick={handleCloseVideo}>Close Camera</button>}
             </div>
             <div className={OCR.row}>
 
