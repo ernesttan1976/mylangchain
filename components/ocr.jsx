@@ -34,7 +34,7 @@ function OCR({ ocrResult, setOcrResult }) {
     ]
 
     const handleCapture = async () => {
-        streamRef.current = await navigator.mediaDevices.getUserMedia({ video: true });
+        streamRef.current = await navigator.mediaDevices.getUserMedia({ video: { facingMode: "environment" } });
         if (videoRef.current && streamRef.current) {
             videoRef.current.srcObject = streamRef.current;
             videoRef.current.play();
