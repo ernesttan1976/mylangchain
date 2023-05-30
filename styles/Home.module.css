@@ -313,6 +313,7 @@
   .topnav {
     border: 1px solid black;
     align-items: center;
+    flex-wrap: wrap; 
     padding: 0.85rem 0.75rem 0.85rem 0.75rem;
   }
 
