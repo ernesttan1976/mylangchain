@@ -207,7 +207,7 @@ function OCR({ ocrResult, setOcrResult }) {
                     <h4>Original Image</h4>
                     {/* <img ref={imageRef} src={imageSrc} alt="No image" styles={{ display: imageSrc ? "block" : "none" }} /> */}
 
-                    <img ref={imageRef} src={imageSrc} style={{ display: imageSrc ? "block" : "none" }} alt="No image" />
+                    <img className={OCR.image} ref={imageRef} src={imageSrc} style={{ display: imageSrc ? "block" : "none" }} alt="No image" />
                     <svg>
                         <filter id="sharpen-filter">
                             <feConvolveMatrix order={sharpenMatrix[sharpenIndex].size} kernelMatrix={sharpenMatrix[sharpenIndex].matrix} preserveAlpha="true" />

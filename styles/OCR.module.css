@@ -15,7 +15,8 @@
     padding: 0 8px;
 }
 
-.video,.canvas {
-    width: 45%;
+.video,.canvas,.image {
+    width: 45vw;
+    height: auto;
     padding: 8px;
 }
