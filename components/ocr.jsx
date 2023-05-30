@@ -76,6 +76,9 @@ function OCR({ ocrResult, setOcrResult }) {
         reader.onload = () => {
             setImageSrc(reader.result);
             sharpenImage();
+            imageRef.current.style.width="75vw";
+            imageRef.current.style.height="75vh";
+
         };
     }
 
