@@ -46,6 +46,7 @@ function OCR({ ocrResult, setOcrResult }) {
             videoRef.current.addEventListener('loadedmetadata', () => {
                 canvasRef.current.width = videoRef.current.width;
                 canvasRef.current.height = videoRef.current.height;
+                canvasRef.current.style.display="block"
 
                 const context = canvasRef.current.getContext('2d');
                 context.drawImage(videoRef.current, 0, 0, canvasRef.current.width, canvasRef.current.height);
@@ -96,8 +97,8 @@ function OCR({ ocrResult, setOcrResult }) {
         const context = canvas.getContext('2d');
 
         // Set the canvas dimensions to match the image
-        canvas.width = 240;
-        canvas.height = 320;
+        canvas.width = imageRef.current.width;
+        canvas.height = imageRef.current.height;
 
         // Draw the image onto the canvas
         context.drawImage(image, 0, 0, canvas.width, canvas.height);
