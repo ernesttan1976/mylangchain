@@ -88,8 +88,8 @@ function OCR({ ocrResult, setOcrResult }) {
         const context = canvas.getContext('2d');
 
         // Set the canvas dimensions to match the image
-        canvas.width = image.width;
-        canvas.height = image.height;
+        canvas.width = 240;
+        canvas.height = 320;
 
         // Draw the image onto the canvas
         context.drawImage(image, 0, 0, canvas.width, canvas.height);

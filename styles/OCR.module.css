@@ -1,10 +1,9 @@
 .row {
     display: flex;
-    justify-content: flex-start;
+    justify-content: center;
     align-items: center;
-    width: 100%;
-    max-width: 90vw;
-    padding: 8px 0px;
+    width: 300px;
+    padding: 8px;
 }
 
 .column {
@@ -12,24 +11,23 @@
     flex-direction: column;
     justify-content: center;
     align-items: center;
-    width: 100%;
-    max-width: 90vw;
-    padding: 0 8px;
+    width: 300px;
+    padding: 8px;
 }
 
 .video {
-    width: 300px !important;
-    height: auto;
+    width: 240px !important;
+    height: 320px !important;
     padding: 8px;
 }
 
 .canvas{
-    width: 300px !important;
-    height: auto;
+    width: 240px !important;
+    height: 320px !important;
     padding: 8px;
 }
 .image {
-    width: 300px !important;
-    height: auto;
+    width: 240px !important;
+    height: 320px !important;
     padding: 8px;
 }
