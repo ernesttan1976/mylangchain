@@ -40,19 +40,19 @@ async function definePrompts() {
     {
       name: "Java Bot",
       prompt: await promptTemplate.coding.format({
-        coding_language: "Core, Java, Java Spring and Spring Boot",
+        coding_language: "Core, Java 20, Java Spring 6 and Spring Boot 3",
       })
     },
     {
       name: "React Bot",
       prompt: await promptTemplate.coding.format({
-        coding_language: "React, Typescript, Next.JS 13",
+        coding_language: "React 18, Typescript, Next.JS 13",
       })
     },
     {
       name: "Angular Bot",
       prompt: await promptTemplate.coding.format({
-        coding_language: "Angular",
+        coding_language: "Angular 16 or later",
       })
     },
     {
