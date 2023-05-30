@@ -39,6 +39,9 @@ function OCR({ ocrResult, setOcrResult }) {
             videoRef.current.srcObject = streamRef.current;
             videoRef.current.play();
             videoRef.current.style.display = "flex";
+            videoRef.current.style.width = "75vw";
+            videoRef.current.style.height = "75vh";
+            
 
             videoRef.current.addEventListener('loadedmetadata', () => {
                 canvasRef.current.width = videoRef.current.width;
