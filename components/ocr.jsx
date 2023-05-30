@@ -41,8 +41,8 @@ function OCR({ ocrResult, setOcrResult }) {
             videoRef.current.style.display = "block";
 
             videoRef.current.addEventListener('loadedmetadata', () => {
-                canvasRef.current.width = 640;
-                canvasRef.current.height = 480;
+                canvasRef.current.width = videoRef.current.width;
+                canvasRef.current.height = videoRef.current.height;
 
                 const context = canvasRef.current.getContext('2d');
                 context.drawImage(videoRef.current, 0, 0, canvasRef.current.width, canvasRef.current.height);
