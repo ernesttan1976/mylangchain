@@ -2,7 +2,7 @@
 import { useState, useRef } from "react";
 import Tesseract from "tesseract.js";
 import debounce from 'lodash/debounce';
-import styles from "../styles/ocr.module.css"
+import styles from "../styles/OCR.module.css"
 import CircularProgress from '@mui/material/CircularProgress';
 import { CopyOutlined } from '@ant-design/icons';
 import { Button } from 'antd'
