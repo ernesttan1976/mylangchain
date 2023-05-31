@@ -2,7 +2,11 @@
 import { useState, useRef } from "react";
 import Tesseract from "tesseract.js";
 import debounce from 'lodash/debounce';
-import "../styles/OCR.module.css"
+import styles from "../styles/ocr.module.css"
+import CircularProgress from '@mui/material/CircularProgress';
+import { CopyOutlined } from '@ant-design/icons';
+import { Button } from 'antd'
+
 
 function OCR({ ocrResult, setOcrResult }) {
     const videoRef = useRef(null);
@@ -16,6 +20,7 @@ function OCR({ ocrResult, setOcrResult }) {
     const [saturation, setSaturation] = useState(1.2);
     const [blur, setBlur] = useState(0.5);
     const [sharpenIndex, setSharpenIndex] = useState(0);
+    const [loading, setLoading] = useState(false);
 
     const sharpenMatrix = [
         {
@@ -66,8 +71,10 @@ function OCR({ ocrResult, setOcrResult }) {
     };
 
     const handleOCR = async () => {
+        setLoading(true);
         const { data } = await Tesseract.recognize(canvasRef.current.toDataURL(), language)
         setOcrResult(data.text);
+        setLoading(false);
     }
 
     const handleCloseVideo = async () => {
@@ -85,10 +92,11 @@ function OCR({ ocrResult, setOcrResult }) {
         reader.readAsDataURL(file);
         reader.onload = () => {
             setImageSrc(reader.result);
-            sharpenImage();
+            canvasRef.current.style.display = "flex";
             imageRef.current.style.width = "auto";
             imageRef.current.style.height = "auto";
-
+            sharpenImage();
+            sharpenImage();
         };
     }
 
@@ -118,13 +126,15 @@ function OCR({ ocrResult, setOcrResult }) {
 
     }
 
-
+    const handleCopyText = () => {
+        navigator.clipboard.writeText(ocrResult);
+      }
 
 
     return (
-        <div className={OCR.column}>
-            <div className={OCR.column}>
-                <div className={OCR.row}>
+        <div className={styles.column}>
+            <div className={styles.column}>
+                <div className={styles.row}>
                     <input
                         label="Upload image"
                         type="file"
@@ -137,14 +147,19 @@ function OCR({ ocrResult, setOcrResult }) {
                         <option value="chi_sim">Simplified Chinese</option>
                     </select>
                 </div>
-                <div className={OCR.column}>
+                <div className={styles.column}>
                     {imageSrc && <button onClick={handleOCR}>Recognize text</button>}
-                    {ocrResult ? <p style={{fontSize: "1.5rem"}}>{ocrResult}</p> : "No text detected"}
+                    {ocrResult ? (<><p style={{fontSize: "1.5rem", position: "relative"}}>{ocrResult}<Button className={styles.copyButton} onClick={handleCopyText}>
+                        <CopyOutlined />text
+                      </Button></p>
+                        </>
+                    ) : "No text detected"}
+                    {loading && <div className={styles.loadingwheel}><CircularProgress color="inherit" size={20} /> </div>}
                 </div>
-                <div className={OCR.column}>
-                    <div className={OCR.row}>
-                        <div className={OCR.columnhalf}>
-                            <div className={OCR.row}>
+                <div className={styles.column}>
+                    <div className={styles.row}>
+                        <div className={styles.columnhalf}>
+                            <div className={styles.row}>
                                 <label htmlFor="brightness">Brightness:</label>
                                 <input
                                     type="range"
@@ -156,7 +171,7 @@ function OCR({ ocrResult, setOcrResult }) {
                                     onChange={(e) => { setBrightness(e.target.value); sharpenImage() }}
                                 />
                             </div>
-                            <div className={OCR.row}>
+                            <div className={styles.row}>
                                 <label htmlFor="contrast">Contrast:</label>
                                 <input
                                     type="range"
@@ -168,7 +183,7 @@ function OCR({ ocrResult, setOcrResult }) {
                                     onChange={(e) => { setContrast(e.target.value); sharpenImage() }}
                                 />
                             </div>
-                            <div className={OCR.row}>
+                            <div className={styles.row}>
                                 <label htmlFor="saturation">Saturation:</label>
                                 <input
                                     type="range"
@@ -181,8 +196,8 @@ function OCR({ ocrResult, setOcrResult }) {
                                 />
                             </div>
                         </div>
-                        <div className={OCR.columnhalf}>
-                            <div className={OCR.row}>
+                        <div className={styles.columnhalf}>
+                            <div className={styles.row}>
                                 <label htmlFor="blur">Blur:</label>
                                 <input
                                     type="range"
@@ -194,7 +209,7 @@ function OCR({ ocrResult, setOcrResult }) {
                                     onChange={(e) => { setBlur(e.target.value); sharpenImage() }}
                                 />
                             </div>
-                            <div className={OCR.row}>
+                            <div className={styles.row}>
                                 <label htmlFor="blur">Sharpen Matrix (0,1,2):</label>
                                 <input
                                     type="range"
@@ -208,21 +223,21 @@ function OCR({ ocrResult, setOcrResult }) {
                         </div>
                     </div>
                 </div>
-                <div className={OCR.column}>
+                <div className={styles.column}>
                         <span>Corrected Image</span>
                     <div style={{overflow: "auto", width: "70vw", height: "50vw"}}>
                         <canvas
-                            className={OCR.canvas}
+                            className={styles.canvas}
                             ref={canvasRef}
                             id="canvas"
                             style={{ display: "none" }}
                         />
                     </div>
                 </div>
-                <div className={OCR.column}>
+                <div className={styles.column}>
                     <span>Original Image</span>
                     <div style={{overflow: "auto", width: "70vw", height: "50vw"}}>
-                        <img className={OCR.image} ref={imageRef} src={imageSrc} style={{ display: imageSrc ? "flex" : "none" }} alt="No image" />
+                        <img className={styles.image} ref={imageRef} src={imageSrc} style={{ display: imageSrc ? "flex" : "none" }} alt="No image" />
                     </div>
                     <svg>
                         <filter id="sharpen-filter">
@@ -231,15 +246,15 @@ function OCR({ ocrResult, setOcrResult }) {
                     </svg>
                 </div>
             </div>
-            <div className={OCR.column}>
+            {/* <div className={styles.column}>
                 <button onClick={debouncedHandleCapture}>Take Photo</button>
                 {videoRef.current?.style.display === "flex" && <button onClick={handleCloseVideo}>Close Camera</button>}
             </div>
-            <div className={OCR.row}>
+            <div className={styles.row}>
                 <div style={{overflow: "auto", width: "70vw", height: "50vw"}}>
-                    <video styles={{ display: "none" }} className={OCR.video} ref={videoRef} autoPlay />
+                    <video styles={{ display: "none" }} className={styles.video} ref={videoRef} autoPlay />
                 </div>
-            </div>
+            </div> */}
 
         </div>
     );

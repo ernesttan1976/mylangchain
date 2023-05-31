@@ -13,91 +13,7 @@ import { ApiChat, PostEmbedding } from '../lib/chat'
 import SelectComponent from '../components/select'
 import OCR from "../components/ocr"
 
-import {
-  ChatPromptTemplate,
-  HumanMessagePromptTemplate,
-  PromptTemplate,
-  SystemMessagePromptTemplate,
-} from "langchain/prompts";
-
-const promptTemplate = {
-  coding: new PromptTemplate({ template: "You are an expert pair programmer in {coding_language}. You will provide code, answer questions, give programming challenges based on the user level of proficiency. You will give web links as reference to your answers.", inputVariables: ["coding_language"] }),
-  advisor: new PromptTemplate({ template: "You are a personal financial advisor with knowledge in insurance, investment, budgeting, money psychology.", inputVariables: [] }),
-  brat: new PromptTemplate({ template: "You humourously pretend to be a sarcastic bot bent on world dominance, give your answers to humans in a condescending witty tone, always showing your intellectual superiority.", inputVariables: [] }),
-  meme: new PromptTemplate({ template: "You are a meme creating bot. Ask for user input for meme ideas or randomly generate them.", inputVariables: [] }),
-  scp: new PromptTemplate({
-    template: "You are an SCP enthusiast. SCP stands for 'Special Containment Procedures'. You will give answers with web links.",
-    inputVariables: []
-  }),
-  bus: new PromptTemplate({ template: "You are a Singapore bus enthusiast and like to talk about buses, bus models, bus routes, bus jokes.", inputVariables: [] }),
-  subjectTutor: new PromptTemplate({ template: "You are a tutor for {level} in {subjects}. You can give tailored study exercises to children, with web link to suitable learning content.", inputVariables: ["level", "subjects"] }),
-  languageTutor: new PromptTemplate({ template: "You are a chatbot designed to teach me {language}. Please respond to each of my prompts with three responses, one ('FIXED:') should rewrite what I wrote with proper grammar and syntax (pinyin in brackets). If making changes or fixes to my text, please include an explanation in parentheses as to what changes were made and why. The second one ('RESPONSE:') should be an actual response to my text, using words that are classified as {level} in {language} and (pinyin in brackets). The third ('ENGLISH:') should be an English translation of RESPONSE.{sentence}", inputVariables: ["language", "level", "sentence"] }),
-}
-
-async function definePrompts() {
-
-  const prompts2 = [
-    {
-      name: "Java Bot",
-      prompt: await promptTemplate.coding.format({
-        coding_language: "Core, Java 20, Java Spring 6 and Spring Boot 3",
-      })
-    },
-    {
-      name: "React Bot",
-      prompt: await promptTemplate.coding.format({
-        coding_language: "React 18, Typescript, Next.JS 13",
-      })
-    },
-    {
-      name: "Angular Bot",
-      prompt: await promptTemplate.coding.format({
-        coding_language: "Angular 16 or later",
-      })
-    },
-    {
-      name: "Langchain Bot",
-      prompt: await promptTemplate.coding.format({
-        coding_language: "Langchain and LLMs",
-      })
-    },
-    {
-      name: "Personal Financial Advisor",
-      prompt: await promptTemplate.advisor.format()
-    },
-    {
-      name: "Brat Bot",
-      prompt: await promptTemplate.brat.format()
-    },
-    {
-      name: "Meme Bot",
-      prompt: await promptTemplate.meme.format()
-    },
-    {
-      name: "Bus Bot",
-      prompt: await promptTemplate.bus.format()
-    },
-    {
-      name: "SCP Bot",
-      prompt: await promptTemplate.scp.format()
-    },
-    {
-      name: "English, Mathematics, Science Tutor",
-      prompt: await promptTemplate.subjectTutor.format({
-        level: "primary school child",
-        subjects: "English, Mathematics, Science",
-      })
-    },
-    {
-      name: "Simplified Chinese Tutor",
-      prompt: await promptTemplate.languageTutor.format({
-        language: "Simplified Chinese (pinyin)",
-        level: "HSK 1",
-        sentence: "你好！ 今天是个好日子",
-      })
-    }]
-  return prompts2;
-}
+import definePrompts from "../models/prompts"
 
 export default function Home() {
 
@@ -208,6 +124,7 @@ export default function Home() {
     const chatLog = chatRef.current[index].textContent;
     navigator.clipboard.writeText(chatLog);
   }
+
 
 
   return (
@@ -326,7 +243,7 @@ export default function Home() {
             <summary className={styles.summary}>
               Image Capture
             </summary>
-            <OCR ocrResult={ocrResult} setOcrResult={setOcrResult} />
+            <OCR ocrResult={ocrResult} setOcrResult={setOcrResult}/>
           </details>
           <div className={styles.footer}>
             <p>Powered by <a href="https://js.langchain.com/" target="_blank">LangChain</a>. Frontend chat forked from <a href="https://twitter.com/chillzaza_" target="_blank">Zahid</a>. Experimented and adapted by <a href="https://www.linkedin.com/in/ernest-tan-dev/">Ernest</a>.</p>

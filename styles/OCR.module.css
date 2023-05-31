@@ -22,7 +22,7 @@
     flex-direction: column;
     justify-content: center;
     align-items: center;
-    width: 150px;
+    width: 40vw;
     padding: 8px;
 }
 
@@ -31,12 +31,46 @@
     max-width: auto;
 }
 
-.canvas{
+.canvas {
     max-height: auto;
     max-width: auto;
 }
+
 .image {
     max-height: auto;
     max-width: auto;
 }
 
+
+
+.loadingwheel {
+    position: absolute;
+    top: 0.2rem;
+    right: 0.25rem;
+    z-index: 10;
+}
+
+.ocrResult {
+    position: relative;
+    padding: 16px;
+}
+
+.copyButton {
+    opacity: 0.5;
+    transition: opacity 0.2s ease-in-out;
+    font-size: 0.6rem;
+    padding: 4px 4px;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    width: 50px;
+    position: absolute;
+    top: 0.2rem;
+    right: 0.25rem;
+    z-index: 10;
+}
+
+.copyButton:hover {
+    opacity: 1;
+}

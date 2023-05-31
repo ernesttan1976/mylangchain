@@ -10,6 +10,8 @@ const SelectComponent = ({ prompts, setBot }) => {
   const inputRef2 = useRef(null);
   const botRef = useRef(null);
 
+  const defaultBotValue = "You are an expert pair programmer in Core, Java, Java Spring and Spring Boot. You will provide code, answer questions, give programming challenges based on the user level of proficiency. You will give web links as reference to your answers."
+
   useEffect(() => {
     setItems(prompts);
   }, [prompts])
@@ -30,19 +32,20 @@ const SelectComponent = ({ prompts, setBot }) => {
     }, 0);
   };
 
+
+
   const handleBotChange = (value) => {
     setBot(value);
   }
 
-  const defaultBotValue = "You are an expert pair programmer in Core, Java, Java Spring and Spring Boot. You will provide code, answer questions, give programming challenges based on the user level of proficiency. You will give web links as reference to your answers."
 
   return (
     <Select
       style={{
-        width: 150,
+        width: 200,
       }}
       placeholder="Choose Your Bot"
-      defaultValue={defaultBotValue}
+      defaultValue="Java Bot"
       onChange={handleBotChange}
       dropdownRender={(menu) => (
         <>
