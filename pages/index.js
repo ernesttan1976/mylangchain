@@ -288,7 +288,7 @@ export default function Home() {
             </button>
           </form>
           <form className={`${styles.cloudform} ${styles.leftform}`}>
-            <details className={styles.left} closed>
+            <details className={styles.left} closed="true">
               <summary className={styles.summary}>
                 Embedding
               </summary>
@@ -322,7 +322,7 @@ export default function Home() {
               </button>
             </details>
           </form>
-          <details className={styles.left} closed>
+          <details className={styles.left} closed="true">
             <summary className={styles.summary}>
               Image Capture
             </summary>

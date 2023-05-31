@@ -39,15 +39,15 @@ function OCR({ ocrResult, setOcrResult }) {
             videoRef.current.srcObject = streamRef.current;
             videoRef.current.play();
             videoRef.current.style.display = "flex";
-            videoRef.current.style.width = "75vw";
-            videoRef.current.style.height = "auto";
+            videoRef.current.style.maxWidth = "auto";
+            videoRef.current.style.maxHeight = "auto";
             console.log(videoRef.current);
 
 
             videoRef.current.addEventListener('loadedmetadata', () => {
                 console.log("loadedmetadata");
-                canvasRef.current.style.width = "75vw";
-                canvasRef.current.style.height = "auto";
+                canvasRef.current.style.maxWidth = "auto";
+                canvasRef.current.style.maxHeight = "auto";
                 canvasRef.current.style.display = "flex"
                 console.log(canvasRef.current)
 
@@ -56,8 +56,8 @@ function OCR({ ocrResult, setOcrResult }) {
                 const dataUrl = canvasRef.current.toDataURL('image/png');
 
                 imageRef.current.style.display = "flex";
-                imageRef.current.style.width = "75vw";
-                imageRef.current.style.height = "auto";
+                imageRef.current.style.maxWidth = "auto";
+                imageRef.current.style.maxHeight = "auto";
                 console.log(imageRef.current)
                 setImageSrc(dataUrl);
                 sharpenImage();
@@ -86,7 +86,7 @@ function OCR({ ocrResult, setOcrResult }) {
         reader.onload = () => {
             setImageSrc(reader.result);
             sharpenImage();
-            imageRef.current.style.width = "75vw";
+            imageRef.current.style.width = "auto";
             imageRef.current.style.height = "auto";
 
         };
@@ -139,7 +139,7 @@ function OCR({ ocrResult, setOcrResult }) {
                 </div>
                 <div className={OCR.column}>
                     {imageSrc && <button onClick={handleOCR}>Recognize text</button>}
-                    {ocrResult ? <p>{ocrResult}</p> : "No text detected"}
+                    {ocrResult ? <p style={{fontSize: "1.5rem"}}>{ocrResult}</p> : "No text detected"}
                 </div>
                 <div className={OCR.column}>
                     <div className={OCR.row}>
@@ -180,6 +180,8 @@ function OCR({ ocrResult, setOcrResult }) {
                                     onChange={(e) => { setSaturation(e.target.value); sharpenImage() }}
                                 />
                             </div>
+                        </div>
+                        <div className={OCR.columnhalf}>
                             <div className={OCR.row}>
                                 <label htmlFor="blur">Blur:</label>
                                 <input
@@ -204,20 +206,24 @@ function OCR({ ocrResult, setOcrResult }) {
                                 />
                             </div>
                         </div>
-                        <div className={OCR.columnhalf}>
-                            <span>Corrected Image</span>
-                            <canvas
-                                className={OCR.canvas}
-                                ref={canvasRef}
-                                id="canvas"
-                                style={{ display: "none" }}
-                            />
-                        </div>
                     </div>
+                </div>
+                <div className={OCR.column}>
+                        <span>Corrected Image</span>
+                    <div style={{overflow: "auto", width: "70vw", height: "50vw"}}>
+                        <canvas
+                            className={OCR.canvas}
+                            ref={canvasRef}
+                            id="canvas"
+                            style={{ display: "none" }}
+                        />
+                    </div>
+                </div>
+                <div className={OCR.column}>
                     <span>Original Image</span>
-                    {/* <img ref={imageRef} src={imageSrc} alt="No image" styles={{ display: imageSrc ? "flex" : "none" }} /> */}
-
-                    <img className={OCR.image} ref={imageRef} src={imageSrc} style={{ display: imageSrc ? "flex" : "none" }} alt="No image" />
+                    <div style={{overflow: "auto", width: "70vw", height: "50vw"}}>
+                        <img className={OCR.image} ref={imageRef} src={imageSrc} style={{ display: imageSrc ? "flex" : "none" }} alt="No image" />
+                    </div>
                     <svg>
                         <filter id="sharpen-filter">
                             <feConvolveMatrix order={sharpenMatrix[sharpenIndex].size} kernelMatrix={sharpenMatrix[sharpenIndex].matrix} preserveAlpha="true" />
@@ -230,8 +236,9 @@ function OCR({ ocrResult, setOcrResult }) {
                 {videoRef.current?.style.display === "flex" && <button onClick={handleCloseVideo}>Close Camera</button>}
             </div>
             <div className={OCR.row}>
-
-                <video className={OCR.video} ref={videoRef} autoPlay styles={{ display: "none" }} />
+                <div style={{overflow: "auto", width: "70vw", height: "50vw"}}>
+                    <video styles={{ display: "none" }} className={OCR.video} ref={videoRef} autoPlay />
+                </div>
             </div>
 
         </div>
