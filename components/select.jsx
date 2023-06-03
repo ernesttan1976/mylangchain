@@ -42,7 +42,8 @@ const SelectComponent = ({ prompts, setBot }) => {
   return (
     <Select
       style={{
-        width: 200,
+        maxWidth: 320,
+        marginLeft: 8
       }}
       placeholder="Choose Your Bot"
       defaultValue="Java Bot"
