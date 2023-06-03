@@ -5,7 +5,7 @@ import debounce from 'lodash/debounce';
 import styles from "../styles/OCR.module.css"
 import CircularProgress from '@mui/material/CircularProgress';
 import { CopyOutlined } from '@ant-design/icons';
-import { Button } from 'antd'
+import { Button, Divider, Select } from 'antd'
 
 
 function OCR({ ocrResult, setOcrResult }) {
@@ -96,7 +96,6 @@ function OCR({ ocrResult, setOcrResult }) {
             imageRef.current.style.width = "auto";
             imageRef.current.style.height = "auto";
             sharpenImage();
-            sharpenImage();
         };
     }
 
@@ -128,104 +127,105 @@ function OCR({ ocrResult, setOcrResult }) {
 
     const handleCopyText = () => {
         navigator.clipboard.writeText(ocrResult);
-      }
+    }
 
 
     return (
-        <div className={styles.column}>
-            <div className={styles.column}>
-                <div className={styles.row}>
+            <div className={styles.column2}>
                     <input
                         label="Upload image"
                         type="file"
                         accept="image/*"
                         onChange={handleFileChange}
                     />
+                    <Divider />
                     <label htmlFor="language-select">Choose a language:</label>
-                    <select id="language-select" value={language} onChange={(e) => setLanguage(e.target.value)}>
-                        <option value="eng">English</option>
-                        <option value="chi_sim">Simplified Chinese</option>
-                    </select>
-                </div>
-                <div className={styles.column}>
-                    {imageSrc && <button onClick={handleOCR}>Recognize text</button>}
-                    {ocrResult ? (<><p style={{fontSize: "1.5rem", position: "relative"}}>{ocrResult}<Button className={styles.copyButton} onClick={handleCopyText}>
-                        <CopyOutlined />text
-                      </Button></p>
-                        </>
-                    ) : "No text detected"}
+                    <Select style={{width: 200}} 
+                        id="language-select" 
+                        value={language}
+                        defaultValue="chi_sim"
+                        onChange={(value) => {
+                            setLanguage(value)}}
+                        options={[
+                            {
+                                value: 'eng', label: 'English'
+                            },
+                            {
+                                value: 'chi_sim', label: 'Simplified Chinese'
+                            }
+                        ]} />
+                    
+                    {imageSrc && <Button className={styles.ocrButton} onClick={handleOCR}>Recognize text
                     {loading && <div className={styles.loadingwheel}><CircularProgress color="inherit" size={20} /> </div>}
-                </div>
-                <div className={styles.column}>
-                    <div className={styles.row}>
-                        <div className={styles.columnhalf}>
-                            <div className={styles.row}>
-                                <label htmlFor="brightness">Brightness:</label>
-                                <input
-                                    type="range"
-                                    id="brightness"
-                                    min="0"
-                                    max="5"
-                                    step="0.1"
-                                    value={brightness}
-                                    onChange={(e) => { setBrightness(e.target.value); sharpenImage() }}
-                                />
-                            </div>
-                            <div className={styles.row}>
-                                <label htmlFor="contrast">Contrast:</label>
-                                <input
-                                    type="range"
-                                    id="contrast"
-                                    min="0"
-                                    max="1"
-                                    step="0.1"
-                                    value={contrast}
-                                    onChange={(e) => { setContrast(e.target.value); sharpenImage() }}
-                                />
-                            </div>
-                            <div className={styles.row}>
-                                <label htmlFor="saturation">Saturation:</label>
-                                <input
-                                    type="range"
-                                    id="saturation"
-                                    min="0"
-                                    max="2"
-                                    step="0.1"
-                                    value={saturation}
-                                    onChange={(e) => { setSaturation(e.target.value); sharpenImage() }}
-                                />
-                            </div>
-                        </div>
-                        <div className={styles.columnhalf}>
-                            <div className={styles.row}>
-                                <label htmlFor="blur">Blur:</label>
-                                <input
-                                    type="range"
-                                    id="blur"
-                                    min="0"
-                                    max="5"
-                                    step="0.1"
-                                    value={blur}
-                                    onChange={(e) => { setBlur(e.target.value); sharpenImage() }}
-                                />
-                            </div>
-                            <div className={styles.row}>
-                                <label htmlFor="blur">Sharpen Matrix (0,1,2):</label>
-                                <input
-                                    type="range"
-                                    id="sharpen"
-                                    min="0"
-                                    max="2"
-                                    value={sharpenIndex}
-                                    onChange={(e) => { setSharpenIndex(e.target.value); sharpenImage() }}
-                                />
-                            </div>
-                        </div>
+                    </Button>}
+                    {ocrResult ? (<><p style={{ fontSize: "1rem", position: "relative" }}>{ocrResult}<Button className={styles.copyButton} onClick={handleCopyText}>
+                        <CopyOutlined />text
+                    </Button></p>
+                    </>
+                    ) : <p style={{ fontSize: "1.5rem", position: "relative" }}>No text detected</p>}
+                    
+                    <Divider />
+                    <div className={styles.rowright}>
+                        <label htmlFor="brightness">Brightness:</label>
+                        <input
+                            type="range"
+                            id="brightness"
+                            min="0"
+                            max="5"
+                            step="0.1"
+                            value={brightness}
+                            onChange={(e) => { setBrightness(e.target.value); sharpenImage() }}
+                        />
                     </div>
-                </div>
-                <div className={styles.column}>
-                        <span>Corrected Image</span>
-                    <div style={{overflow: "auto", width: "70vw", height: "50vw"}}>
+                    <div className={styles.rowright}>
+                        <label htmlFor="contrast">Contrast:</label>
+                        <input
+                            type="range"
+                            id="contrast"
+                            min="0"
+                            max="1"
+                            step="0.1"
+                            value={contrast}
+                            onChange={(e) => { setContrast(e.target.value); sharpenImage() }}
+                        />
+                    </div>
+                    <div className={styles.rowright}>
+                        <label htmlFor="saturation">Saturation:</label>
+                        <input
+                            type="range"
+                            id="saturation"
+                            min="0"
+                            max="2"
+                            step="0.1"
+                            value={saturation}
+                            onChange={(e) => { setSaturation(e.target.value); sharpenImage() }}
+                        />
+                    </div>
+                    <div className={styles.rowright}>
+                        <label htmlFor="blur">Blur:</label>
+                        <input
+                            type="range"
+                            id="blur"
+                            min="0"
+                            max="5"
+                            step="0.1"
+                            value={blur}
+                            onChange={(e) => { setBlur(e.target.value); sharpenImage() }}
+                        />
+                    </div>
+                    <div className={styles.rowright}>
+                        <label htmlFor="blur">Sharpen Matrix (0,1,2):</label>
+                        <input
+                            type="range"
+                            id="sharpen"
+                            min="0"
+                            max="2"
+                            value={sharpenIndex}
+                            onChange={(e) => { setSharpenIndex(e.target.value); sharpenImage() }}
+                        />
+                    </div>
+                    <span>Corrected Image</span>
+                    <div style={{ overflow: "auto", width: "70vw", height: "50vw" }}>
                         <canvas
                             className={styles.canvas}
                             ref={canvasRef}
@@ -233,10 +233,9 @@ function OCR({ ocrResult, setOcrResult }) {
                             style={{ display: "none" }}
                         />
                     </div>
-                </div>
-                <div className={styles.column}>
+                    <Divider />
                     <span>Original Image</span>
-                    <div style={{overflow: "auto", width: "70vw", height: "50vw"}}>
+                    <div style={{ overflow: "auto", width: "70vw", height: "50vw" }}>
                         <img className={styles.image} ref={imageRef} src={imageSrc} style={{ display: imageSrc ? "flex" : "none" }} alt="No image" />
                     </div>
                     <svg>
@@ -244,19 +243,7 @@ function OCR({ ocrResult, setOcrResult }) {
                             <feConvolveMatrix order={sharpenMatrix[sharpenIndex].size} kernelMatrix={sharpenMatrix[sharpenIndex].matrix} preserveAlpha="true" />
                         </filter>
                     </svg>
-                </div>
             </div>
-            {/* <div className={styles.column}>
-                <button onClick={debouncedHandleCapture}>Take Photo</button>
-                {videoRef.current?.style.display === "flex" && <button onClick={handleCloseVideo}>Close Camera</button>}
-            </div>
-            <div className={styles.row}>
-                <div style={{overflow: "auto", width: "70vw", height: "50vw"}}>
-                    <video styles={{ display: "none" }} className={styles.video} ref={videoRef} autoPlay />
-                </div>
-            </div> */}
-
-        </div>
     );
 }
 export default OCR;

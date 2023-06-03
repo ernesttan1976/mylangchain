@@ -2,8 +2,20 @@
     display: flex;
     justify-content: center;
     align-items: center;
-    width: 90vw;
+    width: 75vw;
     padding: 8px;
+}
+
+.rowright {
+    display: flex;
+    justify-content: flex-end;
+    align-items: center;
+    width: 345px;
+    padding: 8px;
+}
+
+.rowright>input {
+    margin-left: 1rem;
 }
 
 .column {
@@ -11,10 +23,21 @@
     flex-direction: column;
     justify-content: center;
     align-items: center;
-    width: 90vw;
+    width: 75vw;
     padding: 8px;
 }
 
+.column2 {
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    align-items: flex-start;
+    width: 75vw;
+    padding: 2rem;
+    background: #070809;
+    border-radius: 0.5rem;
+    border: 1px solid #30373d;
+}
 
 
 .columnhalf {
@@ -22,7 +45,7 @@
     flex-direction: column;
     justify-content: center;
     align-items: center;
-    width: 40vw;
+    width: 35vw;
     padding: 8px;
 }
 
@@ -64,13 +87,64 @@
     flex-direction: column;
     align-items: center;
     justify-content: center;
-    width: 50px;
-    position: absolute;
-    top: 0.2rem;
-    right: 0.25rem;
-    z-index: 10;
-}
+    width: 30px;
+    border-radius: 4px;
+  }
 
 .copyButton:hover {
     opacity: 1;
+}
+
+.ocrButton {
+    opacity: 0.5;
+    transition: opacity 0.2s ease-in-out;
+    color: white;
+    padding: 4px 4px;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    width: 200px;
+    border-radius: 4px;
+    margin: 16px 0;
+  }
+
+  .ocrButton:hover {
+    opacity: 1;
+}
+
+
+.ant-btn>span {
+    margin-inline-start: 0px !important;
+    margin-left: 0px !important;
+  
+  }
+
+
+@media (max-width: 600px) {
+.row {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    width: 95vw;
+    padding: 8px;
+}
+
+.column {
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    align-items: center;
+    width: 95vw;
+    padding: 8px;
+}
+
+.columnhalf {
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    align-items: center;
+    width: 45vw;
+    padding: 8px;
+}
 }

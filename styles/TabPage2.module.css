@@ -1,0 +1,98 @@
+.cloud {
+  width: 75vw;
+  height: 65vh;
+  background: #070809;
+  border-radius: 0.5rem;
+  border: 1px solid #30373d;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+}
+
+.leftform {
+  display: flex;
+  justify-content: center;
+  align-items: flex-start;
+  position: relative;
+  padding: 0.5rem 0 0;
+  flex-direction: column;
+}
+
+.cloudform {
+  position: relative;
+}
+
+.textarea {
+  position: relative;
+  resize: none;
+  font-size: 1.1rem;
+  padding: 1rem 2rem 1rem 2rem;
+  width: 75vw;
+  border-radius: 0.5rem;
+  border: 1px solid #30373d;
+  background: #070809;
+  color: #ECECF1;
+  outline: none;
+}
+
+.loadingwheel {
+  position: absolute;
+  top: 0.2rem;
+  right: 0.25rem;
+  z-index: 10;
+}
+
+.center {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  /* position: relative; */
+  padding: 1rem 0;
+  flex-direction: column;
+}
+
+.label {
+  font-size: 1rem;
+  padding: 8px 0;
+  color: rgb(165, 162, 162);
+  width: 75vw;
+  display: flex;
+}
+
+.textarea:disabled {
+  opacity: 0.5;
+}
+
+.textarea::placeholder {
+  color: #5f6368;
+}
+
+.filebox {
+  border: 1px solid rgb(165, 162, 162);
+  padding: 16px;
+  border-radius: 8px;
+  margin: 8px;
+  display: flex;
+  justify-content: center;
+  align-items: flex-start;
+  flex-direction: column;
+  max-width: 70vw;
+  height: 80%;
+}
+
+.fileinput {
+  width: 90%;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  padding: 16px 0;
+  margin: 8px;
+}
+
+.filebutton {
+  margin: 8px;
+  padding-left: 7px;
+  padding-right: 7px;
+  padding-top: 4px;
+  padding-bottom: 4px;
+}
