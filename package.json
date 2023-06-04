@@ -10,6 +10,7 @@
   },
   "dependencies": {
     "@ant-design/icons": "^5.1.2",
+    "@clickhouse/client": "^0.0.14",
     "@emotion/react": "^11.10.5",
     "@emotion/styled": "^11.10.5",
     "@mui/material": "^5.11.4",
@@ -19,8 +20,9 @@
     "lodash": "^4.17.21",
     "multer": "^1.4.5-lts.1",
     "next": "13.1.1",
-    "openai": "^3.1.0",
+    "openai": "^3.2.1",
     "p5": "^1.6.0",
+    "pdf-parse": "^1.1.1",
     "react": "18.2.0",
     "react-dom": "18.2.0",
     "react-easy-crop": "^4.7.4",

@@ -1,7 +1,6 @@
 import { useState, useRef } from "react";
-import { message, Upload, Row, Col, Button } from 'antd';
+import { message, Row, Col, Button } from 'antd';
 import styles from "../styles/TabPage2.module.css"
-const { Dragger } = Upload;
 
 export default function TabPage2() {
     const [file, setFile] = useState(null);
@@ -29,6 +28,7 @@ export default function TabPage2() {
         event.preventDefault();
         const formData = new FormData();
         formData.append("file", file);
+        console.log(formData)
         const response = await fetch("/api/upload-pdf", {
             method: "POST",
             body: formData,
@@ -51,7 +51,7 @@ export default function TabPage2() {
                         <Col>
                             <div className={styles.filebox}>
                                 <input className={styles.fileinput} type="file" accept=".pdf" onChange={handleFileChange} />
-                                <Button className={styles.filebutton} type="submit">Upload PDF</Button>
+                                <Button className={styles.filebutton} type="submit" onClick={handleSubmit}>Upload PDF</Button>
                             </div>
                             
                         </Col>

@@ -96,3 +96,34 @@
   padding-top: 4px;
   padding-bottom: 4px;
 }
+
+.generatebutton {
+  position: absolute;
+  bottom: 2.5rem;
+  right: 1rem;
+  color: rgb(165, 162, 162);
+  background: none;
+  padding: 0.3rem;
+  border: none;
+  display: flex;
+  z-index: 10;
+}
+
+.generatebutton:hover {
+  background: #1f2227;
+  border-radius: 0.2rem;
+}
+
+.generatebutton:disabled {
+  opacity: 0.9;
+  cursor: not-allowed;
+  background: none;
+}
+
+.svgicon {
+  transform: rotate(90deg);
+  width: 1.2em;
+  height: 1.2em;
+  fill: #5f6368;
+  z-index: 10;
+}
