@@ -38,3 +38,7 @@ a:hover {
 ::-webkit-scrollbar-thumb {
   background-color: #0077cc;
 }
+
+.ant-message {
+  color: black;
+}

@@ -128,7 +128,7 @@ export default function Home() {
 
 
   const onChangeTab = (key) => {
-    console.log(key);
+    //console.log(key);
   };
 
   const tabPage1 = <>

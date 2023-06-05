@@ -2,33 +2,34 @@ import fs from "fs";
 import path from "path";
 import { promisify } from "util";
 import multer from "multer";
-import {OpenAI} from "openai";
-import { RetrievalQAChain } from "langchain/chains";
+import { OpenAI } from "langchain/llms/openai";
+import { PineconeClient } from "@pinecone-database/pinecone";
+import { PineconeStore } from "langchain/vectorstores/pinecone";
+
+import { RetrievalQAChain, loadQAStuffChain } from "langchain/chains";
+// import { Milvus } from "langchain/vectorstores/milvus";
 
 import { PDFLoader } from "langchain/document_loaders/fs/pdf";
 import { OpenAIEmbeddings } from "langchain/embeddings/openai";
-import { MemoryVectorStore } from "langchain/vectorstores/memory";
-import { createClient } from "@clickhouse/client";
+// import { MemoryVectorStore } from "langchain/vectorstores/memory";
+// import { createClient } from "@clickhouse/client";
+// import { MyScaleStore } from "langchain/vectorstores/myscale";
 //console.myscale.com
 
-import { Document } from "langchain/document";
-import { RecursiveCharacterTextSplitter } from "langchain/text_splitter";
+
+
 import getConfig from 'next/config';
 const conf = getConfig();
 const { publicRuntimeConfig } = conf;
-const { 
-  OPENAI_API_KEY, 
-  MYSCALE_HOST,
-  MYSCALE_PORT,
-  MYSCALE_USER_NAME,
-  MYSCALE_PASSWORD,
- } = publicRuntimeConfig;
+const {
+  OPENAI_API_KEY,
+  PINECONE_ENVIRONMENT,
+  PINECONE_KEY,
 
-const client = createClient({
-  host: `${MYSCALE_HOST}:${MYSCALE_PORT}`,
-  username: MYSCALE_USER_NAME,
-  password: MYSCALE_PASSWORD,
-});
+} = publicRuntimeConfig;
+
+
+//console.log(publicRuntimeConfig)
 
 const UPLOAD_DIR = path.join(process.cwd(), "public", "uploads");
 
@@ -61,20 +62,21 @@ export const config = {
 };
 
 export default async function handler(req, res) {
-  if (req.method === "POST") {
-
+  if (req.method !== "POST") {
+    res.status(405).json({ error: "Method not allowed" });
+  } else {
     upload.single("file")(req, res, async (err) => {
       if (err) {
         console.error(err);
         res.status(500).json({ error: "Failed to upload file" });
         return;
       }
-    
-      const { file } = req;
-      const oldPath = file.path;
-      const newPath = path.join(UPLOAD_DIR, file.originalname);
-    
+
       try {
+
+        const { file } = req;
+        const oldPath = file.path;
+        const newPath = path.join(UPLOAD_DIR, file.originalname);
         await mkdir(UPLOAD_DIR, { recursive: true });
         await rename(oldPath, newPath);
 
@@ -82,63 +84,17 @@ export default async function handler(req, res) {
         const docs = await loader.load();
 
         console.log(docs.length);
-        console.log(docs[50],docs[100],docs[200]);
+        console.log(docs[50], docs[100], docs[200]);
 
-
-        const vectorStore = await MemoryVectorStore.fromDocuments(
-          docs,
-          new OpenAIEmbeddings({
-            openAIApiKey: OPENAI_API_KEY
-        })
-        );
-
-        console.log("vectorStore")
-
-        const model = new OpenAI({
-          openAIApiKey: OPENAI_API_KEY,
-          temperature: 0.2,
-          streaming: true,
-      });
-
-        console.log("model")
-
-        const chain = new RetrievalQAChain({
-          combineDocumentsChain: loadQAStuffChain(model),
-          retriever: vectorStore.asRetriever(),
-          returnSourceDocuments: true,
+          res.status(200).json({
+          message: "File uploaded successfully and converted into ${docs.length} docs(pages): "+newPath,
+          docs: docs,
+          path: oldPath.replace(/^.*?\\public/, ''),
         });
-
-        console.log("chain")
-
-        const res = await chain.call({
-          query: "What is Djikstra's algorithm for?",
-        });
-
-        console.log(JSON.stringify(res, null, 2));
-
-        // const text = `Hi.\n\nI'm Harrison.\n\nHow? Are? You?\nOkay then f f f f.
-        // This is a weird text to write, but gotta test the splittingggg some how.\n\n
-        // Bye!\n\n-H.`;
-        // const splitter = new RecursiveCharacterTextSplitter({
-        //   chunkSize: 10,
-        //   chunkOverlap: 1,
-        // });
-        
-        // const docOutput = await splitter.splitDocuments([
-        //   new Document({ pageContent: text }),
-        // ]);
-
-        // console.log(docOutput)
-        const docOutput =""
-
-        res.status(200).json({ message: "File uploaded successfully: ",
-          docOutput: docOutput });
       } catch (err) {
         console.error(err);
         res.status(500).json({ error: "There was an error: " + err });
       }
-    });
-  } else {
-    res.status(405).json({ error: "Method not allowed" });
+    })
   }
 }
