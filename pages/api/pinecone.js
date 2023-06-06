@@ -65,26 +65,7 @@ export default async function handler(req, res) {
   if (req.method !== "POST") {
     res.status(405).json({ error: "Method not allowed" });
   } else {
-    upload.single("file")(req, res, async (err) => {
-      if (err) {
-        console.error(err);
-        res.status(500).json({ error: "Failed to upload file" });
-        return;
-      }
-
-      try {
-
-        const { file } = req;
-        const oldPath = file.path;
-        const newPath = path.join(UPLOAD_DIR, file.originalname);
-        await mkdir(UPLOAD_DIR, { recursive: true });
-        await rename(oldPath, newPath);
-
-        const loader = new PDFLoader(newPath);
-        const docs = await loader.load();
-
-        console.log(docs.length);
-        console.log(docs[50], docs[100], docs[200]);
+    
 
         const pinecone = new PineconeClient();
         await pinecone.init({

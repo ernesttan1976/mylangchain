@@ -17,6 +17,7 @@ const nextConfig = {
     AWS_BUCKET_SECRET_ACCESS_KEY: process.env.AWS_BUCKET_SECRET_ACCESS_KEY,
     AWS_BUCKET_REGION: process.env.AWS_BUCKET_REGION,
     S3_BUCKET_NAME:process.env.S3_BUCKET_NAME,
+    DATABASE_URL:process.env.DATABASE_URL,
   },
   publicRuntimeConfig: {
     // Will be available on both server and client sides
@@ -34,6 +35,7 @@ const nextConfig = {
     AWS_BUCKET_SECRET_ACCESS_KEY: process.env.AWS_BUCKET_SECRET_ACCESS_KEY,
     AWS_BUCKET_REGION: process.env.AWS_BUCKET_REGION,
     S3_BUCKET_NAME:process.env.S3_BUCKET_NAME,
+    DATABASE_URL:process.env.DATABASE_URL,
   },
 }
 
