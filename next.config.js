@@ -13,6 +13,10 @@ const nextConfig = {
     MILVUS_PASSWORD: process.env.MILVUS_PASSWORD,
     PINECONE_KEY: process.env.PINECONE_KEY,
     PINECONE_ENVIRONMENT: process.env.PINECONE_ENVIRONMENT,
+    AWS_ACCESS_KEY_ID:process.env.AWS_ACCESS_KEY_ID,
+    AWS_BUCKET_SECRET_ACCESS_KEY: process.env.AWS_BUCKET_SECRET_ACCESS_KEY,
+    AWS_BUCKET_REGION: process.env.AWS_BUCKET_REGION,
+    S3_BUCKET_NAME:process.env.S3_BUCKET_NAME,
   },
   publicRuntimeConfig: {
     // Will be available on both server and client sides
@@ -26,6 +30,10 @@ const nextConfig = {
     MILVUS_PASSWORD: process.env.MILVUS_PASSWORD,
     PINECONE_KEY: process.env.PINECONE_KEY,
     PINECONE_ENVIRONMENT: process.env.PINECONE_ENVIRONMENT,
+    AWS_ACCESS_KEY_ID:process.env.AWS_ACCESS_KEY_ID,
+    AWS_BUCKET_SECRET_ACCESS_KEY: process.env.AWS_BUCKET_SECRET_ACCESS_KEY,
+    AWS_BUCKET_REGION: process.env.AWS_BUCKET_REGION,
+    S3_BUCKET_NAME:process.env.S3_BUCKET_NAME,
   },
 }
 

@@ -1,47 +1,32 @@
-import fs from "fs";
-import path from "path";
-import { promisify } from "util";
 import multer from "multer";
-import { OpenAI } from "langchain/llms/openai";
-import { PineconeClient } from "@pinecone-database/pinecone";
-import { PineconeStore } from "langchain/vectorstores/pinecone";
-
-import { RetrievalQAChain, loadQAStuffChain } from "langchain/chains";
-// import { Milvus } from "langchain/vectorstores/milvus";
-
+import memfs from "memfs";
+import AWS from "aws-sdk";
 import { PDFLoader } from "langchain/document_loaders/fs/pdf";
-import { OpenAIEmbeddings } from "langchain/embeddings/openai";
-// import { MemoryVectorStore } from "langchain/vectorstores/memory";
-// import { createClient } from "@clickhouse/client";
-// import { MyScaleStore } from "langchain/vectorstores/myscale";
-//console.myscale.com
-
-
-
+import stream from "stream";
 import getConfig from 'next/config';
 const conf = getConfig();
 const { publicRuntimeConfig } = conf;
 const {
-  OPENAI_API_KEY,
-  PINECONE_ENVIRONMENT,
-  PINECONE_KEY,
-
+  AWS_ACCESS_KEY_ID,
+  AWS_BUCKET_SECRET_ACCESS_KEY,
+  AWS_BUCKET_REGION,
+  S3_BUCKET_NAME,
 } = publicRuntimeConfig;
 
 
-//console.log(publicRuntimeConfig)
 
-const UPLOAD_DIR = path.join(process.cwd(), "public", "uploads");
+const storage = multer.memoryStorage();
 
-const mkdir = promisify(fs.mkdir);
-const rename = promisify(fs.rename);
+const AWS_CONFIG = {
+  accessKeyId: AWS_ACCESS_KEY_ID,
+  secretAccessKey: AWS_BUCKET_SECRET_ACCESS_KEY,
+  region: AWS_BUCKET_REGION,
+  apiVersion: '2010-12-01',
+}
 
-const storage = multer.diskStorage({
-  destination: UPLOAD_DIR,
-  filename: (req, file, cb) => {
-    cb(null, file.originalname);
-  },
-});
+console.log(AWS_CONFIG)
+
+const s3 = new AWS.S3(AWS_CONFIG);
 
 const upload = multer({
   storage,
@@ -75,22 +60,59 @@ export default async function handler(req, res) {
       try {
 
         const { file } = req;
-        const oldPath = file.path;
-        const newPath = path.join(UPLOAD_DIR, file.originalname);
-        await mkdir(UPLOAD_DIR, { recursive: true });
-        await rename(oldPath, newPath);
 
-        const loader = new PDFLoader(newPath);
+        //create a bufferstream that is readable multiple times, by PDFLoader and S3
+        const bufferStream = () => {
+          const readable = new stream.Readable();
+          readable._read = () => {};
+          readable.push(file.buffer);
+          readable.push(null);
+          return {
+              arrayBuffer: async()=>{
+                const chunks=[];
+                for await (const chunk of readable){
+                  chunks.push(chunk);
+                }
+                return new Uint8Array(Buffer.concat(chunks)).buffer;
+              }
+          };
+        };
+
+  
+
+        console.log("before PDF loader")
+        const loader = new PDFLoader(bufferStream());
+        console.log("Before loader.load")
         const docs = await loader.load();
 
         console.log(docs.length);
-        console.log(docs[50], docs[100], docs[200]);
+        console.log(docs[0], docs[docs.length-1]);
 
-          res.status(200).json({
-          message: "File uploaded successfully and converted into ${docs.length} docs(pages): "+newPath,
+        // retrieve the buffer data from bufferStream() before passing it to S3 upload function
+        const bufferData = Buffer.from(await bufferStream().arrayBuffer());
+        
+        const s3Params = {
+          Bucket: S3_BUCKET_NAME,
+          Key: file.originalname,
+          Body: bufferData,
+          ContentType: file.mimetype // set the content type of the file
+        };
+        const data= await s3.upload(s3Params).promise();
+        const fileData = {
+          name: file.originalname,
+          url: data.Location,
+          size: file.size,
+          key: data.Key,
+        }
+        console.log("fileData=>",fileData);
+//        const url = s3.getSignedUrl('getObject', { Bucket: S3_BUCKET_NAME, Key: file.originalname }); // generate a signed URL for the uploaded file
+        res.status(200).json({
+          message: `File uploaded successfully and converted into ${docs.length} docs(pages): ${fileData.url}`,
           docs: docs,
-          path: oldPath.replace(/^.*?\\public/, ''),
+          path: fileData.url,
+          fileData: fileData
         });
+
       } catch (err) {
         console.error(err);
         res.status(500).json({ error: "There was an error: " + err });
