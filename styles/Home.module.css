@@ -137,11 +137,34 @@
 
 .generatebutton {
   position: absolute;
+  bottom: 3.6rem;
+  right: 1rem;
+  color: rgb(0, 0, 0);
+  background: rgb(165, 162, 162);
+  border-radius: 4px;
+  padding: 0.3rem;
+  padding-top: 0.35rem;
+  width: 140px;
+  height: 30px;
+  padding-right: 0.7rem;
+  border: none;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  z-index: 10;
+}
+
+.pineconegeneratebutton {
+  position: absolute;
   bottom: 0.8rem;
   right: 1rem;
-  color: rgb(165, 162, 162);
-  background: none;
+  color: rgb(0, 0, 0);
+  background: rgb(165, 162, 162);
+  border-radius: 4px;
   padding: 0.3rem;
+  width: 140px;
+  height: 30px;
+  padding-right: 0.7rem;
   border: none;
   display: flex;
   z-index: 10;
@@ -162,8 +185,43 @@
   z-index: 10;
 }
 
+.openaisvgicon {
+  height: 1.3em;
+  width: 5rem;
+  fill: #000000;
+  z-index: 10;
+  padding-right: 8px;
+  padding-left: 4px;
+  margin-right: 26px;
+}
+
+.pineconesvgicon {
+  height: 1.2em;
+  width: 6rem;
+  fill: #000000;
+  z-index: 10;
+  padding-right: 8px;
+  padding-left: 4px;
+  margin-right: 12px;
+}
+
+
+
+
+
+.pineconegeneratebutton:hover {
+  background: #f9ff7d;
+  border-radius: 0.2rem;
+}
+
+.pineconegeneratebutton:disabled {
+  opacity: 0.9;
+  cursor: not-allowed;
+  background: none;
+}
+
 .generatebutton:hover {
-  background: #1f2227;
+  background: #8bb6ff;
   border-radius: 0.2rem;
 }
 
@@ -233,7 +291,7 @@
   line-height: 1.75;
   flex-grow: 1;
   width: 100%;
-  overflow-y: scroll;
+  /* overflow-y: scroll; */
 }
 
 .markdownanswer a:hover {

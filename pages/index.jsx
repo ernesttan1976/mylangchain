@@ -9,7 +9,7 @@ import { CopyOutlined } from '@ant-design/icons';
 import { Button, Tabs, ConfigProvider, theme, Space } from 'antd'
 import { AIChatMessage, ChatMessage, SystemChatMessage, HumanChatMessage } from "langchain/schema";
 
-import { ApiChat, PostEmbedding } from '../lib/chat'
+import { ApiChat, PostEmbedding, ApiChatPinecone } from '../lib/chat'
 import SelectComponent from '../components/select'
 import OCR from "../components/ocr"
 
@@ -73,7 +73,6 @@ export default function Home() {
 
     setLoading(true);
     setMessages((prevMessages) => [...prevMessages, new HumanChatMessage(userInput)]);
-
     const response = await ApiChat(bot, userInput, history, setMessages);
 
     // Reset user input
@@ -89,6 +88,58 @@ export default function Home() {
 
     //setMessages((prevMessages) => [...prevMessages, { "message": data?.result.text, "type": "apiMessage" }]);
     setLoading(false);
+
+  };
+
+  // Handle form submission
+  const handleSubmitPinecone = async (e) => {
+    e.preventDefault();
+  
+    if (userInput.trim() === "") {
+      return;
+    }
+  
+    setLoading(true);
+    setMessages((prevMessages) => [...prevMessages, new HumanChatMessage(userInput)]);
+    setMessages((prevMessages) => [...prevMessages, new HumanChatMessage(userInput)]);
+  
+    const url = "/api/pineconechat";
+    const body = JSON.stringify({ bot, question: userInput, history });
+  
+    const response = await fetch(url, {
+      method: "POST",
+      body,
+      headers: {
+        "Content-Type": "application/json",
+      },
+    });
+  
+    if (!response.ok) {
+      handleError();
+      return;
+    }
+  
+    const reader = response.body.getReader();
+    let chunks = "";
+    let isDone = false;
+  
+    while (!isDone) {
+      const {value, done} = await reader.read();
+      isDone = done;
+      if (done) console.log("done")
+      chunks=new TextDecoder("utf-8").decode(value)
+      setMessages((prevMessages) => ([...prevMessages.slice(0, prevMessages.length - 1), new AIChatMessage(chunks)]));
+    }
+
+    console.log("done1")
+
+    const result = JSON.parse(new TextDecoder("utf-8").decode(chunks));
+  
+    setMessages((prevMessages) => [...prevMessages, { "message": result, "type": "apiMessage" }]);
+    setLoading(false);
+    setUserInput("");
+
+    console.log("done2")
 
   };
 
@@ -125,8 +176,6 @@ export default function Home() {
     navigator.clipboard.writeText(chatLog);
   }
 
-
-
   const onChangeTab = (key) => {
     //console.log(key);
   };
@@ -158,7 +207,7 @@ export default function Home() {
       </div>
     </div>
     <div className={styles.center}>
-      <form className={`${styles.cloudform} ${styles.leftform}`} onSubmit={handleSubmit}>
+      <form className={`${styles.cloudform} ${styles.leftform}`}>
         <label htmlFor="userInput" className={styles.label}>Prompt</label>
         <textarea
           disabled={loading}
@@ -179,12 +228,27 @@ export default function Home() {
           type="submit"
           disabled={loading}
           className={styles.generatebutton}
+          onClick={handleSubmit}
         >
           {loading ? <div className={styles.loadingwheel}><CircularProgress color="inherit" size={20} /> </div> :
             // Send icon SVG in input field
+            <><img className={styles.openaisvgicon} src="/openai-logo.svg" alt="OpenAI Logo" /><svg viewBox='0 0 20 20' className={styles.svgicon} xmlns='http://www.w3.org/2000/svg'>
+              <path d='M10.894 2.553a1 1 0 00-1.788 0l-7 14a1 1 0 001.169 1.409l5-1.429A1 1 0 009 15.571V11a1 1 0 112 0v4.571a1 1 0 00.725.962l5 1.428a1 1 0 001.17-1.408l-7-14z'></path>
+            </svg></>}
+        </button>
+        <button
+          type="submit"
+          onClick={handleSubmitPinecone}
+          disabled={loading}
+          className={styles.pineconegeneratebutton}
+        >
+          {loading ? <div className={styles.loadingwheel}><CircularProgress color="inherit" size={20} /> </div> :
+            // Send icon SVG in input field
+            <><img className={styles.pineconesvgicon} src="/pinecone-logo.svg" alt="Pinecone Logo" />
             <svg viewBox='0 0 20 20' className={styles.svgicon} xmlns='http://www.w3.org/2000/svg'>
               <path d='M10.894 2.553a1 1 0 00-1.788 0l-7 14a1 1 0 001.169 1.409l5-1.429A1 1 0 009 15.571V11a1 1 0 112 0v4.571a1 1 0 00.725.962l5 1.428a1 1 0 001.17-1.408l-7-14z'></path>
-            </svg>}
+            </svg></>
+            }
         </button>
       </form>
       <div className={styles.column2} style={{ margin: "8px auto 8px 0" }}>

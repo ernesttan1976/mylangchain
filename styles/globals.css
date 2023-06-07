@@ -39,6 +39,14 @@ a:hover {
   background-color: #0077cc;
 }
 
+::-webkit-scrollbar-horizontal {
+  width: 6px;
+}
+
+::-webkit-scrollbar-thumb:horizontal {
+  background-color: #0077cc;
+}
+
 .ant-message {
   color: black;
 }
