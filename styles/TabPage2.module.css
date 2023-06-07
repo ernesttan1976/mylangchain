@@ -38,6 +38,16 @@
   outline: none;
 }
 
+.textinput {
+  font-size: 0.9rem;
+  padding: 0 8px;
+  border-radius: 4px;
+  border: 1px solid #30373d;
+  color: #070809;
+  background: #ECECF1;
+  outline: none;
+}
+
 .textbox {
   border: 2px solid rgb(165, 162, 162);
   padding: 1rem;

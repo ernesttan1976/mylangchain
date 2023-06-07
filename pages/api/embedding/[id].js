@@ -1,6 +1,3 @@
-// import { OpenAI } from "langchain/llms/openai";
-// import { PineconeClient } from "@pinecone-database/pinecone";
-// import { PineconeStore } from "langchain/vectorstores/pinecone";
 import connect from "../../../config/database";
 import Document from "../../../models/Documents";
 import { OpenAIEmbeddings } from "langchain/embeddings/openai";
@@ -37,13 +34,13 @@ export default async function handler(req, res) {
         openAIApiKey: OPENAI_API_KEY
       });
 
-      const docs = foundDocument.docs;
+      const docs = foundDocument.vectors;
 
       const documentEmbedding = [];
       for (let i = 0; i < docs.length; i++) {
         const embedding = await embeddings.embedQuery(docs[i].pageContent);
         documentEmbedding.push(embedding);
-        foundDocument.embeddings.push(embedding);
+        docs[i].values.push(embedding);
         // Write the chunk to the response stream
         res.write(JSON.stringify({
           message: `Chunk ${i + 1} of ${docs.length}`,
@@ -55,10 +52,6 @@ export default async function handler(req, res) {
     
       foundDocument.save();
 
-      // res.write(JSON.stringify({
-      //   message: "Document found, embedding generated: ",
-      //   embeddings: documentEmbedding,
-      // }));
       res.end();
     }
   } catch (err) {

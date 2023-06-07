@@ -11,11 +11,13 @@ export default function TabPage2() {
     const [file, setFile] = useState();
     const [userInputEmbedding, setUserInputEmbedding] = useState("");
     const [loading, setLoading] = useState(false);
+    const [embeddingComplete, setEmbeddingComplete]=useState(false);
 
     //saving the file data after step 1
     const [objects, setObjects] = useState([]);
 
     const embeddingsRef = useRef(null);
+    const namespaceRef = useRef(null);
 
     const handleFileChange = (event) => {
         setFile(event.target.files[0]);
@@ -37,13 +39,14 @@ export default function TabPage2() {
         event.preventDefault();
         const formData = new FormData();
         formData.append("file", file);
+        formData.append("namespace", namespaceRef.current.value);
+        console.log(namespaceRef.current.value)
 
         const response = await fetch("/api/upload-pdf", {
             method: "POST",
             body: formData,
         });
         const data = await response.json();
-        console.log(data);
         if (data.message) {
             message.success(data.message);
             //message.success(JSON.stringify(data.docs));
@@ -101,6 +104,7 @@ export default function TabPage2() {
                 if (done) {
                     message.success('All embeddings received');
                     console.log('All embeddings received');
+                    setEmbeddingComplete(true);
                     break;
                 }
             }
@@ -112,13 +116,18 @@ export default function TabPage2() {
 
     const handleSubmit3 = async (id, index) => {
         event.preventDefault();
-        // const formData = new FormData();
-        // console.log(formData)
-        // const response = await fetch(`/api/pinecone/${id}`, {
-        //     method: "POST",
-        //     body: formData,
-        // });
+        try {
+            const response = await fetch(`/api/pinecone/${id}`);
 
+            const data = await response.json();
+            if (data.message) {
+                message.success(`${data.message} save ${data.vectorStore} items in Pinecone vectorstore`);
+            } else {
+                message.error(data.error);
+            }
+        } catch (error) {
+            message.error(error);
+        }
     };
 
 
@@ -128,7 +137,9 @@ export default function TabPage2() {
                 <form className={styles.form} onSubmit={handleSubmit}>
                     <label className={styles.label}>Step 1: Upload Pdf</label>
                     <div className={styles.filebox}>
+
                         <input className={styles.fileinput} type="file" accept=".pdf" onChange={handleFileChange} />
+                        <label >Namespace  <input ref={namespaceRef} className={styles.textinput} type="text" name="namespace" default="coding" placeholder="coding" title="Use keywords for searching this document" /></label>
                         <Button className={styles.filebutton} type="submit" onClick={handleSubmit} disabled={file ? false : true}>Upload PDF</Button>
                     </div>
                 </form>
@@ -149,12 +160,12 @@ export default function TabPage2() {
                 </div>
                     {object.embedding && <div key={`${index}A`} className={styles.cloud}>
                         <form className={styles.form}>
-                            <h3>Embeddings from OpenAI</h3>
+                            <h3>Embeddings from OpenAI : {embeddingComplete && 'Complete! Ready to Save to Pinecone'}</h3>
                             <div ref={embeddingsRef} className={styles.markdownanswer}>
                                 {/* Messages are being rendered in Markdown format */}
                                 <ReactMarkdown linkTarget={"_blank"}>{JSON.stringify(object.embedding)}</ReactMarkdown>
                             </div>
-                            <Button className={styles.filebutton} type="submit" onClick={() => handleSubmit3(object.id)} >Save to PineCone</Button>
+                            <Button className={styles.filebutton} type="submit" disabled={embeddingComplete ? false : true} onClick={() => handleSubmit3(object.id, index)} >Save to PineCone</Button>
                         </form>
                     </div>}
                 </>

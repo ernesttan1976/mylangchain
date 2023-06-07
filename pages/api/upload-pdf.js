@@ -62,9 +62,10 @@ export default async function handler(req, res) {
 
 
       try {
-
-
-        const { file } = req;
+    
+        const file = req.file;
+        const namespace = req.body.namespace;
+        console.log("namespace", namespace)
 
         //create a bufferstream that is readable multiple times, by PDFLoader and S3
         const bufferStream = () => {
@@ -112,10 +113,10 @@ export default async function handler(req, res) {
         console.log("fileData=>", fileData);
         //        const url = s3.getSignedUrl('getObject', { Bucket: S3_BUCKET_NAME, Key: file.originalname }); // generate a signed URL for the uploaded file
 
-
         const newDocument = {
           fileData: fileData,
-          docs: docs,
+          vectors: docs,
+          namespace: `${namespace || 'pdf'}`
         }
         const savedDocument = await Document.create(newDocument);
         

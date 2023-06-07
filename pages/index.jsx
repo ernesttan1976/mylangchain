@@ -214,8 +214,8 @@ export default function Home() {
   return (
     <>
       <Head>
-        <title>LangChain Chat</title>
-        <meta name="description" content="LangChain documentation chatbot" />
+        <title>MyLangChain</title>
+        <meta name="description" content="Custom ChatGPT with documents" />
         <meta name="viewport" content="width=device-width, initial-scale=1" />
         <link rel="icon" href="/favicon.ico" />
       </Head>

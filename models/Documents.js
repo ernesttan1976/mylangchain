@@ -10,16 +10,20 @@ if (!mongoose.models.Document) {
       key: String,
     })
 
-  const docsSchema = new Schema({
+  const vectorsSchema = new Schema({
     pageContent: String,
     metadata: {},
+    //embeddings 1536(dimensions)
+    values: []
   })
 
   const documentsSchema = new Schema(
     {
+      //S3 file
       fileData: filesSchema,
-      docs: [docsSchema],
-      embeddings: [],
+      //raw text 251 x {pageContent, metadata}
+      vectors: [vectorsSchema],
+      namespace: String,
     },
     {
       timestamps: {
