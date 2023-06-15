@@ -5,10 +5,10 @@ import styles from "../styles/TabPage2.module.css"
 import ReactMarkdown from 'react-markdown'
 import { humanizeFileSize } from '../lib/utils.js'
 
-
-
 export default function TabPage2() {
     const [file, setFile] = useState();
+    const [fileChunks, setFileChunks] = useState([]);
+
     const [userInputEmbedding, setUserInputEmbedding] = useState("");
     const [loading, setLoading] = useState(false);
     const [embeddingComplete, setEmbeddingComplete]=useState(false);
@@ -20,52 +20,111 @@ export default function TabPage2() {
     const namespaceRef = useRef(null);
 
     const handleFileChange = (event) => {
-        setFile(event.target.files[0]);
-    };
-
-
-    // Prevent blank submissions and allow for multiline input
-    const handleEnter = (e) => {
-        if (e.key === "Enter" && userInput) {
-            if (!e.shiftKey && userInput) {
-                handleSubmit(e);
-            }
-        } else if (e.key === "Enter") {
-            e.preventDefault();
+        const file = event.target.files[0];
+        setFile(file);
+        const chunkSize = 4 * 1024 * 1024; // 4 MB
+        const chunks = [];
+        let start = 0;
+        while (start < file.size) {
+          const end = Math.min(start + chunkSize, file.size);
+          const chunk = file.slice(start, end);
+          chunks.push(chunk);
+          start += chunkSize;
         }
-    };
+        setFileChunks(chunks);
+      };
 
-    const handleSubmit = async (event) => {
-        event.preventDefault();
-        const formData = new FormData();
-        formData.append("file", file);
-        formData.append("namespace", namespaceRef.current.value);
-        console.log(namespaceRef.current.value)
 
-        const response = await fetch("/api/upload-pdf", {
+    // // Prevent blank submissions and allow for multiline input
+    // const handleEnter = (e) => {
+    //     if (e.key === "Enter" && userInput) {
+    //         if (!e.shiftKey && userInput) {
+    //             handleSubmit(e);
+    //         }
+    //     } else if (e.key === "Enter") {
+    //         e.preventDefault();
+    //     }
+    // };
+
+    // const handleSubmit = async (event) => {
+    //     event.preventDefault();
+    //     const formData = new FormData();
+    //     formData.append("file", file);
+    //     formData.append("namespace", namespaceRef.current.value);
+    //     console.log(namespaceRef.current.value)
+
+    //     const response = await fetch("/api/upload-pdf", {
+    //         method: "POST",
+    //         body: formData,
+    //     });
+    //     const data = await response.json();
+    //     if (data.message) {
+    //         message.success(data.message);
+    //         //message.success(JSON.stringify(data.docs));
+    //         setObjects((prev) => {
+    //             const newObject = {
+    //                 file: file,
+    //                 path: data.path,
+    //                 docs: data.docs,
+    //                 fileData: data.fileData,
+    //                 id: data.id,
+    //             };
+    //             //console.log(file)
+    //             return ([...prev, newObject])
+    //         });
+    //         console.log(objects)
+    //     } else {
+    //         message.error(data.error);
+    //     }
+    // };
+
+    const uploadChunks = async () => {
+        setLoading(true);
+        
+        for (let i = 0; i < fileChunks.length; i++) {
+          const formData = new FormData();
+          formData.append("namespace", namespaceRef.current.value);
+          formData.append("file", fileChunks[i]);
+          formData.append("index", i);
+          formData.append("count", fileChunks.length);
+          formData.append("fileParams", JSON.stringify({
+            originalname: file.name.replace(/\s+/g, ''),
+            mimetype: file.type,
+            size: file.size,
+            }));
+
+
+          //alert(`uploading ${i+1}`)
+          const response = await fetch("/api/upload-pdf", {
             method: "POST",
             body: formData,
-        });
-        const data = await response.json();
-        if (data.message) {
+          });
+          const data = await response.json();
+          if (data.message) {
             message.success(data.message);
-            //message.success(JSON.stringify(data.docs));
+            
+            //only the last chunk then set the objects
+            if (data.docs) {
             setObjects((prev) => {
-                const newObject = {
-                    file: file,
-                    path: data.path,
-                    docs: data.docs,
-                    fileData: data.fileData,
-                    id: data.id,
-                };
-                //console.log(file)
-                return ([...prev, newObject])
+              const newObject = {
+                file: file,
+                path: data.path,
+                docs: data.docs,
+                fileData: data.fileData,
+                id: data.id,
+              };
+              return [...prev, newObject];
             });
-            console.log(objects)
-        } else {
+            }
+          } else {
             message.error(data.error);
+          }
+          formData.delete("file");
         }
-    };
+        //end
+
+        setLoading(false);
+      };
 
     const handleSubmit2 = async (id, index) => {
         try {
@@ -134,13 +193,13 @@ export default function TabPage2() {
     return (
         <>
             <div className={styles.cloud}>
-                <form className={styles.form} onSubmit={handleSubmit}>
+                <form className={styles.form} onSubmit={uploadChunks}>
                     <label className={styles.label}>Step 1: Upload Pdf</label>
                     <div className={styles.filebox}>
 
                         <input className={styles.fileinput} type="file" accept=".pdf" onChange={handleFileChange} />
                         <label >Namespace  <input ref={namespaceRef} className={styles.textinput} type="text" name="namespace" default="coding" placeholder="coding" title="Use keywords for searching this document" /></label>
-                        <Button className={styles.filebutton} type="submit" onClick={handleSubmit} disabled={file ? false : true}>Upload PDF</Button>
+                        <Button className={styles.filebutton} type="submit" onClick={uploadChunks} disabled={file ? false : true}>Upload PDF</Button>
                     </div>
                 </form>
             </div>

@@ -18,6 +18,9 @@ const nextConfig = {
     AWS_BUCKET_REGION: process.env.AWS_BUCKET_REGION,
     S3_BUCKET_NAME:process.env.S3_BUCKET_NAME,
     DATABASE_URL:process.env.DATABASE_URL,
+    VECTARA_CUSTOMER_ID:process.env.VECTARA_CUSTOMER_ID,
+    VECTARA_CORPUS_ID:process.env.VECTARA_CORPUS_ID,
+    VECTARA_API_KEY:process.env.VECTARA_API_KEY,
   },
   publicRuntimeConfig: {
     // Will be available on both server and client sides
@@ -36,6 +39,9 @@ const nextConfig = {
     AWS_BUCKET_REGION: process.env.AWS_BUCKET_REGION,
     S3_BUCKET_NAME:process.env.S3_BUCKET_NAME,
     DATABASE_URL:process.env.DATABASE_URL,
+    VECTARA_CUSTOMER_ID:process.env.VECTARA_CUSTOMER_ID,
+    VECTARA_CORPUS_ID:process.env.VECTARA_CORPUS_ID,
+    VECTARA_API_KEY:process.env.VECTARA_API_KEY,
   },
 }
 

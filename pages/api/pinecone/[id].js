@@ -78,6 +78,7 @@ export default async function handler(req, res) {
                 message: "Pinecone vectors saved",
                 chainData: chainData
             });
+
         } catch (err) {
             console.error(err);
             res.status(500).json({ error: "There was an error: " + err });

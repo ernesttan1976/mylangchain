@@ -7,11 +7,11 @@ const {
   DATABASE_URL,
 } = publicRuntimeConfig;
 
-
-const connect = () => {
+export const connect = () => {
   mongoose.connect(DATABASE_URL, {
     useNewUrlParser: true,
     useUnifiedTopology: true,
+    // maxPoolSize: 20, // Maintain up to 20 socket connections
     // other mongoose options
   });
 

@@ -10,6 +10,13 @@
   },
   "dependencies": {
     "@ant-design/icons": "^5.1.2",
+    "@aws-sdk/client-s3": "^3.352.0",
+    "@aws-sdk/credential-providers": "^3.352.0",
+    "@aws-sdk/hash-node": "^3.347.0",
+    "@aws-sdk/protocol-http": "^3.347.0",
+    "@aws-sdk/s3-request-presigner": "^3.352.0",
+    "@aws-sdk/url-parser": "^3.347.0",
+    "@aws-sdk/util-format-url": "^3.347.0",
     "@emotion/react": "^11.10.5",
     "@emotion/styled": "^11.10.5",
     "@mui/material": "^5.11.4",

@@ -75,6 +75,7 @@ const SelectComponent = ({ prompts, setBot }) => {
               padding: '0 8px 4px',
             }}>
             <textarea
+              style={{color: 'black', backgroundColor: 'white', borderRadius: 4, resize: 'none'}}
               ref={inputRef2}
               rows={3}
               maxLength={500}
