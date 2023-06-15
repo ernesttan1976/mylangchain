@@ -69,7 +69,7 @@ export default async function handler(req, res) {
 
       const index = Number.parseInt(req.body.index);
       const count = Number.parseInt(req.body.count);
-      console.log(`Received ${index+1} of ${count}`);
+      console.info(`Received ${index+1} of ${count}`);
 
       if (index===0) {
         await File.deleteMany({});
@@ -94,14 +94,14 @@ export default async function handler(req, res) {
       const fileChunks = await File.find({});
       const buffers = fileChunks.map((chunk) => Buffer.from(chunk.file));
       const finalFile = Buffer.concat(buffers);
-      console.log(finalFile);
-      console.log(typeof finalFile)
+      console.info(finalFile);
+      console.info(typeof finalFile)
 
       await File.deleteMany({});
 
         const file = finalFile;
         const namespace = req.body.namespace;
-        console.log("namespace", namespace)
+        console.info("namespace", namespace)
 
         // create a buffer stream that is readable multiple times, by PDFLoader and S3
         const bufferStream = () => {
@@ -123,26 +123,26 @@ export default async function handler(req, res) {
 
         
 
-        console.log("before PDF loader")
+        console.info("before PDF loader")
         const loader = new PDFLoader(bufferStream());
-        console.log("Before loader.load")
+        console.info("Before loader.load")
         const docs = await loader.load();
 
-        console.log(docs.length);
-        console.log(docs[0], docs[docs.length - 1]);
+        console.info(docs.length);
+        console.info(docs[0], docs[docs.length - 1]);
 
         // retrieve the buffer data from bufferStream() before passing it to S3 upload function
         const bufferData = Buffer.from(await bufferStream().arrayBuffer());
 
         const fileParams = JSON.parse(req.body.fileParams);
-        console.log(fileParams)
+        console.info(fileParams)
         const s3Params = {
           Bucket: S3_BUCKET_NAME,
           Key: fileParams.originalname,
           Body: bufferData,
           ContentType: fileParams.mimetype // set the content type of the file
         };
-        console.log(s3Params)
+        console.info(s3Params)
 
         // create a readable stream from the buffer data
         const readable = new stream.Readable();
@@ -160,7 +160,7 @@ export default async function handler(req, res) {
         const s3Upload = s3.upload(s3UploadParams);
 
         s3Upload.on("httpUploadProgress", (progress) => {
-          console.log(`Uploaded ${progress.loaded} bytes`);
+          console.info(`Uploaded ${progress.loaded} bytes`);
         });
 
         const data = await s3Upload.promise();
@@ -170,7 +170,7 @@ export default async function handler(req, res) {
           size: fileParams.size,
           key: data.Key,
         }
-        console.log("fileData=>", fileData);
+        console.info("fileData=>", fileData);
 
         const newDocument = {
           fileData: fileData,
@@ -179,7 +179,7 @@ export default async function handler(req, res) {
         }
         const savedDocument = await Document.create(newDocument);
 
-        console.log("Mongoose create: success")
+        console.info("Mongoose create: success")
 
         res.status(200).json({
           message: `Chunk ${index+1} uploaded. \nFile uploaded successfully and converted into ${docs.length} docs(pages): ${fileData.url}`,
