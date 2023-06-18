@@ -1,6 +1,6 @@
 /** @type {import('next').NextConfig} */
 const nextConfig = {
-  reactStrictMode: true,
+  reactStrictMode: false,
   serverRuntimeConfig: {
     // Will only be available on the server side
     OPENAI_API_KEY: process.env.OPENAI_API_KEY,

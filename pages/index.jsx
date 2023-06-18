@@ -15,6 +15,7 @@ import OCR from "../components/ocr"
 
 import definePrompts from "../models/prompts"
 import TabPage2 from './tabPage2'
+import TabPage3 from './tabPage3'
 
 export default function Home() {
 
@@ -177,7 +178,7 @@ export default function Home() {
   }
 
   const onChangeTab = (key) => {
-    //console.log(key);
+    console.log(key);
   };
 
   const tabPage1 = <>
@@ -264,14 +265,19 @@ export default function Home() {
 
   const tabPages = [
     {
-      key: '1',
+      key: '1000',
       label: `Chat Bots`,
       children: tabPage1,
     },
     {
-      key: '2',
-      label: `Embedding`,
+      key: '1001',
+      label: `Pdf Loader`,
       children: <TabPage2 />,
+    },
+    {
+      key: '1002',
+      label: `Web Loader`,
+      children: <TabPage3 />,
     },
   ];
 
@@ -305,7 +311,7 @@ export default function Home() {
           </div>
         </div>
         <main className={styles.main}>
-          <Tabs className={styles.tab} defaultActiveKey="1" items={tabPages} onChange={onChangeTab} />
+          <Tabs className={styles.tab} centered defaultActiveKey="1000" size={'large'} items={tabPages} onChange={onChangeTab}/>
         </main >
         <div className={styles.footer}>
           <p>Powered by <a href="https://js.langchain.com/" target="_blank">LangChain</a>. Frontend chat forked from <a href="https://twitter.com/chillzaza_" target="_blank">Zahid</a>. Experimented and adapted by <a href="https://www.linkedin.com/in/ernest-tan-dev/">Ernest</a>.</p>

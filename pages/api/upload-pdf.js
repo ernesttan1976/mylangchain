@@ -3,12 +3,12 @@ import AWS from "aws-sdk";
 import { PDFLoader } from "langchain/document_loaders/fs/pdf";
 import stream from "stream";
 import getConfig from 'next/config';
-import connect from "../../config/database";
+import connect from '../../config/database'
 import Document from "../../models/Documents";
 import File from "../../models/Files";
-import { EventEmitter } from 'node:events';
-global.emitter = new EventEmitter();
-global.emitter.setMaxListeners(16);
+import {UploadWithPresignedUrls } from "../../lib/s3";
+
+let chunkCount = 0;
 
 const conf = getConfig();
 const { publicRuntimeConfig } = conf;
@@ -37,7 +37,7 @@ const upload = multer({
     cb(null, true);
   },
   limits: {
-    fileSize: 1024 * 1024 * 4.5, // 4.5 MB Next.js file upload limit is 4.5 mb
+    fileSize: 1024 * 1024 * 4.4, // 4.5 MB Next.js file upload limit is 4.5 mb
     files: 1 // allow only one file to be uploaded
   }
 });
@@ -48,10 +48,10 @@ export const config = {
   },
 };
 
+
 export default async function handler(req, res) {
 
   let finalFile = "";
-
 
   await connect();
 
@@ -67,13 +67,13 @@ export default async function handler(req, res) {
         return;
       }
 
+      const fileParams = JSON.parse(req.body.fileParams);
+
       const index = Number.parseInt(req.body.index);
       const count = Number.parseInt(req.body.count);
       console.info(`Received ${index+1} of ${count}`);
-
-      if (index===0) {
-        await File.deleteMany({});
-      }
+      chunkCount++;
+      console.info(chunkCount);
 
       await File.create({
         file: req.file.buffer,
@@ -81,7 +81,7 @@ export default async function handler(req, res) {
         count: count,
       })
 
-      if (index < count-1) {
+      if (chunkCount!==count) {
         res.status(200).json({message: `Chunk ${index+1} uploaded`});
         // await disconnect();
         return;
@@ -91,40 +91,50 @@ export default async function handler(req, res) {
       try {
 
       //join the chunks
-      const fileChunks = await File.find({});
-      const buffers = fileChunks.map((chunk) => Buffer.from(chunk.file));
+      let buffers=[];
+      for (let i=0; i<count; i++){
+        const f = await File.findOne({index: i});
+        buffers.push(Buffer.from(new Uint8Array(f.file)));
+      }
       const finalFile = Buffer.concat(buffers);
-      console.info(finalFile);
-      console.info(typeof finalFile)
+      //console.info(finalFile);
+
+      //Upload large file to S3 with presignedUrl
+      const urls = await UploadWithPresignedUrls(fileParams.originalname,finalFile);
+      if (urls==="") {
+        res.status(200).json({skip: "skip"}); //this is to ignore the spurious fetches
+        return;
+      }
+      console.log("UploadWithPresignedUrls",urls);
 
       await File.deleteMany({});
 
-        const file = finalFile;
         const namespace = req.body.namespace;
         console.info("namespace", namespace)
 
         // create a buffer stream that is readable multiple times, by PDFLoader and S3
-        const bufferStream = () => {
-          const readable = new stream.Readable();
-          readable._read = () => { };
-//          readable.push(file.buffer);
-          readable.push(file);
-          readable.push(null);
-          return {
-            arrayBuffer: async () => {
-              const chunks = [];
-              for await (const chunk of readable) {
-                chunks.push(chunk);
-              }
-              return new Uint8Array(Buffer.concat(chunks)).buffer;
-            }
-          };
-        };
+//         const bufferStream = () => {
+//           const readable = new stream.Readable();
+//           readable._read = () => { };
+// //          readable.push(file.buffer);
+//           readable.push(finalFile);
+//           readable.push(null);
+//           return {
+//             arrayBuffer: async () => {
+//               const chunks = [];
+//               for await (const chunk of readable) {
+//                 chunks.push(chunk);
+//               }
+//               return new Uint8Array(Buffer.concat(chunks)).buffer;
+//             }
+//           };
+//         };       
 
-        
-
+        const response = await fetch(urls.noClientUrlDownload);
+        const blob = await response.blob();
         console.info("before PDF loader")
-        const loader = new PDFLoader(bufferStream());
+        const loader = new PDFLoader(blob);
+
         console.info("Before loader.load")
         const docs = await loader.load();
 
@@ -132,43 +142,44 @@ export default async function handler(req, res) {
         console.info(docs[0], docs[docs.length - 1]);
 
         // retrieve the buffer data from bufferStream() before passing it to S3 upload function
-        const bufferData = Buffer.from(await bufferStream().arrayBuffer());
+        // const bufferData = Buffer.from(await bufferStream().arrayBuffer());
 
-        const fileParams = JSON.parse(req.body.fileParams);
+
         console.info(fileParams)
-        const s3Params = {
-          Bucket: S3_BUCKET_NAME,
-          Key: fileParams.originalname,
-          Body: bufferData,
-          ContentType: fileParams.mimetype // set the content type of the file
-        };
-        console.info(s3Params)
+        // const s3Params = {
+        //   Bucket: S3_BUCKET_NAME,
+        //   Key: fileParams.originalname,
+        //   Body: bufferData,
+        //   ContentType: fileParams.mimetype // set the content type of the file
+        // };
+        // console.info(s3Params)
 
         // create a readable stream from the buffer data
-        const readable = new stream.Readable();
-        readable._read = () => { };
-        readable.push(bufferData);
-        readable.push(null);
+        // const readable = new stream.Readable();
+        // readable._read = () => { };
+        // readable.push(bufferData);
+        // readable.push(null);
 
         // upload the file in chunks to S3
-        const s3UploadParams = {
-          Bucket: S3_BUCKET_NAME,
-          Key: fileParams.originalname,
-          Body: readable,
-          ContentType: fileParams.mimetype,
-        };
-        const s3Upload = s3.upload(s3UploadParams);
+        // const s3UploadParams = {
+        //   Bucket: S3_BUCKET_NAME,
+        //   Key: fileParams.originalname,
+        //   Body: readable,
+        //   ContentType: fileParams.mimetype,
+        // };
+        // const s3Upload = s3.upload(s3UploadParams);
 
-        s3Upload.on("httpUploadProgress", (progress) => {
-          console.info(`Uploaded ${progress.loaded} bytes`);
-        });
+        // s3Upload.on("httpUploadProgress", (progress) => {
+        //   console.info(`Uploaded ${progress.loaded} bytes`);
+          
+        // });
 
-        const data = await s3Upload.promise();
+        // const data = await s3Upload.promise();
         const fileData = {
           name: fileParams.originalname,
-          url: data.Location,
+          url: urls.noClientUrlDownload,
           size: fileParams.size,
-          key: data.Key,
+          key: fileParams.originalname,
         }
         console.info("fileData=>", fileData);
 
@@ -182,7 +193,7 @@ export default async function handler(req, res) {
         console.info("Mongoose create: success")
 
         res.status(200).json({
-          message: `Chunk ${index+1} uploaded. \nFile uploaded successfully and converted into ${docs.length} docs(pages): ${fileData.url}`,
+          message: `File uploaded successfully and converted into ${docs.length} docs(pages): ${fileData.url}`,
           docs: docs,
           path: fileData.url,
           fileData: fileData,
