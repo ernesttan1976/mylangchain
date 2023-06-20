@@ -3,7 +3,16 @@ import { message, Button } from 'antd';
 import styles from "../styles/TabPage3.module.css"
 import ReactMarkdown from 'react-markdown'
 
-import CircularProgress from '@mui/material/CircularProgress';
+import { LoadingOutlined } from '@ant-design/icons';
+import { Spin } from 'antd';
+const antIcon = (
+  <LoadingOutlined
+    style={{
+      fontSize: 24,
+    }}
+    spin
+  />
+);
 
 export default function TabPage3() {
   const [loading, setLoading] = useState(false);
@@ -59,7 +68,7 @@ export default function TabPage3() {
             className={styles.generatebutton}
             onClick={handleSubmit}
           >
-            {loading ? <div className={styles.loadingwheel}><CircularProgress color="inherit" size={20} /> </div> :
+            {loading ? <div className={styles.loadingwheel}><Spin indicator={antIcon} /></div> :
               // Send icon SVG in input field
               <><img className={styles.openaisvgicon} src="/openai-logo.svg" alt="OpenAI Logo" /><svg viewBox='0 0 20 20' className={styles.svgicon} xmlns='http://www.w3.org/2000/svg'>
                 <path d='M10.894 2.553a1 1 0 00-1.788 0l-7 14a1 1 0 001.169 1.409l5-1.429A1 1 0 009 15.571V11a1 1 0 112 0v4.571a1 1 0 00.725.962l5 1.428a1 1 0 001.17-1.408l-7-14z'></path>
@@ -75,7 +84,6 @@ export default function TabPage3() {
                 <ReactMarkdown linkTarget={"_blank"}>{docs?.pageContent}</ReactMarkdown>
               </>}
           </div>
-          {/* <Button className={styles.filebutton} type="submit" onClick={() => handleSubmit2(object.id, index)} >Get Embeddings</Button> */}
         </form>
       </div>
     </>

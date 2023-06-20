@@ -1,6 +1,9 @@
 import { PlusOutlined } from '@ant-design/icons';
-import { Button, Divider, Input, Select, Space } from 'antd';
+import { Button, Divider, Input, Select, Space, Tooltip} from 'antd';
+const { TextArea } = Input;
 import { useRef, useState, useEffect } from 'react';
+import styles from "../styles/Home.module.css";
+
 let index = 0;
 const SelectComponent = ({ prompts, setBot }) => {
   const [items, setItems] = useState([]);
@@ -40,11 +43,12 @@ const SelectComponent = ({ prompts, setBot }) => {
 
 
   return (
+    <Tooltip title={<p>I just want to get started...<br/>Choose a Bot prompt<br/>or make my own</p>} 
+      color="#87d068" placement="top" trigger="hover" destroyTooltipOnHide={true}
+      arrow={{ pointAtCenter: true }}
+      zIndex={1}>
     <Select
-      style={{
-        width: 250,
-        marginLeft: 8
-      }}
+      className={styles.select}
       placeholder="Choose Your Bot"
       defaultValue="Java Bot"
       onChange={handleBotChange}
@@ -74,8 +78,8 @@ const SelectComponent = ({ prompts, setBot }) => {
           <Space style={{
               padding: '0 8px 4px',
             }}>
-            <textarea
-              style={{color: 'black', backgroundColor: 'white', borderRadius: 4, resize: 'none'}}
+            <TextArea
+              style={{color: 'white', backgroundColor: 'slate', borderRadius: 4, resize: 'none', width: 300, marginTop: 4, padding: 8}}
               ref={inputRef2}
               rows={3}
               maxLength={500}
@@ -94,6 +98,7 @@ const SelectComponent = ({ prompts, setBot }) => {
         value: item.prompt,
       }))}
     />
+    </Tooltip>
   );
 };
 export default SelectComponent;

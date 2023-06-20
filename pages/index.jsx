@@ -3,19 +3,50 @@ import Head from 'next/head'
 import styles from '../styles/Home.module.css'
 import Image from 'next/image'
 import ReactMarkdown from 'react-markdown'
-import CircularProgress from '@mui/material/CircularProgress';
-//import {Progress} from 'antd';
+import { LoadingOutlined } from '@ant-design/icons';
+import { Spin, Tooltip, Radio } from 'antd';
+const antIcon = (
+  <LoadingOutlined
+    style={{
+      fontSize: 24,
+    }}
+    spin
+  />
+);
+
+import { Select } from 'antd';
+const options = [
+  {
+    label: "Pinecone Store",
+    value: "Pinecone_Store",
+  },
+  {
+    label: "Calculator",
+    value: "Calculator",
+  },
+  {
+    label: "Google Search",
+    value: "Google_Search",
+  },
+
+]
+
 import { CopyOutlined } from '@ant-design/icons';
 import { Button, Tabs, ConfigProvider, theme, Space } from 'antd'
 import { AIChatMessage, ChatMessage, SystemChatMessage, HumanChatMessage } from "langchain/schema";
+// import { Logger } from '../components/logger'
 
-import { ApiChat, PostEmbedding, ApiChatPinecone } from '../lib/chat'
+import { ApiChat } from '../lib/chat'
+import { AgentChat } from '../lib/agent'
 import SelectComponent from '../components/select'
 import OCR from "../components/ocr"
 
 import definePrompts from "../models/prompts"
 import TabPage2 from './tabPage2'
 import TabPage3 from './tabPage3'
+
+const Parrot = () => <Image src={"/parroticon.png"} width={30} height={30} />
+const Macaw = () => <Image src={"/bluemacaw.png"} width={25} height={25} />
 
 export default function Home() {
 
@@ -26,11 +57,15 @@ export default function Home() {
   const [prompts, setPrompts] = useState([]);
   const [bot, setBot] = useState('');
   const [ocrResult, setOcrResult] = useState('');
-
+  const [toolsSelect, setToolsSelect] = useState(['Google_Search', 'Calculator']);
+  const [log, setLog] = useState('');
+  const [radio, setRadio] = useState(1);
+  const [birdIcon, setBirdIcon] = useState(<Image src="/parroticon.png" alt="AI" width="30" height="30" className={styles.boticon} priority={true} />)
 
   const messageListRef = useRef(null);
   const chatRef = useRef([]);
   const textAreaRef = useRef(null);
+  const toolsRef = useRef(null);
 
   // Auto scroll chat to bottom
   useEffect(() => {
@@ -38,9 +73,19 @@ export default function Home() {
     messageList.scrollTop = messageList.scrollHeight;
   }, [messages]);
 
+  useEffect(() => {
+    let birdEl;
+    if (radio === 1) {
+      birdEl = <Image src="/parroticon.png" alt="AI" width="30" height="30" className={styles.boticon} priority={true} />
+    } else {
+      birdEl = <Image src="/bluemacaw.png" alt="AI" width="30" height="30" className={styles.boticon} priority={true} />
+    }
+    setBirdIcon(birdEl)
+  }, [radio])
+
   // Focus on text field on load
   useEffect(() => {
-    textAreaRef.current.focus();
+    // textAreaRef.current.focus();
 
     const getPrompts = async () => {
       const prompts = await definePrompts();
@@ -64,9 +109,12 @@ export default function Home() {
     setUserInput("");
   }
 
+  const handleAgentToolsChange = (value) => {
+    setToolsSelect(value);
+  };
+
   // Handle form submission
-  const handleSubmit = async (e) => {
-    e.preventDefault();
+  const handleNormalChat = async () => {
 
     if (userInput.trim() === "") {
       return;
@@ -92,57 +140,50 @@ export default function Home() {
 
   };
 
-  // Handle form submission
-  const handleSubmitPinecone = async (e) => {
+
+
+  function extractObjects(input) {
+    const regex = /(.*)``````json(.*)/; // matches any object in the input string
+    const matches = input.match(regex); // finds all matches of the regex in the input string
+    const question = JSON.parse(matches[0]); // parses the first match as a JSON object
+    const finalanswer = JSON.parse(matches[1]); // parses the second match as a JSON object
+    return [question, finalanswer];
+  }
+
+  const handleSubmit = (e) => {
     e.preventDefault();
-  
+    if (radio === 1) {
+      handleNormalChat();
+    } else {
+      handleAgentChat();
+    }
+  }
+
+  const handleAgentChat = async () => {
+
     if (userInput.trim() === "") {
       return;
     }
-  
+
     setLoading(true);
     setMessages((prevMessages) => [...prevMessages, new HumanChatMessage(userInput)]);
-    setMessages((prevMessages) => [...prevMessages, new HumanChatMessage(userInput)]);
-  
-    const url = "/api/pineconechat";
-    const body = JSON.stringify({ bot, question: userInput, history });
-  
-    const response = await fetch(url, {
-      method: "POST",
-      body,
-      headers: {
-        "Content-Type": "application/json",
-      },
-    });
-  
-    if (!response.ok) {
+    const response = await AgentChat(bot, userInput, history, toolsSelect, setMessages);
+
+    // Reset user input
+    setUserInput("");
+    const data = response;
+
+    //console.log("response=>", response)
+
+    if (!data?.result) {
       handleError();
       return;
     }
-  
-    const reader = response.body.getReader();
-    let chunks = "";
-    let isDone = false;
-  
-    while (!isDone) {
-      const {value, done} = await reader.read();
-      isDone = done;
-      if (done) console.log("done")
-      chunks=new TextDecoder("utf-8").decode(value)
-      setMessages((prevMessages) => ([...prevMessages.slice(0, prevMessages.length - 1), new AIChatMessage(chunks)]));
-    }
 
-    console.log("done1")
-
-    const result = JSON.parse(new TextDecoder("utf-8").decode(chunks));
-  
-    setMessages((prevMessages) => [...prevMessages, { "message": result, "type": "apiMessage" }]);
     setLoading(false);
-    setUserInput("");
-
-    console.log("done2")
 
   };
+
 
   // Prevent blank submissions and allow for multiline input
   const handleEnter = (e) => {
@@ -181,6 +222,11 @@ export default function Home() {
     console.log(key);
   };
 
+  const handleRadioChange = (e) => {
+    setRadio(e.target.value);
+  }
+
+
   const tabPage1 = <>
     <div className={styles.cloud}>
       <div ref={messageListRef} className={styles.messagelist}>
@@ -189,7 +235,7 @@ export default function Home() {
             // The latest message sent by the user will be animated while waiting for a response
             <div key={index} className={message._getType() === "human" && loading && index === messages.length - 1 ? styles.usermessagewaiting : (message._getType() === "system" || message._getType() === "ai") ? styles.apimessage : styles.usermessage}>
               {/* Display the correct icon depending on the message type */}
-              {(message._getType() === "ai" || message._getType() === "system") ? <Image src="/parroticon.png" alt="AI" width="30" height="30" className={styles.boticon} priority={true} /> : <Image src="/usericon.png" alt="Me" width="30" height="30" className={styles.usericon} priority={true} />}
+              {(message._getType() === "ai" || message._getType() === "system") ? birdIcon : <Image src="/usericon.png" alt="Me" width="30" height="30" className={styles.usericon} priority={true} />}
               <div ref={el => (chatRef.current[index] = el)} className={styles.markdownanswer}>
                 {/* Messages are being rendered in Markdown format */}
                 <ReactMarkdown linkTarget={"_blank"}>{message.text}</ReactMarkdown>
@@ -231,34 +277,27 @@ export default function Home() {
           className={styles.generatebutton}
           onClick={handleSubmit}
         >
-          {loading ? <div className={styles.loadingwheel}><CircularProgress color="inherit" size={20} /> </div> :
+          {loading ? <div className={styles.loadingwheel}><Spin indicator={antIcon} /></div> :
             // Send icon SVG in input field
             <><img className={styles.openaisvgicon} src="/openai-logo.svg" alt="OpenAI Logo" /><svg viewBox='0 0 20 20' className={styles.svgicon} xmlns='http://www.w3.org/2000/svg'>
               <path d='M10.894 2.553a1 1 0 00-1.788 0l-7 14a1 1 0 001.169 1.409l5-1.429A1 1 0 009 15.571V11a1 1 0 112 0v4.571a1 1 0 00.725.962l5 1.428a1 1 0 001.17-1.408l-7-14z'></path>
             </svg></>}
         </button>
-        <button
-          type="submit"
-          onClick={handleSubmitPinecone}
-          disabled={loading}
-          className={styles.pineconegeneratebutton}
-        >
-          {loading ? <div className={styles.loadingwheel}><CircularProgress color="inherit" size={20} /> </div> :
-            // Send icon SVG in input field
-            <><img className={styles.pineconesvgicon} src="/pinecone-logo.svg" alt="Pinecone Logo" />
-            <svg viewBox='0 0 20 20' className={styles.svgicon} xmlns='http://www.w3.org/2000/svg'>
-              <path d='M10.894 2.553a1 1 0 00-1.788 0l-7 14a1 1 0 001.169 1.409l5-1.429A1 1 0 009 15.571V11a1 1 0 112 0v4.571a1 1 0 00.725.962l5 1.428a1 1 0 001.17-1.408l-7-14z'></path>
-            </svg></>
-            }
-        </button>
       </form>
+      <details closed="true" style={{ margin: "8px auto 8px 0" }}>
+        <summary className={styles.summary}>
+          Agent Chat Logger
+        </summary>
+        {/* <Logger log={log} setLog={setLog} /> */}
+      </details>
+
       <div className={styles.column2} style={{ margin: "8px auto 8px 0" }}>
-          <details closed="true" style={{ margin: "8px auto 8px 0" }}>
-            <summary className={styles.summary}>
-              Image Capture (OCR)
-            </summary>
-            <OCR ocrResult={ocrResult} setOcrResult={setOcrResult} />
-          </details>
+        <details closed="true" style={{ margin: "8px auto 8px 0" }}>
+          <summary className={styles.summary}>
+            Image Capture (OCR)
+          </summary>
+          <OCR ocrResult={ocrResult} setOcrResult={setOcrResult} />
+        </details>
       </div>
     </div>
   </>
@@ -297,21 +336,68 @@ export default function Home() {
         "algorithm": theme.darkAlgorithm,
       }}>
         <div className={styles.topnav}>
-          <div className={styles.navlogo}>
-            <a href="/">LangChain</a>
-          </div>
-          <div className={styles.navlinks}>
-            {prompts && <SelectComponent prompts={prompts} setBot={setBot} />}
-            <div className={styles.navlinks2}>
-              <Space>
-                <a href="https://js.langchain.com/" target="_blank">Docs</a>
-                <a href="https://github.com/ernesttan1976/mylangchain" target="_blank">GitHub</a>
-              </Space>
+          <div className={styles.navlinkscolumn}>
+            <div className={styles.navlinks}>
+              <div className={styles.navlogo}>
+                <a href="/">LangChain</a>
+              </div>
+              <div className={styles.navlinks2}>
+                <Space>
+                  <a href="https://js.langchain.com/" target="_blank">Docs</a>
+                  <a href="https://github.com/ernesttan1976/mylangchain" target="_blank">GitHub</a>
+                </Space>
+              </div>
             </div>
+            <div className={styles.navlinksrow}>
+              <Radio.Group value={radio} defaultValue={1} buttonStyle="solid" onChange={handleRadioChange}>
+                <Tooltip title={<p>Normal bot is the plain vanilla ChatGPT which you know and love</p>} color="#64e331"
+                  placement="top"
+                  trigger="hover"
+                  destroyTooltipOnHide={true}
+                  arrow={{ pointAtCenter: true }}
+                  zIndex={1}>
+                  <Radio.Button value={1} styles={{ width: 120 }}><Parrot />Normal Bot</Radio.Button>
+                </Tooltip>
+                <Tooltip title={<p>Agent bot is ChatGPT on sterioids
+                  <ol>
+                    <li>Updated information from the web</li>
+                    <li>Accurate calculations</li>
+                    <li>Query your documents</li>
+                  </ol>
+                </p>} color="#108ee9"
+                  placement="top"
+                  trigger="hover"
+                  destroyTooltipOnHide={true}
+                  arrow={{ pointAtCenter: true }}
+                  zIndex={1}>
+                  <Radio.Button value={2} styles={{ width: 120 }}><Macaw />Agent Bot </Radio.Button>
+                </Tooltip>
+              </Radio.Group>
+            </div>
+            <div className={styles.navlinksrow}>
+              {prompts && <SelectComponent prompts={prompts} setBot={setBot} />}
+              <Tooltip title={<p>hmm...I need better answers<br />Agent + Tools</p>} color="#108ee9"
+                placement="top"
+                trigger="hover"
+                destroyTooltipOnHide={true}
+                arrow={{ pointAtCenter: true }}
+                zIndex={1}>
+                <Select
+                  mode="multiple"
+                  allowClear
+                  className={styles.select2}
+                  placeholder="Agent Tools"
+                  onChange={handleAgentToolsChange}
+                  options={options}
+                  value={toolsSelect}
+                  ref={toolsRef}
+                /></Tooltip>
+            </div>
+
           </div>
         </div>
         <main className={styles.main}>
-          <Tabs className={styles.tab} centered defaultActiveKey="1000" size={'large'} items={tabPages} onChange={onChangeTab}/>
+          <Tabs className={styles.tab} centered defaultActiveKey="1000" size={'large'} items={tabPages} onChange={onChangeTab} />
         </main >
         <div className={styles.footer}>
           <p>Powered by <a href="https://js.langchain.com/" target="_blank">LangChain</a>. Frontend chat forked from <a href="https://twitter.com/chillzaza_" target="_blank">Zahid</a>. Experimented and adapted by <a href="https://www.linkedin.com/in/ernest-tan-dev/">Ernest</a>.</p>

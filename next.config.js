@@ -21,6 +21,8 @@ const nextConfig = {
     VECTARA_CUSTOMER_ID:process.env.VECTARA_CUSTOMER_ID,
     VECTARA_CORPUS_ID:process.env.VECTARA_CORPUS_ID,
     VECTARA_API_KEY:process.env.VECTARA_API_KEY,
+    GOOGLE_CUSTOM_SEARCH_SECRET: process.env.GOOGLE_CUSTOM_SEARCH_SECRET,
+    GOOGLE_CSE_ID: process.env.GOOGLE_CSE_ID,
   },
   publicRuntimeConfig: {
     // Will be available on both server and client sides
@@ -42,6 +44,9 @@ const nextConfig = {
     VECTARA_CUSTOMER_ID:process.env.VECTARA_CUSTOMER_ID,
     VECTARA_CORPUS_ID:process.env.VECTARA_CORPUS_ID,
     VECTARA_API_KEY:process.env.VECTARA_API_KEY,
+    GOOGLE_CUSTOM_SEARCH_SECRET: process.env.GOOGLE_CUSTOM_SEARCH_SECRET,
+    GOOGLE_CSE_ID: process.env.GOOGLE_CSE_ID,
+
   },
 }
 

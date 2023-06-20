@@ -140,3 +140,8 @@ const completions = await openai.completions.create({
 console.log(completions.choices[0].text);
 </code></pre>
 
+Flow 
+1. Chat Mode: Normal chat with the bot. Able to select the bot type with initial prompt. This is the default mode. Free and easy.
+2. Web Loader Mode: Load your reference web page. There is a text field to enter a web url.  When submitting a prompt with web url filled in, it means this web page will be referred to as an embedding -> get embedding from OpenAI -> immediately get a response from OpenAI -> Show a button whether to save this embedding in Pinecone. It does not save by default.
+3. Pdf Loader Mode: Same as Web Loader, except loading a pdf is more memory intensive and takes longer time to get the embeddings. Because it is costly, the pdf embedding is saved by default in Pinecone.
+4. Agent Mode: Pick and Choose the tools for the agent. Tools: [Pinecone Store, Calculator, Browser]
