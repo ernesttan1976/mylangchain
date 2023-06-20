@@ -350,7 +350,7 @@ export default function Home() {
             </div>
             <div className={styles.navlinksrow}>
               <Radio.Group value={radio} defaultValue={1} buttonStyle="solid" onChange={handleRadioChange}>
-                <Tooltip title={<p>Normal bot is the plain vanilla ChatGPT which you know and love</p>} color="#64e331"
+                <Tooltip title={<p>Plain vanilla ChatGPT which you know and love</p>} color="#64e331"
                   placement="top"
                   trigger="hover"
                   destroyTooltipOnHide={true}
@@ -358,13 +358,10 @@ export default function Home() {
                   zIndex={1}>
                   <Radio.Button value={1} styles={{ width: 120 }}><Parrot />Normal Bot</Radio.Button>
                 </Tooltip>
-                <Tooltip title={<p>Agent bot is ChatGPT on sterioids
-                  <ol>
-                    <li>Updated information from the web</li>
-                    <li>Accurate calculations</li>
-                    <li>Query your documents</li>
-                  </ol>
-                </p>} color="#108ee9"
+                <Tooltip title={<div>Agent bot is ChatGPT on sterioids<br/>
+                                      1. Updated web information<br/>
+                                      2. Accurate calculations<br/>
+                                      3. Query your documents</div>} color="#108ee9"
                   placement="top"
                   trigger="hover"
                   destroyTooltipOnHide={true}
