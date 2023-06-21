@@ -7,13 +7,13 @@ import connect from "../../config/database";
 import Document from "../../models/Documents";
 
 const conf = getConfig();
-const { publicRuntimeConfig } = conf;
+const { serverRuntimeConfig } = conf;
 const {
   AWS_ACCESS_KEY_ID,
   AWS_BUCKET_SECRET_ACCESS_KEY,
   AWS_BUCKET_REGION,
   S3_BUCKET_NAME,
-} = publicRuntimeConfig;
+} = serverRuntimeConfig;
 
 const storage = multer.memoryStorage();
 

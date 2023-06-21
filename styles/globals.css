@@ -64,47 +64,43 @@ th {
 }
 
 td {
-  padding: 8px;
+  padding: 6px;
   border-right: solid rgb(101, 101, 101) 1px;
   border-bottom: solid rgb(101, 101, 101) 1px;
   vertical-align: top;
 }
 
 th:nth-child(1),td:nth-child(1) {
-  max-width: 50px; /* Example: Adjust the width as needed */
-  width: 50px;
+  max-width: 4vw; /* Example: Adjust the width as needed */
+  width: 4vw;
   text-align: right;
 }
 
 th:nth-child(2),td:nth-child(2) {
-  max-width: 265px; /* Example: Adjust the width as needed */
-  width: 265px;
+  max-width: 20vw; /* Example: Adjust the width as needed */
+  width: 20vw;
   text-align: left;
   word-wrap: break-word;
 }
 
 th:nth-child(3),td:nth-child(3) {
-  max-width: 265px; /* Example: Adjust the width as needed */
-  width: 265px;
+  max-width: 20vw; /* Example: Adjust the width as needed */
+  width: 20vw;
   text-align: left;
   word-wrap: break-word;
 }
 
 th:nth-child(4),td:nth-child(4) {
-  max-width: 265px; /* Example: Adjust the width as needed */
-  width: 265px;
+  max-width: 20vw; /* Example: Adjust the width as needed */
+  width: 20vw;
   text-align: left;
   word-wrap: break-word;
 }
 
 th:nth-child(5),td:nth-child(5) {
-  max-width: 80px; /* Example: Adjust the width as needed */
-  width: 80px;
+  max-width: 8vw; /* Example: Adjust the width as needed */
+  width: 8vw;
   text-align: center;
-  border-right: none;
-}
-
-th:nth-child(5) {
   border-right: none;
 }
 

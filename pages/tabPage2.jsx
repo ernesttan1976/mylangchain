@@ -5,7 +5,9 @@ import styles from "../styles/TabPage2.module.css"
 import ReactMarkdown from 'react-markdown'
 import { humanizeFileSize } from '../lib/utils.js'
 import { LoadingOutlined } from '@ant-design/icons';
-import { Spin} from 'antd';
+import { Spin } from 'antd';
+import { useRouter } from 'next/navigation';
+
 const antIcon = (
   <LoadingOutlined
     style={{
@@ -26,6 +28,8 @@ export default function TabPage2() {
   const [objects, setObjects] = useState([]);
 
   const [documents, setDocuments] = useState([]);
+
+  const router = useRouter();
 
   const embeddingsRef = useRef(null);
   const namespaceRef = useRef(null);
@@ -186,65 +190,73 @@ export default function TabPage2() {
     }
   };
 
+  const handleDelete = async (id, index) => {
+    try {
+      const response = await fetch(`/api/documents/${id}`,
+        {
+          method: 'DELETE'
+        }
+      );
+
+      const data = await response.json();
+      if (data.message) {
+        message.success(data.message);
+        setDocuments(prev=>([...prev.slice(0, index), ...prev.slice(index + 1)]));
+      } else {
+        message.error(data.error);
+      }
+    } catch (error) {
+      message.error(error);
+    }
+  }
+
 
   return (
     <>
-      <div className={styles.cloud}>
-        <table className={styles.table}>
-          <thead><tr><th>Id</th><th>File Data</th><th>Page Content</th><th>Embedding</th><th>Pinecone</th></tr></thead>
-          <tbody>
-            {loading && <div className={styles.loadingwheel}><Spin indicator={antIcon} /></div>}
-            {documents.length > 0 && documents.map((document, index) => (
-              <tr>
-                <td><a href={`/api/documents/${document._id}`}>{index + 1}.</a></td>
-                <td><a href={document.fileData?.url}><u>{document.fileData?.name}</u><br />({humanizeFileSize(document.fileData?.size)})</a></td>
-                <td>
-                  {document.pageContentSummary.length && document.pageContentSummary.map((summary, index) => (
-                    <details key={index + 2000}>
-                      <summary>
-                        {summary.slice(0, 100)}
-                      </summary>
-                      {summary}
-                    </details>))}
-                </td>
-                <td>{document.embeddingSummary[0] !== '""' && document.embeddingSummary.map((summary, index) => (
-                  <details key={index + 3000}>
-                    <summary>
-                      {`${summary.slice(0, 50)}...`}
-                    </summary>
-                    {`${summary.slice(0, 500)}...`}
-                  </details>))}</td>
-                <td>{document?.savedInPinecone ? "Yes" : "No"}</td>
-              </tr>))}
-          </tbody>
-        </table>
-        {false && objects.length > 0 && objects.map((object, index) => (
-          <>
-            <div key={index} className={styles.cloud}>
-              <form className={styles.form}>
-                <h3 styles={{ width: '80%' }}><a href={object.fileData.url} download>{`${index + 1}.   ${object.fileData.name}   size: ${humanizeFileSize(object.fileData.size)}`}</a></h3>
-                <div className={styles.markdownanswer}>
-                  <ReactMarkdown linkTarget={"_blank"}>{'\n```json\n' + JSON.stringify(object.vectors.map((vector, vectorIndex) => {
-                    return ('\n\PAGE ' + vectorIndex + 1 + '\n\n\n' + vector.pageContent)
-                  }).join('')) + '\n```json\n'}</ReactMarkdown>
-                </div>
-                <Button className={styles.filebutton} type="submit" onClick={() => handleSubmit2(document._id, index)} >Get Embeddings</Button>
-              </form>
-            </div>
-            {true &&
-              <div key={index + 1000} className={styles.cloud}>
-                <form className={styles.form}>
-                  <h3>Embeddings from OpenAI : {embeddingComplete && 'Complete! Ready to Save to Pinecone'}</h3>
-                  <div ref={embeddingsRef} className={styles.markdownanswer}>
-                    {/* Messages are being rendered in Markdown format */}
-                    <ReactMarkdown linkTarget={"_blank"}>{object.embedding?.length && JSON.stringify(object.embedding[object.embedding.length - 1])}</ReactMarkdown>
-                  </div>
-                  <Button className={styles.filebutton} type="submit" disabled={embeddingComplete ? false : true} onClick={() => handleSubmit3(object.id, index)} >Save to PineCone</Button>
-                </form>
-              </div>}
-          </>
-        ))}
-      </div>
+      <details open>
+        <summary>
+          Manage Documents
+        </summary>
+        <div className={styles.cloud}>
+          {loading && <div className={styles.loadingwheel}><Spin indicator={antIcon} /></div>}
+          <table className={styles.table}>
+            <thead><tr><th>Id</th><th>File Data</th><th>Page Content</th><th>Embedding</th><th>Saved in Pinecone</th></tr></thead>
+            <tbody>
+              {documents.length > 0 && documents.map((document, index) => (
+                <tr>
+                  <td>{index + 1}.</td>
+                  <td><a href={document.fileData?.url}><u>{document.fileData?.name}</u><br />({humanizeFileSize(document.fileData?.size)})</a>
+                    <Button className={styles.filebuttonsmall} onClick={()=>window.open(`/api/documents/${document._id}`)}>Show JSON</Button>
+                    <Button className={styles.filebuttonsmall} type="submit" onClick={() => handleDelete(document._id, index)} >Delete</Button>
+                  </td>
+                  <td>
+                    {document.pageContentSummary.length && document.pageContentSummary.map((summary, index) => (
+                      <details key={index + 2000}>
+                        <summary>
+                          {summary.slice(0, 100)}
+                        </summary>
+                        {summary}
+                      </details>))}
+                  </td>
+                  <td>
+                    <Button className={styles.filebuttonsmall} type="submit" onClick={() => handleSubmit2(document._id, index)} >Get Embeddings</Button>
+                    {document.embeddingSummary[0] !== '""' && document.embeddingSummary.map((summary, index) => (
+                      <details key={index + 3000}>
+                        <summary>
+                          {`${summary.slice(0, 50)}...`}
+                        </summary>
+                        {`${summary.slice(0, 500)}...`}
+                      </details>))}
+
+                  </td>
+                  <td><Button className={styles.filebuttonsmall} type="submit" disabled={document?.savedInPinecone ? true : false} onClick={() => handleSubmit3(document._id, index)} >Save</Button>
+                    {document?.savedInPinecone ? "Yes" : "No"}
+                  </td>
+                </tr>))}
+            </tbody>
+          </table>
+        </div>
+      </details>
       <div className={styles.cloud}>
         <form className={styles.form} onSubmit={uploadChunks}>
           <label className={styles.label}>New file: Upload Pdf</label>
@@ -256,6 +268,31 @@ export default function TabPage2() {
           </div>
         </form>
       </div>
+      {true && objects.map((object, index) => (
+        <>
+          <div key={index} className={styles.cloud}>
+            <form className={styles.form}>
+              <h3 styles={{ width: '80%' }}><a href={object.fileData.url || '/'} download>{`${object.fileData.name || 'filename'}   size: ${humanizeFileSize(object.fileData.size || 0)}`}</a></h3>
+              <div className={styles.markdownanswer}>
+                <ReactMarkdown linkTarget={"_blank"}>{'\n```json\n' + JSON.stringify(object.vectors.map((vector, vectorIndex) => {
+                  return ('\n\PAGE ' + vectorIndex + 1 + '\n\n\n' + vector.pageContent)
+                }).join('')) + '\n```json\n' || 'Page Content'}</ReactMarkdown>
+              </div>
+              <Button className={styles.filebutton} type="submit" onClick={() => handleSubmit2(object.id, index)} >Get Embeddings</Button>
+            </form>
+          </div>
+          <div className={styles.cloud}>
+            <form className={styles.form}>
+              <h3>Embeddings from OpenAI : {embeddingComplete && 'Complete! Ready to Save to Pinecone'}</h3>
+              <div ref={embeddingsRef} className={styles.markdownanswer}>
+                {/* Messages are being rendered in Markdown format */}
+                <ReactMarkdown linkTarget={"_blank"}>{object.embedding?.length && JSON.stringify(object.embedding[object.embedding.length - 1]) || 'Embedding'}</ReactMarkdown>
+              </div>
+              <Button className={styles.filebutton} type="submit" disabled={embeddingComplete ? false : true} onClick={() => handleSubmit3(object.id, index)} >Save to PineCone</Button>
+            </form>
+          </div>
+        </>
+      ))}
     </>
   )
 }

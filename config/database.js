@@ -2,10 +2,10 @@ import mongoose, { ConnectOptions } from "mongoose";
 import getConfig from 'next/config';
 
 const conf = getConfig();
-const { publicRuntimeConfig } = conf;
+const { serverRuntimeConfig } = conf;
 const {
   DATABASE_URL,
-} = publicRuntimeConfig;
+} = serverRuntimeConfig;
 
 export const connect = () => {
   mongoose.connect(DATABASE_URL, {

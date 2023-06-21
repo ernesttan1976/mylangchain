@@ -50,7 +50,7 @@ if (!mongoose.models.Document) {
             if (this.vectors.length===0) return []
             let summary = [];
             for (let i = 0; i < 3; i++) {
-              summary.push(JSON.stringify(this.vectors[i].values.map(x => x).join(',')));
+              summary.push(JSON.stringify(this.vectors[i]?.values.map(x => x).join(',')));
             }
             return summary;
           }

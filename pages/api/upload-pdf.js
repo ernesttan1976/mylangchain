@@ -11,14 +11,13 @@ import {UploadWithPresignedUrls } from "../../lib/s3";
 let chunkCount = 0;
 
 const conf = getConfig();
-const { publicRuntimeConfig } = conf;
+const { serverRuntimeConfig } = conf;
 const {
   AWS_ACCESS_KEY_ID,
   AWS_BUCKET_SECRET_ACCESS_KEY,
   AWS_BUCKET_REGION,
   S3_BUCKET_NAME,
-} = publicRuntimeConfig;
-
+} = serverRuntimeConfig;
 const AWS_CONFIG = {
   accessKeyId: AWS_ACCESS_KEY_ID,
   secretAccessKey: AWS_BUCKET_SECRET_ACCESS_KEY,
@@ -141,40 +140,8 @@ export default async function handler(req, res) {
         console.info(docs.length);
         console.info(docs[0], docs[docs.length - 1]);
 
-        // retrieve the buffer data from bufferStream() before passing it to S3 upload function
-        // const bufferData = Buffer.from(await bufferStream().arrayBuffer());
-
-
         console.info(fileParams)
-        // const s3Params = {
-        //   Bucket: S3_BUCKET_NAME,
-        //   Key: fileParams.originalname,
-        //   Body: bufferData,
-        //   ContentType: fileParams.mimetype // set the content type of the file
-        // };
-        // console.info(s3Params)
-
-        // create a readable stream from the buffer data
-        // const readable = new stream.Readable();
-        // readable._read = () => { };
-        // readable.push(bufferData);
-        // readable.push(null);
-
-        // upload the file in chunks to S3
-        // const s3UploadParams = {
-        //   Bucket: S3_BUCKET_NAME,
-        //   Key: fileParams.originalname,
-        //   Body: readable,
-        //   ContentType: fileParams.mimetype,
-        // };
-        // const s3Upload = s3.upload(s3UploadParams);
-
-        // s3Upload.on("httpUploadProgress", (progress) => {
-        //   console.info(`Uploaded ${progress.loaded} bytes`);
-          
-        // });
-
-        // const data = await s3Upload.promise();
+        
         const fileData = {
           name: fileParams.originalname,
           url: urls.noClientUrlDownload,

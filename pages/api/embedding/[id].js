@@ -3,10 +3,10 @@ import Document from "../../../models/Documents";
 import { OpenAIEmbeddings } from "langchain/embeddings/openai";
 import getConfig from 'next/config';
 const conf = getConfig();
-const { publicRuntimeConfig } = conf;
+const { serverRuntimeConfig } = conf;
 const {
   OPENAI_API_KEY,
-} = publicRuntimeConfig;
+} = serverRuntimeConfig;
 
 
 export const config = {

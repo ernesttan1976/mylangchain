@@ -6,12 +6,12 @@ import { RetrievalQAChain, loadQAStuffChain } from "langchain/chains";
 import { OpenAIEmbeddings } from "langchain/embeddings/openai";
 import getConfig from 'next/config';
 const conf = getConfig();
-const { publicRuntimeConfig } = conf;
+const { serverRuntimeConfig } = conf;
 const {
     PINECONE_ENVIRONMENT,
     PINECONE_KEY,
     OPENAI_API_KEY,
-} = publicRuntimeConfig;
+} = serverRuntimeConfig;
 
 
 export default async function handler(req, res) {
