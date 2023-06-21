@@ -38,6 +38,7 @@ import { AIChatMessage, ChatMessage, SystemChatMessage, HumanChatMessage } from 
 
 import { ApiChat } from '../lib/chat'
 import { AgentChat } from '../lib/agent'
+import { PineconeChat } from '../lib/pineconechat-browser'
 import SelectComponent from '../components/select'
 import OCR from "../components/ocr"
 
@@ -45,8 +46,8 @@ import definePrompts from "../models/prompts"
 import TabPage2 from './tabPage2'
 import TabPage3 from './tabPage3'
 
-const Parrot = () => <Image src={"/parroticon.png"} width={30} height={30} />
-const Macaw = () => <Image src={"/bluemacaw.png"} width={25} height={25} />
+const Parrot = () => <Image src={"/parroticon.png"} width={30} height={30} alt="Parrot" />
+const Macaw = () => <Image src={"/bluemacaw.png"} width={25} height={25} alt="Macaw" />
 
 export default function Home() {
 
@@ -184,6 +185,53 @@ export default function Home() {
 
   };
 
+  const handlePineconeChat = async () => {
+
+    if (userInput.trim() === "") {
+      return;
+    }
+
+    setLoading(true);
+    setMessages((prevMessages) => [...prevMessages, new HumanChatMessage(userInput)]);
+
+    const response = await fetch('/api/pineconechat', {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json'
+      },
+      body: JSON.stringify({
+        bot: 'pinecone',
+        question: userInput,
+        history: history,
+      }),
+      signal: new AbortController().signal // optional, used to cancel the request
+    });
+
+    const reader = response.body.getReader();
+    let chunks = '';
+
+    setMessages((prevMessages) => [...prevMessages, new AIChatMessage("")]);
+
+    while (true) {
+      const { done, value } = await reader.read();
+      if (done) break;
+      const decoded = new TextDecoder().decode(value)
+      //console.log("decoded",decoded)
+      try {
+        chunks = chunks + JSON.parse(decoded);
+      } catch {
+        chunks = chunks + decoded;
+      }
+          setMessages((prevMessages) => [...prevMessages.slice(0,-1), new AIChatMessage(chunks)]);
+    }
+
+    //const responseText = new TextDecoder().decode(chunks);
+    //const responseData = JSON.parse(responseText);
+
+    setLoading(false);
+    setUserInput("");
+  };
+
 
   // Prevent blank submissions and allow for multiline input
   const handleEnter = (e) => {
@@ -271,25 +319,49 @@ export default function Home() {
           onChange={e => setUserInput(e.target.value)}
           className={styles.textarea}
         />
-        <button
-          type="submit"
-          disabled={loading}
-          className={styles.generatebutton}
-          onClick={handleSubmit}
-        >
-          {loading ? <div className={styles.loadingwheel}><Spin indicator={antIcon} /></div> :
-            // Send icon SVG in input field
-            <><img className={styles.openaisvgicon} src="/openai-logo.svg" alt="OpenAI Logo" /><svg viewBox='0 0 20 20' className={styles.svgicon} xmlns='http://www.w3.org/2000/svg'>
-              <path d='M10.894 2.553a1 1 0 00-1.788 0l-7 14a1 1 0 001.169 1.409l5-1.429A1 1 0 009 15.571V11a1 1 0 112 0v4.571a1 1 0 00.725.962l5 1.428a1 1 0 001.17-1.408l-7-14z'></path>
-            </svg></>}
-        </button>
+        <Tooltip title={<p>Open AI Bot / Agent Bot</p>} color="#64e331"
+          placement="left"
+          trigger="hover"
+          destroyTooltipOnHide={true}
+          arrow={false}
+          zIndex={20}>
+          <button
+            type="submit"
+            disabled={loading}
+            className={styles.generatebutton}
+            onClick={handleSubmit}
+          >
+            {loading ? <div className={styles.loadingwheel}><Spin indicator={antIcon} /></div> :
+              // Send icon SVG in input field
+              <><img className={styles.openaisvgicon} src="/openai-logo.svg" alt="OpenAI Logo" /><svg viewBox='0 0 20 20' className={styles.svgicon} xmlns='http://www.w3.org/2000/svg'>
+                <path d='M10.894 2.553a1 1 0 00-1.788 0l-7 14a1 1 0 001.169 1.409l5-1.429A1 1 0 009 15.571V11a1 1 0 112 0v4.571a1 1 0 00.725.962l5 1.428a1 1 0 001.17-1.408l-7-14z'></path>
+              </svg></>}
+          </button></Tooltip>
+        <Tooltip title={<p>Only Chat With Your Own Documents in Pinecone</p>} color="#64e331"
+          placement="left"
+          trigger="hover"
+          destroyTooltipOnHide={true}
+          arrow={false}
+          zIndex={20}>
+          <button
+            type="submit"
+            disabled={loading}
+            className={styles.pineconegeneratebutton}
+            onClick={handlePineconeChat}
+          >
+            {loading ? <div className={styles.loadingwheel}><Spin indicator={antIcon} /></div> :
+              // Send icon SVG in input field
+              <><img className={styles.pineconesvgicon} src="/pinecone-logo.svg" alt="Pinecone Logo" /><svg viewBox='0 0 20 20' className={styles.svgicon} xmlns='http://www.w3.org/2000/svg'>
+                <path d='M10.894 2.553a1 1 0 00-1.788 0l-7 14a1 1 0 001.169 1.409l5-1.429A1 1 0 009 15.571V11a1 1 0 112 0v4.571a1 1 0 00.725.962l5 1.428a1 1 0 001.17-1.408l-7-14z'></path>
+              </svg></>}
+          </button></Tooltip>
       </form>
-      <details closed="true" style={{ margin: "8px auto 8px 0" }}>
+      {/* <details closed="true" style={{ margin: "8px auto 8px 0" }}>
         <summary className={styles.summary}>
           Agent Chat Logger
         </summary>
-        {/* <Logger log={log} setLog={setLog} /> */}
-      </details>
+        <Logger log={log} setLog={setLog} />
+      </details> */}
 
       <div className={styles.column2} style={{ margin: "8px auto 8px 0" }}>
         <details closed="true" style={{ margin: "8px auto 8px 0" }}>
@@ -358,10 +430,10 @@ export default function Home() {
                   zIndex={1}>
                   <Radio.Button value={1} styles={{ width: 120 }}><Parrot />Normal Bot</Radio.Button>
                 </Tooltip>
-                <Tooltip title={<div>Agent bot is ChatGPT on sterioids<br/>
-                                      1. Updated web information<br/>
-                                      2. Accurate calculations<br/>
-                                      3. Query your documents</div>} color="#108ee9"
+                <Tooltip title={<div>Agent bot is ChatGPT on sterioids<br />
+                  1. Updated web information<br />
+                  2. Accurate calculations<br />
+                  3. Query your documents</div>} color="#108ee9"
                   placement="top"
                   trigger="hover"
                   destroyTooltipOnHide={true}

@@ -53,26 +53,10 @@ export default async function handler(req, res) {
 
             console.log("Pinecone: vectorStore.length", vectorStore);
 
-            const model = new OpenAI({
-              openAIApiKey: OPENAI_API_KEY,
-            });
-
-            console.log("Open AI: model")
-
-            const chain = new RetrievalQAChain({
-              combineDocumentsChain: loadQAStuffChain(model),
-              retriever: vectorStore.asRetriever(),
-              returnSourceDocuments: false,
-            });
-
-            console.log("chain up")
-
-            const chainData = await chain.call({
-              query: "What is Djikstra's algorithm for?",
-            });
-
-            console.log("Chain response: ", JSON.stringify(chainData, null, 2));
-
+            if (vectorStore) {
+                foundDocument.savedInPinecone = true;
+                foundDocument.save();
+            }
 
             res.status(200).json({
                 message: "Pinecone vectors saved",

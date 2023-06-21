@@ -24,16 +24,48 @@ if (!mongoose.models.Document) {
       //raw text 251 x {pageContent, metadata}
       vectors: [vectorsSchema],
       namespace: String,
+      savedInPinecone: {
+        type: Boolean,
+        default: false
+      },
     },
     {
       timestamps: {
         createdAt: "created_at",
         updatedAt: "updated_at",
       },
+      virtuals: {
+        pageContentSummary: {
+          get() {
+            let summary = [];
+            if (this.vectors.length===0) return []
+            for (let i = 0; i < 3; i++) {
+              summary.push(this.vectors[i].pageContent);
+            }
+            return summary;
+          }
+        },
+        embeddingSummary: {
+          get() {
+            if (this.vectors.length===0) return []
+            let summary = [];
+            for (let i = 0; i < 3; i++) {
+              summary.push(JSON.stringify(this.vectors[i].values.map(x => x).join(',')));
+            }
+            return summary;
+          }
+        },
+      }
     }
   );
+
+  documentsSchema.set('toJSON', { virtuals: true });
 
   mongoose.model("Document", documentsSchema);
 }
 
 export default mongoose.models.Document;
+
+
+
+
