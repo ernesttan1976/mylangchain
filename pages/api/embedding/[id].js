@@ -17,7 +17,7 @@ export const config = {
 
 export default async function handler(req, res) {
 
-  await connect();
+  connect();
   try {
 
     if (req.method !== "POST") {
@@ -38,20 +38,21 @@ export default async function handler(req, res) {
 
       const documentEmbedding = [];
       for (let i = 0; i < docs.length; i++) {
-        const embedding = await embeddings.embedQuery(docs[i].pageContent);
-        documentEmbedding.push(embedding);
-        docs[i].values.push(embedding);
-        // Write the chunk to the response stream
-        res.write(JSON.stringify({
-          message: `Chunk ${i + 1} of ${docs.length}`,
-          embedding,
-        }));
-    
+        //skips previously received embeddings
+        if (docs[i].values.length===0) {
+          const embedding = await embeddings.embedQuery(docs[i].pageContent);
+          documentEmbedding.push(embedding);
+          docs[i].values.push(embedding);
+          // Write the chunk to the response stream
+          res.write(JSON.stringify({
+            message: `Chunk ${i + 1} of ${docs.length}`,
+            embedding,
+          }));
+          foundDocument.save();  
+        }
         if (i % 10 === 0) console.log(i);
       }
     
-      foundDocument.save();
-
       res.end();
     }
   } catch (err) {

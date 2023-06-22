@@ -6,12 +6,12 @@ import { PineconeStore } from "langchain/vectorstores/pinecone";
 import { OpenAIEmbeddings } from "langchain/embeddings/openai";
 import getConfig from 'next/config';
 const conf = getConfig();
-const { publicRuntimeConfig } = conf;
+const { serverRuntimeConfig } = conf;
 const {
     PINECONE_ENVIRONMENT,
     PINECONE_KEY,
     OPENAI_API_KEY,
-} = publicRuntimeConfig;
+} = serverRuntimeConfig;
 
 function removeJSCode(html) {
     // remove style tags and their contents
@@ -23,7 +23,7 @@ function removeJSCode(html) {
 
 export default async function handler(req, res) {
 
-    await connect();
+   connect();
 
     const weburl = req.body.weburl;
 
@@ -40,7 +40,7 @@ export default async function handler(req, res) {
     let docs = await loader.load();
     //console.log("Before=>", docs[0].pageContent);
     docs[0].pageContent = removeJSCode(docs[0].pageContent);
-    //console.log("After=>", docs[0].pageContent);
+    console.log("After=>", docs[0].pageContent);
 
     const fileData = {
         name: weburl,

@@ -23,6 +23,10 @@ export default function TabPage2() {
   const [userInputEmbedding, setUserInputEmbedding] = useState("");
   const [loading, setLoading] = useState(false);
   const [embeddingComplete, setEmbeddingComplete] = useState(false);
+  const [chunkMessage, setChunkMessage] = useState("");
+  const [chunkIndex, setChunkIndex] = useState(null);
+  const [saveMessage, setSaveMessage] = useState("");
+  const [saveIndex, setSaveIndex] = useState(null)
 
   //saving the file data after step 1
   const [objects, setObjects] = useState([]);
@@ -38,7 +42,6 @@ export default function TabPage2() {
     async function fetchData() {
       const response = await fetch('/api/documents');
       const docs = await response.json();
-      console.log(docs)
       setDocuments(docs.documents);
     }
     setLoading(true);
@@ -126,37 +129,53 @@ export default function TabPage2() {
   };
 
   const handleSubmit2 = async (id, index) => {
+
     try {
       event.preventDefault();
       const formData = new FormData();
-
       const response = await fetch(`/api/embedding/${id}`, {
         method: "POST",
-        body: formData,
+        body: formData,//empty
       });
 
       const reader = response.body.getReader();
       let embeddingReceived = [];
 
+
       while (true) {
         const { done, value } = await reader.read();
 
-        const chunk = JSON.parse(new TextDecoder().decode(value));
+        const decoded = new TextDecoder().decode(value)
+        //console.log("decoded",decoded)
+        const regex = /\/\/.*(?:\r\n|\r|\n)|\/\*(?:[\s\S]*?)\*\//g;
+        const cleanedString = decoded.replace(regex, '');
+        //console.log(cleanedString)
+        let chunk;
+        try{
+          chunk = JSON.parse(cleanedString);
+          
+        } catch (e){
+          chunk = cleanedString;
+        }
 
+        setChunkIndex(index);
+        setChunkMessage(chunk.message);
         embeddingReceived.push(chunk);
 
 
         //set the embedding values
         setObjects((prev) => {
           const newObject = {
-            ...objects[index],
+            ...objects[0],
             embedding: embeddingReceived
           };
           // console.log("index:",index,"->newObject.embedding", newObject.embedding[newObject.embedding.length-1])
-          console.log("embeddingReceived:", chunk);
-          prev.splice(index, 1, newObject);
+          //console.log("embeddingReceived:", chunk);
+          prev.splice(0, 1, newObject);
           return prev;
         });
+
+        console.log(chunk.message)
 
         const messageList = embeddingsRef.current;
         if (messageList) messageList.scrollTop = messageList.scrollHeight;
@@ -181,7 +200,9 @@ export default function TabPage2() {
 
       const data = await response.json();
       if (data.message) {
-        message.success(`${data.message} save ${data.vectorStore} items in Pinecone vectorstore`);
+        message.success(`Saved in Pinecone vectorstore`);
+        setSaveIndex(index);
+        setSaveMessage('Saved in Pinecone vectorstore')
       } else {
         message.error(data.error);
       }
@@ -201,7 +222,7 @@ export default function TabPage2() {
       const data = await response.json();
       if (data.message) {
         message.success(data.message);
-        setDocuments(prev=>([...prev.slice(0, index), ...prev.slice(index + 1)]));
+        setDocuments(prev => ([...prev.slice(0, index), ...prev.slice(index + 1)]));
       } else {
         message.error(data.error);
       }
@@ -223,11 +244,11 @@ export default function TabPage2() {
             <thead><tr><th>Id</th><th>File Data</th><th>Page Content</th><th>Embedding</th><th>Saved in Pinecone</th></tr></thead>
             <tbody>
               {documents.length > 0 && documents.map((document, index) => (
-                <tr>
+                <tr key={index}>
                   <td>{index + 1}.</td>
                   <td><a href={document.fileData?.url}><u>{document.fileData?.name}</u><br />({humanizeFileSize(document.fileData?.size)})</a>
-                    <Button className={styles.filebuttonsmall} onClick={()=>window.open(`/api/documents/${document._id}`)}>Show JSON</Button>
-                    <Button className={styles.filebuttonsmall} type="submit" onClick={() => handleDelete(document._id, index)} >Delete</Button>
+                    <Button className={styles.filebuttonsmall} onClick={() => window.open(`/api/documents/${document._id}`)}>Show JSON</Button>
+                    <Button className={styles.filebuttonsmall} type="submit" onClick={() => handleDelete(document._id, 0)} >Delete</Button>
                   </td>
                   <td>
                     {document.pageContentSummary.length && document.pageContentSummary.map((summary, index) => (
@@ -240,17 +261,17 @@ export default function TabPage2() {
                   </td>
                   <td>
                     <Button className={styles.filebuttonsmall} type="submit" onClick={() => handleSubmit2(document._id, index)} >Get Embeddings</Button>
-                    {document.embeddingSummary[0] !== '""' && document.embeddingSummary.map((summary, index) => (
+                    {(chunkMessage && index===chunkIndex)? <p styles={{backgroundColor: 'green'}}>{chunkMessage}</p> : document.embeddingSummary[0] !== '""' && document.embeddingSummary.map((summary, index) => (
                       <details key={index + 3000}>
                         <summary>
                           {`${summary.slice(0, 50)}...`}
                         </summary>
                         {`${summary.slice(0, 500)}...`}
                       </details>))}
-
                   </td>
-                  <td><Button className={styles.filebuttonsmall} type="submit" disabled={document?.savedInPinecone ? true : false} onClick={() => handleSubmit3(document._id, index)} >Save</Button>
-                    {document?.savedInPinecone ? "Yes" : "No"}
+                  <td><Button className={styles.filebuttonsmall} type="submit" disabled={document?.savedInPinecone ? true : false} onClick={() => handleSubmit3(document._id, 0)} >Save</Button>
+                  {(saveMessage && index===saveIndex)? <p styles={{backgroundColor: 'green'}}>{saveMessage}</p> :
+                    (document?.savedInPinecone ? "Yes" : "No")}
                   </td>
                 </tr>))}
             </tbody>
@@ -268,31 +289,27 @@ export default function TabPage2() {
           </div>
         </form>
       </div>
-      {true && objects.map((object, index) => (
-        <>
-          <div key={index} className={styles.cloud}>
-            <form className={styles.form}>
-              <h3 styles={{ width: '80%' }}><a href={object.fileData.url || '/'} download>{`${object.fileData.name || 'filename'}   size: ${humanizeFileSize(object.fileData.size || 0)}`}</a></h3>
-              <div className={styles.markdownanswer}>
-                <ReactMarkdown linkTarget={"_blank"}>{'\n```json\n' + JSON.stringify(object.vectors.map((vector, vectorIndex) => {
-                  return ('\n\PAGE ' + vectorIndex + 1 + '\n\n\n' + vector.pageContent)
-                }).join('')) + '\n```json\n' || 'Page Content'}</ReactMarkdown>
-              </div>
-              <Button className={styles.filebutton} type="submit" onClick={() => handleSubmit2(object.id, index)} >Get Embeddings</Button>
-            </form>
+      {objects.length>0 && <><div className={styles.cloud}>
+        <form className={styles.form}>
+          <h3 styles={{ width: '80%' }}><a href={objects[0].fileData?.url || '/'} download>{`${objects[0].fileData?.name || 'filename'}   size: ${humanizeFileSize(objects[0].fileData?.size || 0)}`}</a></h3>
+          <div className={styles.markdownanswer}>
+            <ReactMarkdown linkTarget={"_blank"}>{'\n```json\n' + JSON.stringify(objects[0].vectors?.map((vector, vectorIndex) => {
+              return ('\n\PAGE ' + vectorIndex + 1 + '\n\n\n' + vector.pageContent)
+            }).join('')) + '\n```json\n' || 'Page Content'}</ReactMarkdown>
           </div>
-          <div className={styles.cloud}>
-            <form className={styles.form}>
-              <h3>Embeddings from OpenAI : {embeddingComplete && 'Complete! Ready to Save to Pinecone'}</h3>
-              <div ref={embeddingsRef} className={styles.markdownanswer}>
-                {/* Messages are being rendered in Markdown format */}
-                <ReactMarkdown linkTarget={"_blank"}>{object.embedding?.length && JSON.stringify(object.embedding[object.embedding.length - 1]) || 'Embedding'}</ReactMarkdown>
-              </div>
-              <Button className={styles.filebutton} type="submit" disabled={embeddingComplete ? false : true} onClick={() => handleSubmit3(object.id, index)} >Save to PineCone</Button>
-            </form>
+          <Button className={styles.filebutton} type="submit" onClick={() => handleSubmit2(objects[0].id, index)} >Get Embeddings</Button>
+        </form>
+      </div>
+      <div className={styles.cloud}>
+        <form className={styles.form}>
+          <h3>Embeddings from OpenAI : {embeddingComplete && 'Complete! Ready to Save to Pinecone'}</h3>
+          <div ref={embeddingsRef} className={styles.markdownanswer}>
+            {/* Messages are being rendered in Markdown format */}
+            <ReactMarkdown linkTarget={"_blank"}>{objects[0].embedding?.length && JSON.stringify(objects[0].embedding[objects[0].embedding.length - 1]) || 'Embedding'}</ReactMarkdown>
           </div>
-        </>
-      ))}
+          <Button className={styles.filebutton} type="submit" disabled={embeddingComplete ? false : true} onClick={() => handleSubmit3(objects[0].id, index)} >Save to PineCone</Button>
+        </form>
+      </div></>}
     </>
   )
 }

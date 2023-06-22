@@ -16,7 +16,7 @@ const {
 
 export default async function handler(req, res) {
 
-    await connect();
+    connect();
 
     if (req.method !== "GET") {
         res.status(405).json({ error: "Method not allowed" });
@@ -32,11 +32,7 @@ export default async function handler(req, res) {
             const indexesList = await pinecone.listIndexes();
             let pineconeIndex;
 
-            console.log("creating index");
             pineconeIndex = pinecone.Index("index01");
-
-
-            console.log("Pinecone Index", pineconeIndex);
 
             const { id } = req.query;
             console.log("id: ", id)
@@ -48,10 +44,8 @@ export default async function handler(req, res) {
               });
 
             const vectorStore = await PineconeStore.fromDocuments(foundDocument.vectors,embeddings,
-                { pineconeIndex, textKey: "pageContent", namespace: foundDocument.namespace }
+                { pineconeIndex, textKey: "pageContent", namespace: "pdf" }
             );
-
-            console.log("Pinecone: vectorStore.length", vectorStore);
 
             if (vectorStore) {
                 foundDocument.savedInPinecone = true;
@@ -60,8 +54,9 @@ export default async function handler(req, res) {
 
             res.status(200).json({
                 message: "Pinecone vectors saved",
-                chainData: chainData
             });
+
+            return;
 
         } catch (err) {
             console.error(err);
