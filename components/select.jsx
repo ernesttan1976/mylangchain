@@ -5,7 +5,7 @@ import { useRef, useState, useEffect } from 'react';
 import styles from "../styles/Home.module.css";
 
 let index = 0;
-const SelectComponent = ({ prompts, setBot }) => {
+const SelectComponent = ({ prompts, setBot, setRadio }) => {
   const [items, setItems] = useState([]);
   const [name, setName] = useState('');
   const [prompt, setPrompt] = useState('');
@@ -13,8 +13,7 @@ const SelectComponent = ({ prompts, setBot }) => {
   const inputRef2 = useRef(null);
   const botRef = useRef(null);
 
-  const defaultBotValue = "You are an expert pair programmer in Core, Java, Java Spring and Spring Boot. You will provide code, answer questions, give programming challenges based on the user level of proficiency. You will give web links as reference to your answers."
-
+  const defaultBotValue = "You are a search agent with access to sources in current affairs, calculator and Pinecone store."
   useEffect(() => {
     setItems(prompts);
   }, [prompts])
@@ -50,7 +49,7 @@ const SelectComponent = ({ prompts, setBot }) => {
     <Select
       className={styles.select}
       placeholder="Choose Your Bot"
-      defaultValue="Java Bot"
+      defaultValue="Agent Bot"
       onChange={handleBotChange}
       dropdownRender={(menu) => (
         <>

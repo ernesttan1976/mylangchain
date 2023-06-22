@@ -19,6 +19,8 @@ const nextConfig = {
     OPENAI_API_KEY: process.env.OPENAI_API_KEY,
     GOOGLE_CUSTOM_SEARCH_SECRET: process.env.GOOGLE_CUSTOM_SEARCH_SECRET,
     GOOGLE_CSE_ID: process.env.GOOGLE_CSE_ID,
+    PINECONE_KEY: process.env.PINECONE_KEY,
+    PINECONE_ENVIRONMENT: process.env.PINECONE_ENVIRONMENT,
   },
 }
 

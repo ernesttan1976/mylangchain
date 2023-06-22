@@ -3,6 +3,8 @@ import Head from 'next/head'
 import styles from '../styles/Home.module.css'
 import Image from 'next/image'
 import ReactMarkdown from 'react-markdown'
+import rehypeRaw from "rehype-raw";
+
 import { LoadingOutlined } from '@ant-design/icons';
 import { Spin, Tooltip, Radio } from 'antd';
 const antIcon = (
@@ -38,7 +40,6 @@ import { AIChatMessage, ChatMessage, SystemChatMessage, HumanChatMessage } from 
 
 import { ApiChat } from '../lib/chat'
 import { AgentChat } from '../lib/agent'
-import { PineconeChat } from '../lib/pineconechat-browser'
 import SelectComponent from '../components/select'
 import OCR from "../components/ocr"
 
@@ -60,7 +61,7 @@ export default function Home() {
   const [ocrResult, setOcrResult] = useState('');
   const [toolsSelect, setToolsSelect] = useState(['Google_Search', 'Calculator']);
   const [log, setLog] = useState('');
-  const [radio, setRadio] = useState(1);
+  const [radio, setRadio] = useState(2);
   const [birdIcon, setBirdIcon] = useState(<Image src="/parroticon.png" alt="AI" width="30" height="30" className={styles.boticon} priority={true} />)
 
   const messageListRef = useRef(null);
@@ -176,10 +177,10 @@ export default function Home() {
 
     //console.log("response=>", response)
 
-    if (!data?.result) {
-      handleError();
-      return;
-    }
+    // if (!data?.result) {
+    //   handleError();
+    //   return;
+    // }
 
     setLoading(false);
 
@@ -286,7 +287,7 @@ export default function Home() {
               {(message._getType() === "ai" || message._getType() === "system") ? birdIcon : <Image src="/usericon.png" alt="Me" width="30" height="30" className={styles.usericon} priority={true} />}
               <div ref={el => (chatRef.current[index] = el)} className={styles.markdownanswer}>
                 {/* Messages are being rendered in Markdown format */}
-                <ReactMarkdown linkTarget={"_blank"}>{message.text}</ReactMarkdown>
+                <ReactMarkdown linkTarget={"_blank"} children={message.text} rehypePlugins={[rehypeRaw]}></ReactMarkdown>
               </div>
               <div className={styles.verticalButtonGroup}>
                 <Button className={styles.copyButton} onClick={() => handleCopyHTML(index)}>
@@ -444,7 +445,7 @@ export default function Home() {
               </Radio.Group>
             </div>
             <div className={styles.navlinksrow}>
-              {prompts && <SelectComponent prompts={prompts} setBot={setBot} />}
+              {prompts && <SelectComponent prompts={prompts} setBot={setBot} setRadio={setRadio} />}
               <Tooltip title={<p>hmm...I need better answers<br />Agent + Tools</p>} color="#108ee9"
                 placement="top"
                 trigger="hover"
