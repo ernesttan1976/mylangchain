@@ -1,4 +1,4 @@
-import connect from "../../../config/database";
+import {connect, disconnect} from "../../../config/database";
 import Document from "../../../models/Documents";
 import { OpenAIEmbeddings } from "langchain/embeddings/openai";
 import getConfig from 'next/config';
@@ -52,7 +52,6 @@ export default async function handler(req, res) {
         }
         if (i % 10 === 0) console.log(i);
       }
-    
       res.end();
     }
   } catch (err) {

@@ -1,4 +1,4 @@
-import connect from "../../../config/database";
+import {connect, disconnect} from "../../../config/database";
 import Document from "../../../models/Documents";
 import { PineconeClient } from "@pinecone-database/pinecone";
 import { PineconeStore } from "langchain/vectorstores/pinecone";
@@ -55,7 +55,6 @@ export default async function handler(req, res) {
             res.status(200).json({
                 message: "Pinecone vectors saved",
             });
-
             return;
 
         } catch (err) {

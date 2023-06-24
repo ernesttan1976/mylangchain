@@ -13,7 +13,8 @@ import {
     AIPluginTool, ChainTool
 } from "langchain/tools";
 import { initializeAgentExecutorWithOptions } from "langchain/agents";
-import { toolsModel } from "../../models/tools"
+import {connect, disconnect} from "../../config/database";
+import {Tool} from "../../models/toolsModel"
 
 const conf = getConfig();
 const { serverRuntimeConfig } = conf;
@@ -158,6 +159,11 @@ function mapNestedObject(nestedObject) {
     return observations.join('\n');
 }
 
+//ChainEnd: {"text":"```json\n{\n    \"action\": \"Web Pilot\",\n    \"action_input\": \"https://en.wikipedia.org/wiki/Tharman_Shanmugaratnam\"\n}\n```"}
+//ChainEnd: "https://webreader.webpilotai.com/.well-known/ai-plugin.json"
+//ChainEnd: {"text":"```json\n{\n    \"action\": \"Final Answer\",\n    \"action_input\": \"Tharman Shanmugaratnam is a Singaporean politician who has held several key positions in the Singaporean government, including Deputy Prime Minister and Minister for Finance. He has also served as the Chairman of the Monetary Authority of Singapore and the Group of Thirty. Shanmugaratnam has been credited with playing a key role in Singapore's economic success and has received numerous awards and accolades for his contributions. As of June 2021, he is still serving as Senior Minister and Coordinating Minister for Social Policies in the Singaporean government.\"\n}\n```"}
+//ChainEnd: {"output":"Tharman Shanmugaratnam is a Singaporean politician who has held several key positions in the Singaporean government, including Deputy Prime Minister and Minister for Finance. He has also served as the Chairman of the Monetary Authority of Singapore and the Group of Thirty. Shanmugaratnam has been credited with playing a key role in Singapore's economic success and has received numerous awards and accolades for his contributions. As of June 2021, he is still serving as Senior Minister and Coordinating Minister for Social Policies in the Singaporean government.","intermediateSteps":[{"action":{"tool":"Web Pilot","toolInput":"https://en.wikipedia.org/wiki/Tharman_Shanmugaratnam","log":"```json\n{\n    \"action\": \"Web Pilot\",\n    \"action_input\": \"https://en.wikipedia.org/wiki/Tharman_Shanmugaratnam\"\n}\n```"},"observation":"https://webreader.webpilotai.com/.well-known/ai-plugin.json"}]}
+
 export default async function handler(req, res) {
     if (req.method !== 'POST') {
         res.status(405).json({ message: 'Method Not Allowed' });
@@ -167,6 +173,9 @@ export default async function handler(req, res) {
     const { bot, question, history, toolsSelect } = req.body;
 
     console.info("req.body", req.body)
+
+    connect();
+    const toolsModel = await Tool.find({})
 
     let capturedLogs = [];
     try {
@@ -272,6 +281,7 @@ export default async function handler(req, res) {
                         res.write(tokens);
                     },
                     handleChainEnd(outputs) {
+                        console.log("ChainEnd:",JSON.stringify(outputs))
                         if (outputs?.text?.includes("Final Answer")) {
 
                             finalCount++;
@@ -282,7 +292,7 @@ export default async function handler(req, res) {
                                     tokens = tokens + "\n" + createDetailsSummary("Detailed Logs:" + capturedLogs.map(x => x).join("\n"), false);
                                     res.write(tokens);
                                     res.end();
-                                    console.log = originalConsoleLog;
+                                    //console.log = originalConsoleLog;
                                 }
                             }, 2000);
 
@@ -294,7 +304,7 @@ export default async function handler(req, res) {
                                 tokens = tokens + "\n" + createDetailsSummary("Detailed Logs:" + capturedLogs.map(x => x).join("\n"), false);
                                 res.write(tokens);
                                 
-                                console.log = originalConsoleLog;
+                                //console.log = originalConsoleLog;
                             }, 1000);
                             isLogged = true;
                         }
@@ -312,6 +322,7 @@ export default async function handler(req, res) {
                         res.write(tokens);
                     },
                     handleToolEnd(output) {
+                        console.log("ToolEnd:",JSON.stringify(output))
                         let output2;
                         let observations;
                         if (!output.includes("{")) {
@@ -344,7 +355,9 @@ export default async function handler(req, res) {
             }
         }
 
+
     } catch (error) {
+
         console.error("Error during AgentChat:", error);
         // Handle the error appropriately
         res.status(500).json({ message: "Internal Server Error" });

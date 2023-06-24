@@ -1,4 +1,4 @@
-import connect from "../../../config/database";
+import {connect, disconnect} from "../../../config/database";
 import Document from "../../../models/Documents";
 
 

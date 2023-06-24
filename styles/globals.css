@@ -52,63 +52,6 @@ a:hover {
   color: black;
 }
 
-table {
-  width: 100%;
-  border-collapse: collapse;
-}
-
-th {
-  padding: 8px;
-  border-right: solid rgb(255, 255, 255) 1px;
-  background-color: rgba(106, 126, 255, 0.689);
-  vertical-align: top;
-}
-
-td {
-  padding: 6px;
-  border-right: solid rgb(101, 101, 101) 1px;
-  border-bottom: solid rgb(101, 101, 101) 1px;
-  vertical-align: top;
-}
-
-th:nth-child(1),td:nth-child(1) {
-  max-width: 4vw; /* Example: Adjust the width as needed */
-  width: 4vw;
-  text-align: right;
-}
-
-th:nth-child(2),td:nth-child(2) {
-  max-width: 20vw; /* Example: Adjust the width as needed */
-  width: 20vw;
-  text-align: left;
-  word-wrap: break-word;
-}
-
-th:nth-child(3),td:nth-child(3) {
-  max-width: 20vw; /* Example: Adjust the width as needed */
-  width: 20vw;
-  text-align: left;
-  word-wrap: break-word;
-}
-
-th:nth-child(4),td:nth-child(4) {
-  max-width: 20vw; /* Example: Adjust the width as needed */
-  width: 20vw;
-  text-align: left;
-  word-wrap: break-word;
-}
-
-th:nth-child(5),td:nth-child(5) {
-  max-width: 8vw; /* Example: Adjust the width as needed */
-  width: 8vw;
-  text-align: center;
-  border-right: none;
-}
-
-tr:last-child td {
-  border-bottom: none;
-}
-
 pre {
   overflow: auto;
   width: 100%;

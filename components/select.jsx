@@ -69,19 +69,25 @@ const SelectComponent = ({ prompts, setBot, setRadio }) => {
               ref={inputRef}
               value={name}
               onChange={onNameChange}
+              style={{width: 300}}
             />
             <Button type="text" icon={<PlusOutlined />} onClick={addItem}>
               Add item
             </Button>
           </Space>
-          <Space style={{
-              padding: '0 8px 4px',
-            }}>
             <TextArea
-              style={{color: 'white', backgroundColor: 'slate', borderRadius: 4, resize: 'none', width: 300, marginTop: 4, padding: 8}}
+              style={{
+                color: 'white', 
+                backgroundColor: 'slate', 
+                borderRadius: 4, 
+                resize: 'none', 
+                width: "95%",
+                margin: 8, 
+                marginTop: 4, 
+                padding: 8}}
               ref={inputRef2}
               rows={3}
-              maxLength={500}
+              maxLength={3000}
               type="text"
               id="userInput"
               name="userInput"
@@ -89,13 +95,18 @@ const SelectComponent = ({ prompts, setBot, setRadio }) => {
               value={prompt}
               onChange={onPromptChange}
             />
-          </Space>
         </>
       )}
       options={items?.map((item) => ({
-        label: item.name,
-        value: item.prompt,
+        ...item,
+        label: <div style={{ display: "flex", flexDirection: "column"}}>
+          <h4 style={{ display: "flex", justifyContent: "center"}}>{item.name}</h4><span style={{ display: "flex",fontSize: "0.8rem", textWrap: "wrap" }}>{item.prompt}</span></div>,
+        title: item.name +"\n" + item.prompt
       }))}
+      // options={items?.map((item) => ({
+      //   label: item.name,
+      //   value: item.prompt,
+      // }))}
     />
     </Tooltip>
   );

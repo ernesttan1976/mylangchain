@@ -1,4 +1,4 @@
-import connect from "../../../config/database";
+import {connect, disconnect} from "../../../config/database";
 import Document from "../../../models/Documents";
 
 export default async function handler(req, res) {
@@ -12,4 +12,5 @@ export default async function handler(req, res) {
   } else if (req.method==='POST'){
     //upload single file
   }
+
 }

@@ -1,4 +1,4 @@
-import connect from '../../config/database'
+import {connect, disconnect} from '../../config/database'
 import File from "../../models/Files";
 
 export default async function handler(req, res) {

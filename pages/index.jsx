@@ -15,6 +15,7 @@ const antIcon = (
     spin
   />
 );
+import { useRouter } from 'next/router';
 
 import { Select } from 'antd';
 
@@ -27,17 +28,19 @@ import { AIChatMessage, ChatMessage, SystemChatMessage, HumanChatMessage } from 
 import { ApiChat } from '../lib/chat'
 import SelectComponent from '../components/select'
 import OCR from "../components/ocr"
-import { toolsModel, tags } from "../models/tools"
 
 import definePrompts from "../models/prompts"
 import TabPage2 from './tabPage2'
 import TabPage3 from './tabPage3'
+import TabPage4 from "./tabPage4"
 
 
 const Parrot = () => <Image src={"/parroticon.png"} width={30} height={30} alt="Parrot" />
 const Macaw = () => <Image src={"/bluemacaw.png"} width={25} height={25} alt="Macaw" />
 
 export default function Home() {
+  const router = useRouter();
+  const { page } = router.query;
 
   const [userInput, setUserInput] = useState("");
   const [history, setHistory] = useState([]);
@@ -51,6 +54,7 @@ export default function Home() {
   const [log, setLog] = useState('');
   const [radio, setRadio] = useState(2);
   const [birdIcon, setBirdIcon] = useState(<Image src="/parroticon.png" alt="AI" width="30" height="30" className={styles.boticon} priority={true} />)
+  const [toolsModel, setToolsModel] = useState([]);
 
   const messageListRef = useRef(null);
   const chatRef = useRef([]);
@@ -84,6 +88,20 @@ export default function Home() {
     };
 
     getPrompts();
+
+  }, []);
+
+
+  useEffect(() => {
+    // textAreaRef.current.focus();
+
+    async function getData() {
+      const response = await fetch('/api/tools');
+      const data = await response.json();
+      let tools = data.tools
+      setToolsModel(tools);
+    }
+    getData();
 
   }, []);
 
@@ -281,7 +299,7 @@ export default function Home() {
   }
 
   const onChangeTab = (key) => {
-    //console.log(key);
+    router.push('/?page='+key)
   };
 
   const handleRadioChange = (e) => {
@@ -390,29 +408,34 @@ export default function Home() {
 
   const tabPages = [
     {
-      key: '1000',
+      key: '1',
       label: `Chat Bots`,
       children: tabPage1,
     },
     {
-      key: '1001',
+      key: '2',
       label: `Pdf Loader`,
       children: <TabPage2 />,
     },
     {
-      key: '1002',
+      key: '3',
       label: `Web Loader`,
       children: <TabPage3 />,
     },
+    {
+      key: '4',
+      label: `Plugins`,
+      children: <TabPage4 toolsModel={toolsModel} setToolsModel={setToolsModel} />,
+    },
   ];
 
-  
+
 
 
 
   const tagRender = (props) => {
 
-    const { label, value, closable, onClose} = props;
+    const { label, value, closable, onClose } = props;
     const onPreventMouseDown = (event) => {
       event.preventDefault();
       event.stopPropagation();
@@ -429,17 +452,16 @@ export default function Home() {
           marginRight: 3,
           // fontSize: 14,
           padding: "2px 8px",
-          backgroundColor: tags[toolsModel[toolsModel.findIndex(tool=>(tool.value === value))].tag].bgColor,
-          color: tags[toolsModel[toolsModel.findIndex(tool=>(tool.value === value))].tag].color,
+          backgroundColor: toolsModel[toolsModel.findIndex(tool => (tool.value === value))]?.tagbgColor || 'transparent',
+          color: toolsModel[toolsModel.findIndex(tool => (tool.value === value))]?.tagcolor || 'white',
           borderRadius: 4,
         }}
         children={label}
       >
-        
+
       </Tag>
     );
   };
-
 
   // options={toolsModel.map((tool) => ({
   //   ...tool,
@@ -469,7 +491,7 @@ export default function Home() {
           <div className={styles.navlinkscolumn}>
             <div className={styles.navlinks}>
               <div className={styles.navlogo}>
-                <a href="/">LangChain</a>
+                <a href="/">My LangChain</a>
               </div>
               <div className={styles.navlinks2}>
                 <Space>
@@ -518,9 +540,10 @@ export default function Home() {
                   onChange={handleAgentToolsChange}
                   options={toolsModel.map((tool) => ({
                     ...tool,
-                    label: <span style={{display: "flex"}}>
-                    <span style={{display: "flex"}}>{tool.label}</span><span style={{display: "flex"}}>&nbsp;({tool.tag})</span></span>,
-                    title: tool.label + " ("+ tool.tag + ")\n"+ tool.description
+                    label: <div style={{ display: "flex", flexDirection: "column" }} title={tool.description}>
+                      <span style={{ display: "flex" }}>{tool.label}&nbsp;({tool.tagname})</span>
+                      </div>,
+                    title: tool.label + " (" + tool.tagname + ")\n" + tool.description
                   }))}
                   value={toolsSelect}
                   ref={toolsRef}
@@ -529,7 +552,7 @@ export default function Home() {
           </div>
         </div>
         <main className={styles.main}>
-          <Tabs className={styles.tab} centered defaultActiveKey="1000" size={'large'} items={tabPages} onChange={onChangeTab} />
+          <Tabs className={styles.tab} centered defaultActiveKey="1" activeKey={page} size={'large'} items={tabPages} onChange={onChangeTab} />
         </main >
         <div className={styles.footer}>
           <p>Powered by <a href="https://js.langchain.com/" target="_blank">LangChain</a>. Frontend chat forked from <a href="https://twitter.com/chillzaza_" target="_blank">Zahid</a>. Experimented and adapted by <a href="https://www.linkedin.com/in/ernest-tan-dev/">Ernest</a>.</p>

@@ -17,6 +17,14 @@
   align-items: center;
 }
 
+.center {
+  width: 80vw;
+  display: flex;
+  justify-content: flex-start;
+  align-items: center;
+  padding: 1rem 0;
+  flex-direction: column;
+}
 
 .cloud {
   width: 75vw;
@@ -41,12 +49,24 @@
   outline: none;
 }
 
+
+
 .header {
   width: auto;
 }
 
 .header p {
   text-align: center;
+}
+
+.installpluginbutton {
+  margin-bottom: 24px;
+  font-size: 1rem;
+  padding: 24px;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  border-radius: 16px;
 }
 
 .topnav {
@@ -95,13 +115,13 @@
 }
 
 .select {
-  width: max(50%, 400px);
+  width: max(60%, 400px);
   min-width: 200px;
   margin: 8px;
 }
 
 .select2 {
-  width: max(50%, 400px);
+  width: max(60%, 400px);
   min-width: 200px;
   margin: 8px;
 }
@@ -444,6 +464,121 @@
   align-items: center;
   justify-content: flex-start;
   width: 50px;
+}
+
+.table2 textarea {
+  width: 100%;
+  font-size: 0.8rem;
+  padding: 4px;
+  border-radius: 2px;
+  border: 1px solid #30373d;
+  background: #070809;
+  color: #ECECF1;
+  outline: none;
+  height: auto;
+  resize: none;
+}
+
+.table2 textarea:disabled {
+  opacity: 0.5;
+}
+
+.table2 textarea::placeholder {
+  color: #5f6368;
+}
+
+.table2 {
+  width: 90%;
+  display: flex;
+  flex-direction: column;
+  border-collapse: collapse;
+
+}
+
+.table2 td {
+  padding: 6px;
+  border-right: solid rgb(101, 101, 101) 1px;
+  border-bottom: solid rgb(101, 101, 101) 1px;
+  vertical-align: top;
+}
+
+.table2 th:nth-child(1),.table2 td:nth-child(1) {
+  max-width: 10vw; /* Example: Adjust the width as needed */
+  width: 10vw;
+  text-align: right;
+}
+
+.table2 th:nth-child(2),.table2 td:nth-child(2) {
+  max-width: 10vw; /* Example: Adjust the width as needed */
+  width: 10vw;
+  text-align: left;
+  word-wrap: break-word;
+}
+
+.table2 th:nth-child(3),.table2 td:nth-child(3) {
+  max-width: 20vw; /* Example: Adjust the width as needed */
+  width: 20vw;
+  text-align: left;
+  word-wrap: break-word;
+}
+
+.table2 th:nth-child(4),.table2 td:nth-child(4) {
+  max-width: 20vw; /* Example: Adjust the width as needed */
+  width: 20vw;
+  text-align: left;
+  word-wrap: break-word;
+}
+
+.table2 th:nth-child(5),.table2 td:nth-child(5) {
+  max-width: 8vw; /* Example: Adjust the width as needed */
+  width: 8vw;
+  text-align: left;
+  word-wrap: break-word;
+}
+
+.table2 th:nth-child(6),.table2 td:nth-child(6) {
+  max-width: 5vw; /* Example: Adjust the width as needed */
+  width: 5vw;
+  text-align: left;
+  word-wrap: break-word;
+}
+
+.table2 th:nth-child(7),.table2 td:nth-child(7) {
+  max-width: 5vw; /* Example: Adjust the width as needed */
+  width: 5vw;
+  text-align: left;
+  word-wrap: break-word;
+}
+
+.table2 th:nth-child(8),.table2 td:nth-child(8) {
+  max-width: 5vw; /* Example: Adjust the width as needed */
+  width: 5vw;
+  text-align: center;
+  border-right: none;
+}
+
+.table2 tr:last-child td {
+  border-bottom: none;
+}
+
+.table2 th {
+  padding: 8px;
+  border-right: solid rgb(255, 255, 255) 1px;
+  background-color: rgba(106, 126, 255, 0.689);
+  vertical-align: center;
+  text-align: center !important;
+}
+
+.savebutton {
+  color: rgb(0, 0, 0);
+  background: rgb(165, 162, 162);
+  border-radius: 4px;
+  padding: 0.5rem;
+  border: none;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  font-size: 0.8rem;
 }
 
 @media (max-width: 600px) {

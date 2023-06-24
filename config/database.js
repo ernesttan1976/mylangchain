@@ -7,7 +7,10 @@ const {
   DATABASE_URL,
 } = serverRuntimeConfig;
 
-export const connect = () => {
+let connectionTimeout;
+
+
+const connect = () => {
   mongoose.connect(DATABASE_URL, {
     useNewUrlParser: true,
     useUnifiedTopology: true,
@@ -21,6 +24,9 @@ export const connect = () => {
 
   mongoose.connection.once("open", () => {
     console.log("Connected to mongoose...");
+    connectionTimeout = setTimeout(() => {
+      disconnect();
+    }, 5 * 60 * 1000); // 5 minutes in milliseconds
   });
 
   mongoose.connection.on("disconnected", () =>
@@ -28,4 +34,20 @@ export const connect = () => {
   );
 };
 
-export default connect;
+const disconnect = () => {
+  if (connectionTimeout) {
+    clearTimeout(connectionTimeout);
+    connectionTimeout = undefined; // Reset the connectionTimeout variable
+  }
+  mongoose.connection.close()
+    .then(() => {
+      console.log("Mongoose connection closed.");
+    })
+    .catch((err) => {
+      console.log("Error closing Mongoose connection:", err);
+    });
+};
+
+export {
+  connect, disconnect
+}
