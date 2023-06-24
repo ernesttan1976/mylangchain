@@ -17,35 +17,22 @@ const antIcon = (
 );
 
 import { Select } from 'antd';
-const options = [
-  {
-    label: "Pinecone Store",
-    value: "Pinecone_Store",
-  },
-  {
-    label: "Calculator",
-    value: "Calculator",
-  },
-  {
-    label: "Google Search",
-    value: "Google_Search",
-  },
 
-]
 
 import { CopyOutlined } from '@ant-design/icons';
-import { Button, Tabs, ConfigProvider, theme, Space } from 'antd'
+import { Button, Tabs, ConfigProvider, theme, Space, Tag } from 'antd'
 import { AIChatMessage, ChatMessage, SystemChatMessage, HumanChatMessage } from "langchain/schema";
 // import { Logger } from '../components/logger'
 
 import { ApiChat } from '../lib/chat'
-import { AgentChat } from '../lib/agent'
 import SelectComponent from '../components/select'
 import OCR from "../components/ocr"
+import { toolsModel, tags } from "../models/tools"
 
 import definePrompts from "../models/prompts"
 import TabPage2 from './tabPage2'
 import TabPage3 from './tabPage3'
+
 
 const Parrot = () => <Image src={"/parroticon.png"} width={30} height={30} alt="Parrot" />
 const Macaw = () => <Image src={"/bluemacaw.png"} width={25} height={25} alt="Macaw" />
@@ -59,7 +46,8 @@ export default function Home() {
   const [prompts, setPrompts] = useState([]);
   const [bot, setBot] = useState('');
   const [ocrResult, setOcrResult] = useState('');
-  const [toolsSelect, setToolsSelect] = useState(['Google_Search', 'Calculator']);
+  const [toolsSelect, setToolsSelect] = useState([]);
+  //['Google_Search', 'Calculator']
   const [log, setLog] = useState('');
   const [radio, setRadio] = useState(2);
   const [birdIcon, setBirdIcon] = useState(<Image src="/parroticon.png" alt="AI" width="30" height="30" className={styles.boticon} priority={true} />)
@@ -70,10 +58,10 @@ export default function Home() {
   const toolsRef = useRef(null);
 
   // Auto scroll chat to bottom
-  useEffect(() => {
-    const messageList = messageListRef.current;
-    messageList.scrollTop = messageList.scrollHeight;
-  }, [messages]);
+  // useEffect(() => {
+  //   const messageList = messageListRef.current;
+  //   messageList.scrollTop = messageList.scrollHeight;
+  // }, [messages]);
 
   useEffect(() => {
     let birdEl;
@@ -123,7 +111,7 @@ export default function Home() {
     }
 
     setLoading(true);
-    setMessages((prevMessages) => [...prevMessages, new HumanChatMessage(userInput)]);
+
     const response = await ApiChat(bot, userInput, history, setMessages);
 
     // Reset user input
@@ -137,7 +125,6 @@ export default function Home() {
       return;
     }
 
-    //setMessages((prevMessages) => [...prevMessages, { "message": data?.result.text, "type": "apiMessage" }]);
     setLoading(false);
 
   };
@@ -169,20 +156,46 @@ export default function Home() {
 
     setLoading(true);
     setMessages((prevMessages) => [...prevMessages, new HumanChatMessage(userInput)]);
-    const response = await AgentChat(bot, userInput, history, toolsSelect, setMessages);
+    setMessages((prevMessages) => [...prevMessages, new AIChatMessage("")]);
 
-    // Reset user input
-    setUserInput("");
-    const data = response;
+    const controller = new AbortController();
 
-    //console.log("response=>", response)
+    try {
+      const response = await fetch('/api/agentchat', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json'
+        },
+        body: JSON.stringify({
+          bot: bot,
+          question: userInput,
+          history: history,
+          toolsSelect: toolsSelect
+        }),
+        signal: controller.signal // optional, used to cancel the request
+      });
 
-    // if (!data?.result) {
-    //   handleError();
-    //   return;
-    // }
+      const reader = response.body.getReader()
 
+
+
+      while (true) {
+        const { done, value } = await reader.read();
+
+        const decoded = new TextDecoder().decode(value)
+
+        setMessages((prevMessages) => [...prevMessages.slice(0, prevMessages.length - 1), new AIChatMessage(decoded)]);
+
+        if (done) {
+          break;
+        }
+      }
+
+    } catch (err) {
+      console.error(err)
+    }
     setLoading(false);
+    setUserInput("");
 
   };
 
@@ -223,7 +236,7 @@ export default function Home() {
       } catch {
         chunks = chunks + decoded;
       }
-          setMessages((prevMessages) => [...prevMessages.slice(0,-1), new AIChatMessage(chunks)]);
+      setMessages((prevMessages) => [...prevMessages.slice(0, -1), new AIChatMessage(chunks)]);
     }
 
     //const responseText = new TextDecoder().decode(chunks);
@@ -393,6 +406,50 @@ export default function Home() {
     },
   ];
 
+  
+
+
+
+  const tagRender = (props) => {
+
+    const { label, value, closable, onClose} = props;
+    const onPreventMouseDown = (event) => {
+      event.preventDefault();
+      event.stopPropagation();
+    };
+
+
+    return (
+      <Tag
+        onMouseDown={onPreventMouseDown}
+        closable={closable}
+        onClose={onClose}
+        style={{
+          margin: 2,
+          marginRight: 3,
+          // fontSize: 14,
+          padding: "2px 8px",
+          backgroundColor: tags[toolsModel[toolsModel.findIndex(tool=>(tool.value === value))].tag].bgColor,
+          color: tags[toolsModel[toolsModel.findIndex(tool=>(tool.value === value))].tag].color,
+          borderRadius: 4,
+        }}
+        children={label}
+      >
+        
+      </Tag>
+    );
+  };
+
+
+  // options={toolsModel.map((tool) => ({
+  //   ...tool,
+  //   label: (
+  //     <span style={{ backgroundColor: tool.color }}>
+  //       <span>{tool.label}({tool.tag})</span>
+  //     </span>
+  //   ),
+  // }))}
+
   return (
     <>
       <Head>
@@ -444,7 +501,7 @@ export default function Home() {
                 </Tooltip>
               </Radio.Group>
             </div>
-            <div className={styles.navlinksrow}>
+            <div className={styles.navlinksrow2}>
               {prompts && <SelectComponent prompts={prompts} setBot={setBot} setRadio={setRadio} />}
               <Tooltip title={<p>hmm...I need better answers<br />Agent + Tools</p>} color="#108ee9"
                 placement="top"
@@ -457,13 +514,18 @@ export default function Home() {
                   allowClear
                   className={styles.select2}
                   placeholder="Agent Tools"
+                  tagRender={tagRender}
                   onChange={handleAgentToolsChange}
-                  options={options}
+                  options={toolsModel.map((tool) => ({
+                    ...tool,
+                    label: <span style={{display: "flex"}}>
+                    <span style={{display: "flex"}}>{tool.label}</span><span style={{display: "flex"}}>&nbsp;({tool.tag})</span></span>,
+                    title: tool.label + " ("+ tool.tag + ")\n"+ tool.description
+                  }))}
                   value={toolsSelect}
                   ref={toolsRef}
                 /></Tooltip>
             </div>
-
           </div>
         </div>
         <main className={styles.main}>
