@@ -287,8 +287,8 @@ export default async function handler(req, res) {
         const responseStream = await executor.call({
             input: bot + "\n" + question,
             chat_history: history,
-            timeout: 9500,
-            verbose: true,
+            timeout: 8000,
+            verbose: false,
         },
 
             [
