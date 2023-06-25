@@ -49,8 +49,8 @@ export default function Home() {
   const [prompts, setPrompts] = useState([]);
   const [bot, setBot] = useState('');
   const [ocrResult, setOcrResult] = useState('');
-  const [toolsSelect, setToolsSelect] = useState([]);
-  //['Google_Search', 'Calculator']
+  const [toolsSelect, setToolsSelect] = useState(['WebPilot', 'Calculator','Pinecone Store', 'Your AI Council']);
+  //['WebPilot', 'Calculator', 'Pinecone Store', 'Your AI Council']
   const [log, setLog] = useState('');
   const [radio, setRadio] = useState(2);
   const [birdIcon, setBirdIcon] = useState(<Image src="/parroticon.png" alt="AI" width="30" height="30" className={styles.boticon} priority={true} />)
@@ -334,7 +334,8 @@ export default function Home() {
       </div>
     </div>
     <div className={styles.center}>
-      <form className={`${styles.cloudform} ${styles.leftform}`}>
+      <form className={styles.form}>
+      {/* className={`${styles.cloudform} ${styles.leftform}`} */}
         <label htmlFor="userInput" className={styles.label}>Prompt</label>
         <textarea
           disabled={loading}
@@ -351,7 +352,7 @@ export default function Home() {
           onChange={e => setUserInput(e.target.value)}
           className={styles.textarea}
         />
-        <Tooltip title={<p>Open AI Bot / Agent Bot</p>} color="#64e331"
+        <Tooltip title={<p>Normal Bot / Agent Bot</p>} color="#64e331"
           placement="left"
           trigger="hover"
           destroyTooltipOnHide={true}

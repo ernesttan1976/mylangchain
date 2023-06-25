@@ -98,9 +98,9 @@ const SelectComponent = ({ prompts, setBot, setRadio }) => {
         </>
       )}
       options={items?.map((item) => ({
-        ...item,
+        value: item.prompt,
         label: <div style={{ display: "flex", flexDirection: "column"}}>
-          <h4 style={{ display: "flex", justifyContent: "center"}}>{item.name}</h4><span style={{ display: "flex",fontSize: "0.8rem", textWrap: "wrap" }}>{item.prompt}</span></div>,
+          <h4 style={{ display: "flex", justifyContent: "flex-left"}}>{item.name}</h4><span style={{ display: "flex",fontSize: "0.8rem", textWrap: "wrap" }}>{item.prompt}</span></div>,
         title: item.name +"\n" + item.prompt
       }))}
       // options={items?.map((item) => ({

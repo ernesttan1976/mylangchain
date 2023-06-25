@@ -37,6 +37,11 @@
   align-items: center;
 }
 
+.form {
+  width: 100%;
+  position: relative;
+}
+
 .textarea {
   resize: none;
   font-size: 1.1rem;
@@ -198,7 +203,7 @@
 .generatebutton {
   position: absolute;
   bottom: 3.6rem;
-  right: 1rem;
+  right: 5rem;
   color: rgb(0, 0, 0);
   background: rgb(165, 162, 162);
   border-radius: 4px;
@@ -217,23 +222,7 @@
 .pineconegeneratebutton {
   position: absolute;
   bottom: 1rem;
-  right: 1rem;
-  color: rgb(0, 0, 0);
-  background: rgb(165, 162, 162);
-  border-radius: 4px;
-  padding: 0.3rem;
-  width: 140px;
-  height: 30px;
-  padding-right: 0.7rem;
-  border: none;
-  display: flex;
-  z-index: 10;
-}
-
-.pineconegeneratebutton2 {
-  position: absolute;
-  bottom: 0.8rem;
-  right: 1rem;
+  right: 5rem;
   color: rgb(0, 0, 0);
   background: rgb(165, 162, 162);
   border-radius: 4px;

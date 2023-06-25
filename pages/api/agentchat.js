@@ -163,7 +163,8 @@ function mapNestedObject(nestedObject) {
 //ChainEnd: "https://webreader.webpilotai.com/.well-known/ai-plugin.json"
 //ChainEnd: {"text":"```json\n{\n    \"action\": \"Final Answer\",\n    \"action_input\": \"Tharman Shanmugaratnam is a Singaporean politician who has held several key positions in the Singaporean government, including Deputy Prime Minister and Minister for Finance. He has also served as the Chairman of the Monetary Authority of Singapore and the Group of Thirty. Shanmugaratnam has been credited with playing a key role in Singapore's economic success and has received numerous awards and accolades for his contributions. As of June 2021, he is still serving as Senior Minister and Coordinating Minister for Social Policies in the Singaporean government.\"\n}\n```"}
 //ChainEnd: {"output":"Tharman Shanmugaratnam is a Singaporean politician who has held several key positions in the Singaporean government, including Deputy Prime Minister and Minister for Finance. He has also served as the Chairman of the Monetary Authority of Singapore and the Group of Thirty. Shanmugaratnam has been credited with playing a key role in Singapore's economic success and has received numerous awards and accolades for his contributions. As of June 2021, he is still serving as Senior Minister and Coordinating Minister for Social Policies in the Singaporean government.","intermediateSteps":[{"action":{"tool":"Web Pilot","toolInput":"https://en.wikipedia.org/wiki/Tharman_Shanmugaratnam","log":"```json\n{\n    \"action\": \"Web Pilot\",\n    \"action_input\": \"https://en.wikipedia.org/wiki/Tharman_Shanmugaratnam\"\n}\n```"},"observation":"https://webreader.webpilotai.com/.well-known/ai-plugin.json"}]}
-
+//ChainEnd: {"text":"```json\n{\n    \"action\": \"Your AI Council\",\n    \"action_input\": {\n        \"query\": \"What are the latest events related to US Dollar de-dollarization in 2023 and what are the latest news and how it impacts Singapore and the world? And what does BRICS have to do with it?\",\n        \"agents\": [\"news\", \"finance\", \"politics\"]\n    }\n}\n```"}
+//ToolEnd: "https://my-plugin.arnasltlt.repl.co/.well-known/ai-plugin.json"
 export default async function handler(req, res) {
     if (req.method !== 'POST') {
         res.status(405).json({ message: 'Method Not Allowed' });
@@ -276,12 +277,36 @@ export default async function handler(req, res) {
 
             [
                 {
+                    handleLLMStart(llm, prompts){
+                        console.log(">>LLMStart:", JSON.stringify(llm), JSON.stringify(prompts))
+                    },
+                    handleChatModelStart(llm, messages){
+                        console.log(">>ChatModelStart", JSON.stringify(llm), JSON.stringify(messages))
+                    },
                     handleLLMNewToken(token) {
                         tokens = tokens + token;
                         res.write(tokens);
                     },
+                    handleLLMEnd(output){
+                        console.log(">>LLMEnd:", JSON.stringify(output))
+                    },
+                    handleLLMError(err){
+                        console.log(">>LLMError:", JSON.stringify(err))
+                    },
+                    handleText(text){
+                        console.log(">>Text:",JSON.stringify(text))
+                    },
+                    handleAgentAction(action){
+                        console.log(">>AgentAction",JSON.stringify(action))
+                    },
+                    handleAgentEnd(action){
+                        console.log(">>AgentEnd:",JSON.stringify(action))
+                    },
+                    handleChainStart(chain){
+                        console.log(">>ChainStart",JSON.stringify(chain))
+                    },
                     handleChainEnd(outputs) {
-                        console.log("ChainEnd:",JSON.stringify(outputs))
+                        console.log(">>ChainEnd:",JSON.stringify(outputs))
                         if (outputs?.text?.includes("Final Answer")) {
 
                             finalCount++;
@@ -292,7 +317,7 @@ export default async function handler(req, res) {
                                     tokens = tokens + "\n" + createDetailsSummary("Detailed Logs:" + capturedLogs.map(x => x).join("\n"), false);
                                     res.write(tokens);
                                     res.end();
-                                    //console.log = originalConsoleLog;
+                                    console.log = originalConsoleLog;
                                 }
                             }, 2000);
 
@@ -304,13 +329,14 @@ export default async function handler(req, res) {
                                 tokens = tokens + "\n" + createDetailsSummary("Detailed Logs:" + capturedLogs.map(x => x).join("\n"), false);
                                 res.write(tokens);
                                 
-                                //console.log = originalConsoleLog;
+                                console.log = originalConsoleLog;
                             }, 1000);
                             isLogged = true;
                         }
 
                     },
                     handleChainError(err) {
+                        console.log(">>ChainError:",JSON.stringify(err))
                         let errorMessage;
                         if (err?.includes("429 error")) {
                             errorMessage = "\n\nI'm very sorry, exceeded free 100 calls per day to Google Custom Search, to increase quota it is $5/per 1000 calls" +
@@ -321,8 +347,11 @@ export default async function handler(req, res) {
                         tokens = tokens + "\n\nError: " + errorMessage + "\n\n";
                         res.write(tokens);
                     },
+                    handleToolStart(tool, input){
+                        console.log(">>ToolStart:", JSON.stringify(tool), JSON.stringify(input))
+                    },
                     handleToolEnd(output) {
-                        console.log("ToolEnd:",JSON.stringify(output))
+                        console.log(">>ToolEnd:",JSON.stringify(output))
                         let output2;
                         let observations;
                         if (!output.includes("{")) {
@@ -335,6 +364,9 @@ export default async function handler(req, res) {
                         tokens = tokens + "\n\nObservations: " + observations + "\n\n";
                         res.write(tokens);
                     },
+                    handleToolError(err){
+                        console.log(">>ToolError:",JSON.stringify(err))
+                    },
                 },
             ]
         )
@@ -344,14 +376,15 @@ export default async function handler(req, res) {
         {
             const log = console.log.bind(console)
             console.log = (...args) => {
-
-                const cleanMessage = args[0].replace(/\u001b\[\d+m/g, '').replace(/({)/, '<pre><code>$1').replace(/(})[^}]*$/, '$1</pre></code>').replace(/\\\\/g, "\\").replace(/\"/g, '"')
-                //.replace(/```json/,"\n```");
+                const arg0=args[0];
+                const cleanMessage = (typeof arg0 === 'string') ? arg0.replace(/\u001b\[\d+m/g, '').replace(/({)/, '<pre><code>$1').replace(/(})[^}]*$/, '$1</pre></code>').replace(/\\\\/g, "\\").replace(/\"/g, '"') : arg0;
+                                //.replace(/```json/,"\n```");
                 log(...args)
                 if (checkStartPattern(cleanMessage)) {
                     const newLog = createDetailsSummary(cleanMessage, false);
                     capturedLogs.push(newLog);
                 }
+                
             }
         }
 

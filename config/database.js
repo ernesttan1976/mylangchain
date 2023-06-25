@@ -24,9 +24,13 @@ const connect = () => {
 
   mongoose.connection.once("open", () => {
     console.log("Connected to mongoose...");
-    connectionTimeout = setTimeout(() => {
-      disconnect();
-    }, 5 * 60 * 1000); // 5 minutes in milliseconds
+    
+    if (process.env.NODE_ENV === 'development') {
+      connectionTimeout = setTimeout(() => {
+        disconnect();
+      }, 20 * 60 * 1000); // 5 minutes in milliseconds
+  
+    }
   });
 
   mongoose.connection.on("disconnected", () =>
