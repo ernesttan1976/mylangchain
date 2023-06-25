@@ -270,22 +270,8 @@ export default async function handler(req, res) {
         let capturedLogs = [];
 
 
-        // {
-        //     const log = console.log.bind(console)
-        //     console.log = (...args) => {
-        //         const arg0 = args[0];
-        //         const cleanMessage = (typeof arg0 === 'string') ? arg0.replace(/\u001b\[\d+m/g, '').replace(/({)/, '<pre><code>$1').replace(/(})[^}]*$/, '$1</pre></code>').replace(/\\\\/g, "\\").replace(/\"/g, '"') : arg0;
-        //         //.replace(/```json/,"\n```");
-        //         log(...args)
-        //         if (checkStartPattern(cleanMessage)) {
-        //             const newLog = createDetailsSummary(cleanMessage, false);
-        //             capturedLogs.push(newLog);
-        //         }
+        
 
-        //     }
-        // }
-
-        //const result = await executor.call({input: question})
         const responseStream = await executor.call({
             input: bot + "\n" + question,
             chat_history: history,
@@ -351,7 +337,6 @@ export default async function handler(req, res) {
                                     tokens = tokens + "\n" + createDetailsSummary("Detailed Logs:" + capturedLogs.map(x => x).join("\n"), false);
                                     res.write(tokens);
                                     res.end();
-                                    console.log = originalConsoleLog;
                                 }
                             }, 2000);
 
@@ -362,8 +347,6 @@ export default async function handler(req, res) {
                                 //tokens = formatJSONObjects(tokens);
                                 tokens = tokens + "\n" + createDetailsSummary("Detailed Logs:" + capturedLogs.map(x => x).join("\n"), false);
                                 res.write(tokens);
-
-                                console.log = originalConsoleLog;
                             }, 1000);
                             isLogged = true;
                         }
@@ -409,8 +392,6 @@ export default async function handler(req, res) {
                 },
             ]
         )
-
-        // const originalConsoleLog = console.log;
 
 
 
