@@ -49,8 +49,14 @@ export default function Home() {
   const [prompts, setPrompts] = useState([]);
   const [bot, setBot] = useState('');
   const [ocrResult, setOcrResult] = useState('');
-  const [toolsSelect, setToolsSelect] = useState(['WebPilot', 'Calculator','Pinecone Store', 'Your AI Council']);
+  const [toolsSelect, setToolsSelect] = useState(['WebPilot', 'Calculator','Pinecone Store']);
   //['WebPilot', 'Calculator', 'Pinecone Store', 'Your AI Council']
+  //Webpilot 2.8 s
+  //Google 2 s
+  //Link Reader (no good answer)
+  //AI Council (no good answer)
+  //Keymate AI (no good answer)
+  //URL Reader (no good answer)
   const [log, setLog] = useState('');
   const [radio, setRadio] = useState(2);
   const [birdIcon, setBirdIcon] = useState(<Image src="/parroticon.png" alt="AI" width="30" height="30" className={styles.boticon} priority={true} />)
@@ -64,7 +70,7 @@ export default function Home() {
   // Auto scroll chat to bottom
   useEffect(() => {
     const messageList = messageListRef.current;
-    messageList.scrollTop = messageList.scrollHeight;
+    messageList.scrollTop = messageList.scrollHeight-800;
   }, [messages]);
 
   useEffect(() => {

@@ -60,9 +60,10 @@ export default function TabPage4(props) {
         if (response.ok) {
             const data = await response.json();
             message.success(data.message)
-            setToolsModel(prev => (
-                [...prev.splice(index, 1)]
-            ))
+            setToolsModel(prev => {
+                const newArray = prev.splice(index, 1); 
+                return [...newArray]
+        })
         } else {
             message.error(response.statusText)
         }
