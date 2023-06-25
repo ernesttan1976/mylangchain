@@ -62,10 +62,10 @@ export default function Home() {
   const toolsRef = useRef(null);
 
   // Auto scroll chat to bottom
-  // useEffect(() => {
-  //   const messageList = messageListRef.current;
-  //   messageList.scrollTop = messageList.scrollHeight;
-  // }, [messages]);
+  useEffect(() => {
+    const messageList = messageListRef.current;
+    messageList.scrollTop = messageList.scrollHeight;
+  }, [messages]);
 
   useEffect(() => {
     let birdEl;

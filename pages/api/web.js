@@ -1,5 +1,5 @@
 import { CheerioWebBaseLoader } from "langchain/document_loaders/web/cheerio";
-import connect from '../../config/database'
+import {connect} from '../../config/database'
 import Document from "../../models/Documents"
 import { PineconeClient } from "@pinecone-database/pinecone";
 import { PineconeStore } from "langchain/vectorstores/pinecone";

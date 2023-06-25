@@ -178,7 +178,6 @@ export default async function handler(req, res) {
     connect();
     const toolsModel = await Tool.find({})
 
-    let capturedLogs = [];
     try {
 
 
@@ -266,6 +265,23 @@ export default async function handler(req, res) {
         let finalCount = 0;
 
         let isLogged = false;
+        let capturedLogs = [];
+
+
+        {
+            const log = console.log.bind(console)
+            console.log = (...args) => {
+                const arg0=args[0];
+                const cleanMessage = (typeof arg0 === 'string') ? arg0.replace(/\u001b\[\d+m/g, '').replace(/({)/, '<pre><code>$1').replace(/(})[^}]*$/, '$1</pre></code>').replace(/\\\\/g, "\\").replace(/\"/g, '"') : arg0;
+                                //.replace(/```json/,"\n```");
+                log(...args)
+                if (checkStartPattern(cleanMessage)) {
+                    const newLog = createDetailsSummary(cleanMessage, false);
+                    capturedLogs.push(newLog);
+                }
+                
+            }
+        }
 
         //const result = await executor.call({input: question})
         const responseStream = await executor.call({
@@ -279,9 +295,13 @@ export default async function handler(req, res) {
                 {
                     handleLLMStart(llm, prompts){
                         console.log(">>LLMStart:", JSON.stringify(llm), JSON.stringify(prompts))
+                        tokens = tokens + "\n\n>>LLMStart:\n" + JSON.stringify(llm) + "\n" + JSON.stringify(prompts);
+                        res.write(tokens);
                     },
                     handleChatModelStart(llm, messages){
                         console.log(">>ChatModelStart", JSON.stringify(llm), JSON.stringify(messages))
+                        tokens = tokens + "\n\n>>>ChatModelStart\n" + JSON.stringify(llm) + "\n" + JSON.stringify(messages);
+                        res.write(tokens);
                     },
                     handleLLMNewToken(token) {
                         tokens = tokens + token;
@@ -289,21 +309,33 @@ export default async function handler(req, res) {
                     },
                     handleLLMEnd(output){
                         console.log(">>LLMEnd:", JSON.stringify(output))
+                        tokens = tokens + "\n\n>>LLMEnd:\n" + JSON.stringify(output)
+                        res.write(tokens)
                     },
                     handleLLMError(err){
                         console.log(">>LLMError:", JSON.stringify(err))
+                        tokens = tokens + "\n\n>>LLMError:\n" + JSON.stringify(err)
+                        res.write(tokens)
                     },
                     handleText(text){
                         console.log(">>Text:",JSON.stringify(text))
+                        tokens = tokens + "\n\n>>Text:\n" + JSON.stringify(text)
+                        res.write(tokens)
                     },
                     handleAgentAction(action){
                         console.log(">>AgentAction",JSON.stringify(action))
+                        tokens = tokens + "\n\n>>AgentAction\n" + JSON.stringify(action)
+                        res.write(tokens)
                     },
                     handleAgentEnd(action){
                         console.log(">>AgentEnd:",JSON.stringify(action))
+                        tokens = tokens + "\n\n>>AgentEnd:\n" + JSON.stringify(action)
+                        res.write(tokens)
                     },
                     handleChainStart(chain){
                         console.log(">>ChainStart",JSON.stringify(chain))
+                        tokens = tokens + "\n\n>>ChainStart\n" + JSON.stringify(chain)
+                        res.write(tokens)
                     },
                     handleChainEnd(outputs) {
                         console.log(">>ChainEnd:",JSON.stringify(outputs))
@@ -349,6 +381,8 @@ export default async function handler(req, res) {
                     },
                     handleToolStart(tool, input){
                         console.log(">>ToolStart:", JSON.stringify(tool), JSON.stringify(input))
+                        tokens = tokens + "\n\n>>ToolStart:\n" + JSON.stringify(tool) + "\n" + JSON.stringify(input)
+                        res.write(tokens)
                     },
                     handleToolEnd(output) {
                         console.log(">>ToolEnd:",JSON.stringify(output))
@@ -366,6 +400,8 @@ export default async function handler(req, res) {
                     },
                     handleToolError(err){
                         console.log(">>ToolError:",JSON.stringify(err))
+                        tokens = tokens + "\n\n>>ToolError:\n" + JSON.stringify(err)
+                        res.write(tokens)
                     },
                 },
             ]
@@ -373,21 +409,7 @@ export default async function handler(req, res) {
 
         const originalConsoleLog = console.log;
 
-        {
-            const log = console.log.bind(console)
-            console.log = (...args) => {
-                const arg0=args[0];
-                const cleanMessage = (typeof arg0 === 'string') ? arg0.replace(/\u001b\[\d+m/g, '').replace(/({)/, '<pre><code>$1').replace(/(})[^}]*$/, '$1</pre></code>').replace(/\\\\/g, "\\").replace(/\"/g, '"') : arg0;
-                                //.replace(/```json/,"\n```");
-                log(...args)
-                if (checkStartPattern(cleanMessage)) {
-                    const newLog = createDetailsSummary(cleanMessage, false);
-                    capturedLogs.push(newLog);
-                }
-                
-            }
-        }
-
+        
 
     } catch (error) {
 
