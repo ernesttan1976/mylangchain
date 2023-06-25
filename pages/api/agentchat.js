@@ -315,7 +315,7 @@ export default async function handler(req, res) {
                     handleLLMError(err){
                         console.log(">>LLMError:", JSON.stringify(err))
                         tokens = tokens + "\n\n>>LLMError:\n" + JSON.stringify(err)
-                        res.write(tokens)
+                        res.status(500).json({ error: err });
                     },
                     handleText(text){
                         console.log(">>Text:",JSON.stringify(text))
@@ -377,7 +377,8 @@ export default async function handler(req, res) {
                             errorMessage = "\n\n" + JSON.stringify(err)
                         }
                         tokens = tokens + "\n\nError: " + errorMessage + "\n\n";
-                        res.write(tokens);
+                        res.status(500).json({ error: err });
+//                        res.write(tokens);
                     },
                     handleToolStart(tool, input){
                         console.log(">>ToolStart:", JSON.stringify(tool), JSON.stringify(input))
@@ -401,7 +402,7 @@ export default async function handler(req, res) {
                     handleToolError(err){
                         console.log(">>ToolError:",JSON.stringify(err))
                         tokens = tokens + "\n\n>>ToolError:\n" + JSON.stringify(err)
-                        res.write(tokens)
+                        res.status(500).json({ error: err });
                     },
                 },
             ]
