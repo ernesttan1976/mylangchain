@@ -3,7 +3,7 @@ import AWS from "aws-sdk";
 import { PDFLoader } from "langchain/document_loaders/fs/pdf";
 import stream from "stream";
 import getConfig from 'next/config';
-import connect from "../../config/database";
+import {connect} from "../../config/database";
 import Document from "../../models/Documents";
 
 const conf = getConfig();
