@@ -553,7 +553,7 @@ export default function Home() {
           </div>
         </div>
         <main className={styles.main}>
-          <Tabs className={styles.tab} centered defaultActiveKey="1" activeKey={page} size={'large'} items={tabPages} onChange={onChangeTab} />
+          <Tabs className={styles.tab} centered defaultActiveKey="1" activeKey={page} size={{sm: 'small', md: 'large'}} items={tabPages} onChange={onChangeTab} />
         </main >
         <div className={styles.footer}>
           <p>Powered by <a href="https://js.langchain.com/" target="_blank">LangChain</a>. Frontend chat forked from <a href="https://twitter.com/chillzaza_" target="_blank">Zahid</a>. Experimented and adapted by <a href="https://www.linkedin.com/in/ernest-tan-dev/">Ernest</a>.</p>

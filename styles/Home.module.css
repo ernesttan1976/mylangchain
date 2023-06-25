@@ -2,6 +2,7 @@
 
 
 .main {
+  width: 100vw;
   display: flex;
   flex-direction: column;
   justify-content: space-between;
@@ -18,9 +19,9 @@
 }
 
 .center {
-  width: 80vw;
+  width: 75vw;
   display: flex;
-  justify-content: flex-start;
+  justify-content: center;
   align-items: center;
   padding: 1rem 0;
   flex-direction: column;
@@ -35,6 +36,7 @@
   display: flex;
   justify-content: center;
   align-items: center;
+  margin: 0 auto;
 }
 
 .form {
@@ -84,7 +86,8 @@
   align-items: center;
 }
 
-.navlogo, .navlinks a {
+.navlogo,
+.navlinks a {
   font-weight: 500;
 }
 
@@ -94,7 +97,7 @@
 }
 
 .navlinks {
-  width: 95vw;
+  width: 85vw;
   display: flex;
   justify-content: space-between;
   align-items: center;
@@ -106,6 +109,7 @@
   flex-wrap: wrap;
   justify-content: center;
   align-items: flex-start;
+  margin: 4px;
 }
 
 .navlinksrow2 {
@@ -120,13 +124,13 @@
 }
 
 .select {
-  width: max(60%, 400px);
+  width: max(60%, 325px);
   min-width: 200px;
   margin: 8px;
 }
 
 .select2 {
-  width: max(60%, 400px);
+  width: max(60%, 325px);
   min-width: 200px;
   margin: 8px;
 }
@@ -203,7 +207,7 @@
 .generatebutton {
   position: absolute;
   bottom: 3.6rem;
-  right: 5rem;
+  right: 1rem;
   color: rgb(0, 0, 0);
   background: rgb(165, 162, 162);
   border-radius: 4px;
@@ -222,7 +226,7 @@
 .pineconegeneratebutton {
   position: absolute;
   bottom: 1rem;
-  right: 5rem;
+  right: 1rem;
   color: rgb(0, 0, 0);
   background: rgb(165, 162, 162);
   border-radius: 4px;
@@ -316,7 +320,7 @@
   color: #ECECF1;
 }
 
-.usermessagewaiting{
+.usermessagewaiting {
   padding: 1.5rem;
   color: #ECECF1;
   background: linear-gradient(to left, #070809, #1a1c20, #070809);
@@ -331,6 +335,7 @@
   0% {
     background-position: -100% 0;
   }
+
   100% {
     background-position: 100% 0;
   }
@@ -344,11 +349,18 @@
 }
 
 @keyframes fadein {
-  from { opacity: 0; }
-  to   { opacity: 1; }
+  from {
+    opacity: 0;
+  }
+
+  to {
+    opacity: 1;
+  }
 }
 
-.apimessage, .usermessage, .usermessagewaiting {
+.apimessage,
+.usermessage,
+.usermessagewaiting {
   display: flex;
 }
 
@@ -374,27 +386,25 @@
   white-space: pre-wrap !important;
 }
 
-.markdownanswer ol, .markdownanswer ul {
+.markdownanswer ol,
+.markdownanswer ul {
   margin: 1rem;
 }
 
-.boticon, .usericon {
+.boticon,
+.usericon {
   margin-right: 1rem;
   border-radius: 0.1rem;
 }
 
-.markdownanswer h1, .markdownanswer h2, .markdownanswer h3 {
+.markdownanswer h1,
+.markdownanswer h2,
+.markdownanswer h3 {
   font-size: inherit;
 }
 
 
-.center {
-  display: flex;
-  justify-content: center;
-  align-items: center;
-  padding: 1rem 0;
-  flex-direction: column;
-}
+
 
 .leftform {
   display: flex;
@@ -412,7 +422,7 @@
 
 .summary {
   margin-bottom: 8px;
-  color:rgb(165, 162, 162);
+  color: rgb(165, 162, 162);
 }
 
 
@@ -447,7 +457,7 @@
   opacity: 1;
 }
 
-.verticalButtonGroup{
+.verticalButtonGroup {
   display: flex;
   flex-direction: column;
   align-items: center;
@@ -464,9 +474,10 @@
   background: #070809;
   color: #ECECF1;
   outline: none;
-  height: auto;
+  height: 120px;
   resize: none;
 }
+
 
 .table2 textarea:disabled {
   opacity: 0.5;
@@ -477,11 +488,11 @@
 }
 
 .table2 {
-  width: 90%;
+  width: 100%;
   display: flex;
   flex-direction: column;
   border-collapse: collapse;
-
+  font-size: 0.8rem;
 }
 
 .table2 td {
@@ -491,59 +502,76 @@
   vertical-align: top;
 }
 
-.table2 th:nth-child(1),.table2 td:nth-child(1) {
-  max-width: 10vw; /* Example: Adjust the width as needed */
+.table2 th:nth-child(1),
+.table2 td:nth-child(1) {
+  max-width: 10vw;
+  /* Example: Adjust the width as needed */
   width: 10vw;
   text-align: right;
 }
 
-.table2 th:nth-child(2),.table2 td:nth-child(2) {
-  max-width: 10vw; /* Example: Adjust the width as needed */
+.table2 th:nth-child(2),
+.table2 td:nth-child(2) {
+  max-width: 10vw;
+  /* Example: Adjust the width as needed */
   width: 10vw;
   text-align: left;
   word-wrap: break-word;
 }
 
-.table2 th:nth-child(3),.table2 td:nth-child(3) {
-  max-width: 20vw; /* Example: Adjust the width as needed */
+.table2 th:nth-child(3),
+.table2 td:nth-child(3) {
+  max-width: 20vw;
+  /* Example: Adjust the width as needed */
   width: 20vw;
   text-align: left;
   word-wrap: break-word;
 }
 
-.table2 th:nth-child(4),.table2 td:nth-child(4) {
-  max-width: 20vw; /* Example: Adjust the width as needed */
+.table2 th:nth-child(4),
+.table2 td:nth-child(4) {
+  max-width: 20vw;
+  /* Example: Adjust the width as needed */
   width: 20vw;
   text-align: left;
   word-wrap: break-word;
 }
 
-.table2 th:nth-child(5),.table2 td:nth-child(5) {
-  max-width: 8vw; /* Example: Adjust the width as needed */
+.table2 th:nth-child(5),
+.table2 td:nth-child(5) {
+  max-width: 8vw;
+  /* Example: Adjust the width as needed */
   width: 8vw;
   text-align: left;
   word-wrap: break-word;
 }
 
-.table2 th:nth-child(6),.table2 td:nth-child(6) {
-  max-width: 5vw; /* Example: Adjust the width as needed */
+.table2 th:nth-child(6),
+.table2 td:nth-child(6) {
+  max-width: 5vw;
+  /* Example: Adjust the width as needed */
   width: 5vw;
   text-align: left;
   word-wrap: break-word;
 }
 
-.table2 th:nth-child(7),.table2 td:nth-child(7) {
-  max-width: 5vw; /* Example: Adjust the width as needed */
+.table2 th:nth-child(7),
+.table2 td:nth-child(7) {
+  max-width: 5vw;
+  /* Example: Adjust the width as needed */
   width: 5vw;
   text-align: left;
   word-wrap: break-word;
 }
 
-.table2 th:nth-child(8),.table2 td:nth-child(8) {
-  max-width: 5vw; /* Example: Adjust the width as needed */
-  width: 5vw;
+.table2 th:nth-child(8),
+.table2 td:nth-child(8) {
+  max-width: 8vw;
+  /* Example: Adjust the width as needed */
+  width: 8vw;
   text-align: center;
   border-right: none;
+  
 }
 
 .table2 tr:last-child td {
@@ -562,12 +590,14 @@
   color: rgb(0, 0, 0);
   background: rgb(165, 162, 162);
   border-radius: 4px;
-  padding: 0.5rem;
+  padding: 2px;
   border: none;
   display: flex;
   justify-content: center;
   align-items: center;
   font-size: 0.8rem;
+  width: 90%;
+  margin: 16px auto;
 }
 
 @media (max-width: 600px) {
@@ -575,6 +605,7 @@
   .main {
     padding: 1rem;
   }
+
   .tab {
     width: 90vw;
     display: flex;
@@ -582,27 +613,40 @@
     justify-content: center;
     align-items: center;
   }
+
   .cloud {
     width: 90vw;
     height: 80vh;
     /* width: 22rem;
     height: 28rem; */
   }
+
+  .center {
+    width: 90vw;
+    padding: 1rem 0;
+    flex-direction: column;
+  }
+
   .textarea {
     width: 90vw;
+    font-size: 1rem;
+    padding: 8px;
   }
+
   .topnav {
     border: 1px solid black;
     align-items: center;
     flex-wrap: wrap;
     padding: 0.5rem;
   }
+
   .navlogo {
     font-size: 1.25rem;
     width: 10rem;
   }
+
   .markdownanswer code {
-    white-space : pre-wrap !important;
+    white-space: pre-wrap !important;
   }
 
   .navlinksrow2 {
@@ -610,6 +654,7 @@
     justify-content: center;
     align-items: center;
   }
+
   .footer {
     color: #5f6368;
     font-size: 0.4rem;
@@ -618,29 +663,164 @@
     justify-content: center;
     align-items: center;
   }
-  .boticon, .usericon {
+
+  .boticon,
+  .usericon {
     margin-right: 0rem;
     border-radius: 0.1rem;
     width: 1.5rem;
     height: 1.5rem;
   }
-  .apimessage, .usermessage, .usermessagewaiting {
-    padding:8px;
+
+  .apimessage,
+  .usermessage,
+  .usermessagewaiting {
+    padding: 8px;
   }
 
   .select {
-    width: max(100%, 400px);
+    width: max(100%, 325px);
     min-width: 200px;
     margin: 8px;
   }
+
   .select2 {
-    width: max(100%, 400px);
+    width: max(100%, 325px);
     min-width: 200px;
     margin: 8px;
   }
 
   .ant-tag {
     font-size: 8px;
+  }
+
+  .generatebutton {
+    bottom: 3.6rem;
+    right: 0.5rem;
+  }
+
+  .pineconegeneratebutton {
+    bottom: 1rem;
+    right: 0.5rem;
+  }
+
+  .table2 textarea {
+    width: 100%;
+    font-size: 0.5rem;
+    padding: 0px;
+    border-radius: 2px;
+    border: 1px solid #30373d;
+    background: #070809;
+    color: #ECECF1;
+    outline: none;
+    height: 95px;
+    resize: none;
+  }
+
+  .table2 textarea:disabled {
+    opacity: 0.5;
+  }
+
+  .table2 textarea::placeholder {
+    color: #5f6368;
+  }
+
+  .table2 {
+    width: 95vw;
+  }
+
+  .table2 td {
+    padding: 2px;
+  }
+
+  .table2 th:nth-child(1),
+  .table2 td:nth-child(1) {
+    max-width: 10vw;
+    /* Example: Adjust the width as needed */
+    width: 10vw;
+    text-align: right;
+  }
+
+  .table2 th:nth-child(2),
+  .table2 td:nth-child(2) {
+    max-width: 10vw;
+    /* Example: Adjust the width as needed */
+    width: 10vw;
+  }
+
+  .table2 th:nth-child(3),
+  .table2 td:nth-child(3) {
+    max-width: 20vw;
+    /* Example: Adjust the width as needed */
+    width: 20vw;
+  }
+
+  .table2 th:nth-child(4),
+  .table2 td:nth-child(4) {
+    max-width: 20vw;
+    /* Example: Adjust the width as needed */
+    width: 20vw;
+  }
+
+  .table2 th:nth-child(5),
+  .table2 td:nth-child(5) {
+    max-width: 8vw;
+    /* Example: Adjust the width as needed */
+    width: 8vw;
+  }
+
+  .table2 th:nth-child(6),
+  .table2 td:nth-child(6) {
+    max-width: 7vw;
+    /* Example: Adjust the width as needed */
+    width: 7vw;
+  }
+
+  .table2 th:nth-child(7),
+  .table2 td:nth-child(7) {
+    max-width: 7vw;
+    /* Example: Adjust the width as needed */
+    width: 7vw;
+  }
+
+  .table2 th:nth-child(8),
+  .table2 td:nth-child(8) {
+    max-width: 10vw;
+    /* Example: Adjust the width as needed */
+    width: 10vw;
+  }
+
+  .table2 tr:last-child td {
+    border-bottom: none;
+  }
+
+  .table2 th {
+    padding: 2px;
+    font-size: 0.4rem;
+  }
+
+  .installpluginbutton {
+    margin-bottom: 12px;
+    font-size: 0.8rem;
+    padding: 8px;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    border-radius: 8px;
+  }
+
+  .savebutton {
+    border-radius: 4px;
+    padding: 0.2rem;
+    font-size: 0.4rem;
+    height: 0.8rem;
+    margin: 16px 4px;
+    width: 1.8rem;
+  }
+
+  .navlogo {
+    font-size: 1rem;
+    margin-left: 8px;
   }
 }
 

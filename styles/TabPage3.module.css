@@ -12,13 +12,26 @@
   margin: 1rem 0;
 }
 
+.center {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  /* position: relative; */
+  padding: 1rem 10;
+  flex-direction: column;
+  height: 100px;
+  width: 75vw;
+  margin: 1rem 0;
+}
+
 .form {
+  position: relative;
   display: flex;
   flex-direction: column;
   justify-content: flex-start;
   align-items: flex-start;
   width: 100%;
-  padding: 1rem;
+  /* padding: 1rem; */
 }
 
 .cloudform {
@@ -30,7 +43,7 @@
   resize: none;
   font-size: 1.1rem;
   padding: 1rem 2rem 1rem 2rem;
-  width: 75vw;
+  width: 100%;
   border-radius: 0.5rem;
   border: 1px solid #30373d;
   background: #070809;
@@ -69,13 +82,15 @@
   z-index: 10;
 }
 
-.center {
+
+
+.center2 {
   display: flex;
   justify-content: center;
   align-items: center;
-  /* position: relative; */
   padding: 1rem 0;
   flex-direction: column;
+  height: 300px;
 }
 
 .label {
@@ -132,7 +147,7 @@
 
 .generatebutton {
   position: absolute;
-  top: 3.5rem;
+  top: 3.6rem;
   right: 1rem;
   color: rgb(71, 86, 255);
   background: #bcceed;
@@ -140,6 +155,7 @@
   border: none;
   display: flex;
   z-index: 10;
+  border-radius: 4px;
 }
 
 .generatebutton:hover {
@@ -178,7 +194,10 @@
   /* flex-grow: 1; */
   width: 100%;
   overflow-y: scroll;
-  max-height: 200px;
+  height: 400px;
+  display: flex;
+  justify-content: flex-start;
+  align-items: center;
 }
 
 .markdownanswer a:hover {
@@ -215,6 +234,10 @@
     border-radius: 0.5rem;
     padding: 0.5rem 0.5rem;
     margin: 0.5rem 0;
+    display: flex;
+    flex-direction: column;
+    justify-content: flex-start;
+    align-items: center;
   }
 
 
@@ -225,5 +248,30 @@
     align-items: flex-start;
     width: 100%;
     padding: 0rem;
+    height: max(300px , 100%);
+  }
+
+  .generatebutton {
+    position: absolute;
+    top: 2.8rem;
+    right: 0.4rem;
+    color: rgb(71, 86, 255);
+    background: #bcceed;
+    padding: 0.3rem;
+    border: none;
+    display: flex;
+    z-index: 10;
+    border-radius: 4px;
+  }
+
+  .textarea {
+    font-size: 0.8rem;
+    padding: 8px;
+    width: 95vw;
+    border-radius: 8px;
+    border: 1px solid #30373d;
+    background: #070809;
+    color: #ECECF1;
+    outline: none;
   }
 }

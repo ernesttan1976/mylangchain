@@ -35,7 +35,7 @@ export default function TabPage3() {
     const data = await response.json();
     const messageReceived = data.message;
     const docs = data.docs[0];
-    console.log("message:",messageReceived)
+    console.log("message:", messageReceived)
     console.log("docs:", docs);
     setDocs(docs);
 
@@ -46,7 +46,7 @@ export default function TabPage3() {
   return (
     <>
       <div className={styles.center}>
-        <form className={`${styles.cloudform} ${styles.leftform}`} >
+        <form className={styles.form}>
           <label htmlFor="userInput" className={styles.label}>Web Url</label>
           <textarea
             disabled={loading}
@@ -77,14 +77,12 @@ export default function TabPage3() {
         </form>
       </div>
       <div className={styles.cloud}>
-        <form className={styles.form}>
-          <div className={styles.markdownanswer}>
-            {docs && <>
-                <h4><a href={docs?.metadata?.source}>{docs?.metadata?.source}</a></h4>
-                <ReactMarkdown linkTarget={"_blank"}>{docs?.pageContent}</ReactMarkdown>
-              </>}
-          </div>
-        </form>
+        <div className={styles.markdownanswer}>
+          {docs && <>
+            <h4><a href={docs?.metadata?.source}>{docs?.metadata?.source}</a></h4>
+            <ReactMarkdown linkTarget={"_blank"}>{docs?.pageContent}</ReactMarkdown>
+          </>}
+        </div>
       </div>
     </>
   )

@@ -162,7 +162,7 @@ function OCR({ ocrResult, setOcrResult }) {
                         <CopyOutlined />text
                     </Button></p>
                     </>
-                    ) : <p style={{ fontSize: "1.5rem", position: "relative" }}>No text detected</p>}
+                    ) : <p style={{ fontSize: "1rem", position: "relative" }}>No text detected</p>}
                     
                     <Divider />
                     <div className={styles.rowright}>
