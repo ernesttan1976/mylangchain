@@ -254,7 +254,7 @@ export default async function handler(req, res) {
             agentType: "chat-conversational-react-description",
             returnIntermediateSteps: true,
             verbose: true,
-            maxIterations: 5,
+            maxIterations: 3,
         });
 
         console.log("Loaded agent.");
