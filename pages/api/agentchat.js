@@ -270,20 +270,20 @@ export default async function handler(req, res) {
         let capturedLogs = [];
 
 
-        {
-            const log = console.log.bind(console)
-            console.log = (...args) => {
-                const arg0 = args[0];
-                const cleanMessage = (typeof arg0 === 'string') ? arg0.replace(/\u001b\[\d+m/g, '').replace(/({)/, '<pre><code>$1').replace(/(})[^}]*$/, '$1</pre></code>').replace(/\\\\/g, "\\").replace(/\"/g, '"') : arg0;
-                //.replace(/```json/,"\n```");
-                log(...args)
-                if (checkStartPattern(cleanMessage)) {
-                    const newLog = createDetailsSummary(cleanMessage, false);
-                    capturedLogs.push(newLog);
-                }
+        // {
+        //     const log = console.log.bind(console)
+        //     console.log = (...args) => {
+        //         const arg0 = args[0];
+        //         const cleanMessage = (typeof arg0 === 'string') ? arg0.replace(/\u001b\[\d+m/g, '').replace(/({)/, '<pre><code>$1').replace(/(})[^}]*$/, '$1</pre></code>').replace(/\\\\/g, "\\").replace(/\"/g, '"') : arg0;
+        //         //.replace(/```json/,"\n```");
+        //         log(...args)
+        //         if (checkStartPattern(cleanMessage)) {
+        //             const newLog = createDetailsSummary(cleanMessage, false);
+        //             capturedLogs.push(newLog);
+        //         }
 
-            }
-        }
+        //     }
+        // }
 
         //const result = await executor.call({input: question})
         const responseStream = await executor.call({
@@ -410,7 +410,7 @@ export default async function handler(req, res) {
             ]
         )
 
-        const originalConsoleLog = console.log;
+        // const originalConsoleLog = console.log;
 
 
 

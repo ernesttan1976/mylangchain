@@ -58,7 +58,7 @@ export default function Home() {
 
   const messageListRef = useRef(null);
   const chatRef = useRef([]);
-  const textAreaRef = useRef(null);
+  const textAreaRef = useRef(null);d
   const toolsRef = useRef(null);
 
   // Auto scroll chat to bottom
