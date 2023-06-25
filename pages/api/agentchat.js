@@ -1,4 +1,5 @@
 "use server"
+
 import { ChatOpenAI } from "langchain/chat_models/openai";
 
 import { OpenAIEmbeddings } from "langchain/embeddings/openai";
@@ -13,8 +14,8 @@ import {
     AIPluginTool, ChainTool
 } from "langchain/tools";
 import { initializeAgentExecutorWithOptions } from "langchain/agents";
-import {connect, disconnect} from "../../config/database";
-import {Tool} from "../../models/toolsModel"
+import { connect, disconnect } from "../../config/database";
+import { Tool } from "../../models/toolsModel"
 
 const conf = getConfig();
 const { serverRuntimeConfig } = conf;
@@ -170,6 +171,7 @@ export default async function handler(req, res) {
         res.status(405).json({ message: 'Method Not Allowed' });
         return;
     }
+    //edge
 
     const { bot, question, history, toolsSelect } = req.body;
 
@@ -254,7 +256,7 @@ export default async function handler(req, res) {
             agentType: "chat-conversational-react-description",
             returnIntermediateSteps: true,
             verbose: true,
-            maxIterations: 3,
+            maxIterations: 5,
         });
 
         console.log("Loaded agent.");
@@ -271,15 +273,15 @@ export default async function handler(req, res) {
         {
             const log = console.log.bind(console)
             console.log = (...args) => {
-                const arg0=args[0];
+                const arg0 = args[0];
                 const cleanMessage = (typeof arg0 === 'string') ? arg0.replace(/\u001b\[\d+m/g, '').replace(/({)/, '<pre><code>$1').replace(/(})[^}]*$/, '$1</pre></code>').replace(/\\\\/g, "\\").replace(/\"/g, '"') : arg0;
-                                //.replace(/```json/,"\n```");
+                //.replace(/```json/,"\n```");
                 log(...args)
                 if (checkStartPattern(cleanMessage)) {
                     const newLog = createDetailsSummary(cleanMessage, false);
                     capturedLogs.push(newLog);
                 }
-                
+
             }
         }
 
@@ -287,18 +289,18 @@ export default async function handler(req, res) {
         const responseStream = await executor.call({
             input: bot + "\n" + question,
             chat_history: history,
-            timeout: 8000,
-            verbose: false,
+            timeout: 60000,
+            verbose: true,
         },
 
             [
                 {
-                    handleLLMStart(llm, prompts){
+                    handleLLMStart(llm, prompts) {
                         console.log(">>LLMStart:", JSON.stringify(llm), JSON.stringify(prompts))
                         tokens = tokens + "\n\n>>LLMStart:\n" + JSON.stringify(llm) + "\n" + JSON.stringify(prompts);
                         res.write(tokens);
                     },
-                    handleChatModelStart(llm, messages){
+                    handleChatModelStart(llm, messages) {
                         console.log(">>ChatModelStart", JSON.stringify(llm), JSON.stringify(messages))
                         tokens = tokens + "\n\n>>>ChatModelStart\n" + JSON.stringify(llm) + "\n" + JSON.stringify(messages);
                         res.write(tokens);
@@ -307,38 +309,38 @@ export default async function handler(req, res) {
                         tokens = tokens + token;
                         res.write(tokens);
                     },
-                    handleLLMEnd(output){
+                    handleLLMEnd(output) {
                         console.log(">>LLMEnd:", JSON.stringify(output))
                         tokens = tokens + "\n\n>>LLMEnd:\n" + JSON.stringify(output)
                         res.write(tokens)
                     },
-                    handleLLMError(err){
+                    handleLLMError(err) {
                         console.log(">>LLMError:", JSON.stringify(err))
                         tokens = tokens + "\n\n>>LLMError:\n" + JSON.stringify(err)
                         res.status(500).json({ error: err });
                     },
-                    handleText(text){
-                        console.log(">>Text:",JSON.stringify(text))
+                    handleText(text) {
+                        console.log(">>Text:", JSON.stringify(text))
                         tokens = tokens + "\n\n>>Text:\n" + JSON.stringify(text)
                         res.write(tokens)
                     },
-                    handleAgentAction(action){
-                        console.log(">>AgentAction",JSON.stringify(action))
+                    handleAgentAction(action) {
+                        console.log(">>AgentAction", JSON.stringify(action))
                         tokens = tokens + "\n\n>>AgentAction\n" + JSON.stringify(action)
                         res.write(tokens)
                     },
-                    handleAgentEnd(action){
-                        console.log(">>AgentEnd:",JSON.stringify(action))
+                    handleAgentEnd(action) {
+                        console.log(">>AgentEnd:", JSON.stringify(action))
                         tokens = tokens + "\n\n>>AgentEnd:\n" + JSON.stringify(action)
                         res.write(tokens)
                     },
-                    handleChainStart(chain){
-                        console.log(">>ChainStart",JSON.stringify(chain))
+                    handleChainStart(chain) {
+                        console.log(">>ChainStart", JSON.stringify(chain))
                         tokens = tokens + "\n\n>>ChainStart\n" + JSON.stringify(chain)
                         res.write(tokens)
                     },
                     handleChainEnd(outputs) {
-                        console.log(">>ChainEnd:",JSON.stringify(outputs))
+                        console.log(">>ChainEnd:", JSON.stringify(outputs))
                         if (outputs?.text?.includes("Final Answer")) {
 
                             finalCount++;
@@ -360,7 +362,7 @@ export default async function handler(req, res) {
                                 //tokens = formatJSONObjects(tokens);
                                 tokens = tokens + "\n" + createDetailsSummary("Detailed Logs:" + capturedLogs.map(x => x).join("\n"), false);
                                 res.write(tokens);
-                                
+
                                 console.log = originalConsoleLog;
                             }, 1000);
                             isLogged = true;
@@ -368,7 +370,7 @@ export default async function handler(req, res) {
 
                     },
                     handleChainError(err) {
-                        console.log(">>ChainError:",JSON.stringify(err))
+                        console.log(">>ChainError:", JSON.stringify(err))
                         let errorMessage;
                         if (err?.includes("429 error")) {
                             errorMessage = "\n\nI'm very sorry, exceeded free 100 calls per day to Google Custom Search, to increase quota it is $5/per 1000 calls" +
@@ -378,15 +380,15 @@ export default async function handler(req, res) {
                         }
                         tokens = tokens + "\n\nError: " + errorMessage + "\n\n";
                         res.status(500).json({ error: err });
-//                        res.write(tokens);
+                        //                        res.write(tokens);
                     },
-                    handleToolStart(tool, input){
+                    handleToolStart(tool, input) {
                         console.log(">>ToolStart:", JSON.stringify(tool), JSON.stringify(input))
                         tokens = tokens + "\n\n>>ToolStart:\n" + JSON.stringify(tool) + "\n" + JSON.stringify(input)
                         res.write(tokens)
                     },
                     handleToolEnd(output) {
-                        console.log(">>ToolEnd:",JSON.stringify(output))
+                        console.log(">>ToolEnd:", JSON.stringify(output))
                         let output2;
                         let observations;
                         if (!output.includes("{")) {
@@ -399,8 +401,8 @@ export default async function handler(req, res) {
                         tokens = tokens + "\n\nObservations: " + observations + "\n\n";
                         res.write(tokens);
                     },
-                    handleToolError(err){
-                        console.log(">>ToolError:",JSON.stringify(err))
+                    handleToolError(err) {
+                        console.log(">>ToolError:", JSON.stringify(err))
                         tokens = tokens + "\n\n>>ToolError:\n" + JSON.stringify(err)
                         res.status(500).json({ error: err });
                     },
@@ -410,7 +412,7 @@ export default async function handler(req, res) {
 
         const originalConsoleLog = console.log;
 
-        
+
 
     } catch (error) {
 
