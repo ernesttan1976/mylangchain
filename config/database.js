@@ -28,7 +28,7 @@ const connect = () => {
     if (process.env.NODE_ENV === 'development') {
       connectionTimeout = setTimeout(() => {
         disconnect();
-      }, 20 * 60 * 1000); // 5 minutes in milliseconds
+      }, 5 * 60 * 1000); // 5 minutes in milliseconds
   
     }
   });

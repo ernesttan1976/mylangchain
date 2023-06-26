@@ -2,6 +2,7 @@
 const nextConfig = {
   reactStrictMode: false,
   serverRuntimeConfig: {
+    serverTimeout: 60000,
     // Will only be available on the server side
     OPENAI_API_KEY: process.env.OPENAI_API_KEY,
     PINECONE_KEY: process.env.PINECONE_KEY,

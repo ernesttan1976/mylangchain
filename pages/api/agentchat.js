@@ -14,8 +14,7 @@ import {
     AIPluginTool, ChainTool
 } from "langchain/tools";
 import { initializeAgentExecutorWithOptions } from "langchain/agents";
-import { connect, disconnect } from "../../config/database";
-import { Tool } from "../../models/toolsModel"
+import { getTools } from "../../models/toolsModel"
 
 const conf = getConfig();
 const { serverRuntimeConfig } = conf;
@@ -28,170 +27,14 @@ const {
 } = serverRuntimeConfig;
 
 
-
-function getObjectChainEnd(input) {
-
-    return obj;
-}
-
-function checkStartPattern(string) {
-    const startPatterns = [
-        /\[chain\/start]/,
-        /\[chain\/end]/,
-        /\[llm\/start]/,
-        /\[llm\/end]/,
-        /\[agent\/action]/,
-        /\[tool\/start]/,
-        /\[tool\/end]/
-    ];
-
-    for (const pattern of startPatterns) {
-        if (pattern.test(string)) {
-            return true;
-        }
-    }
-
-    return false;
-}
-
-function createDetailsSummary(string, open) {
-    const maxLength = 50;
-    const hasBracket = string.includes("{");
-    const hasDoubleQuote = string.includes('"');
-    const isDetailedLogs = string.includes("Detailed Logs:");
-    let truncatedString;
-    let restString;
-    let index;
-    if (isDetailedLogs) {
-        truncatedString = string.slice(0, 14);
-        restString = string.slice(14);
-    } else if (hasBracket) {
-        index = string.indexOf("<pre><code>{")
-        if (index === -1) throw error
-        truncatedString = string.slice(0, index);
-        restString = string.slice(index);
-    } else if (hasDoubleQuote) {
-        index = string.indexOf('"')
-        if (index === -1) throw error
-        truncatedString = string.slice(0, index);
-        restString = string.slice(index);
-    } else {
-        truncatedString = string.slice(0, maxLength);
-        restString = string.slice(maxLength);
-    }
-
-    if (!open) {
-        return `<details closed><summary>${truncatedString}</summary>${restString}</details>`
-    } else {
-        return `<details open><summary>${truncatedString}</summary>${restString}</details>`
-    }
-}
-
 function getTimeElapsed(startTime) {
     const endTime = new Date().getTime();
     const totalTime = endTime - startTime;
-    const output = "Time elapsed: [" + totalTime + "ms]"
+    const output = "Time elapsed: [" + totalTime + "ms] \r\n"
     console.log(output)
     return output
 }
 
-function formatJSONObjects(text) {
-    // Find JSON objects within the text using regular expression
-    const jsonRegex = /{(?:(?!message|Time elapsed)[^{}])*"message"\s*:\s*"[^"]*"(?:(?!message|Time elapsed)[^{}])*}/g;
-    const jsonObjects = text.match(jsonRegex);
-
-    // Replace each JSON object with formatted version
-    if (jsonObjects) {
-        jsonObjects.forEach(jsonObject => {
-            let parsedObject;
-            try {
-                const regex = /\/\/.*(?:\r\n|\r|\n)|\/\*(?:[\s\S]*?)\*\//g;
-                const cleanedString = jsonObject.replace(regex, '');
-                //console.log("text:", cleanedString)
-                parsedObject = JSON.parse(cleanedString);
-                //console.log("parsed:",parsedObject)
-                const formattedObject = mapNestedObject(parsedObject);
-                text = text.replace(jsonObject, formattedObject);
-            } catch (error) {
-                console.error('Error parsing JSON object:', error);
-                return text;
-                // return;
-            }
-
-            //const formattedObject = formatNestedJSON(parsedObject);
-            const formattedObject = mapNestedObject(parsedObject);
-            text = text.replace(jsonObject, formattedObject);
-        });
-    }
-
-    return text;
-}
-
-
-function formatNestedJSON(obj) {
-    let formattedObject = '';
-
-    for (const [key, value] of Object.entries(obj)) {
-        formattedObject += `<h4>${key}</h4>`;
-
-        if (typeof value === 'object') {
-            formattedObject += formatNestedJSON(value);
-        } else {
-            formattedObject += `<p>${value}</p>`;
-        }
-    }
-
-    return formattedObject;
-}
-
-function mapNestedObject(nestedObject) {
-    let index = 0;
-    const observations = [];
-
-    function mapObservation(obj, prefix = '') {
-        index++;
-
-        for (let key in obj) {
-            if (typeof obj[key] === 'object' && obj[key] !== null) {
-                mapObservation(obj[key], prefix + key.toUpperCase() + '.');
-            } else {
-                const value = obj[key];
-                const formattedObservation = `${prefix}(${index})${key.toUpperCase()}: ${value}`;
-                observations.push(formattedObservation);
-            }
-            index++
-        }
-    }
-
-    mapObservation(nestedObject);
-
-    return observations.join('\n');
-}
-
-//ChainEnd: {"text":"```json\n{\n    \"action\": \"Web Pilot\",\n    \"action_input\": \"https://en.wikipedia.org/wiki/Tharman_Shanmugaratnam\"\n}\n```"}
-//ChainEnd: "https://webreader.webpilotai.com/.well-known/ai-plugin.json"
-//ChainEnd: {"text":"```json\n{\n    \"action\": \"Final Answer\",\n    \"action_input\": \"Tharman Shanmugaratnam is a Singaporean politician who has held several key positions in the Singaporean government, including Deputy Prime Minister and Minister for Finance. He has also served as the Chairman of the Monetary Authority of Singapore and the Group of Thirty. Shanmugaratnam has been credited with playing a key role in Singapore's economic success and has received numerous awards and accolades for his contributions. As of June 2021, he is still serving as Senior Minister and Coordinating Minister for Social Policies in the Singaporean government.\"\n}\n```"}
-//ChainEnd: {"output":"Tharman Shanmugaratnam is a Singaporean politician who has held several key positions in the Singaporean government, including Deputy Prime Minister and Minister for Finance. He has also served as the Chairman of the Monetary Authority of Singapore and the Group of Thirty. Shanmugaratnam has been credited with playing a key role in Singapore's economic success and has received numerous awards and accolades for his contributions. As of June 2021, he is still serving as Senior Minister and Coordinating Minister for Social Policies in the Singaporean government.","intermediateSteps":[{"action":{"tool":"Web Pilot","toolInput":"https://en.wikipedia.org/wiki/Tharman_Shanmugaratnam","log":"```json\n{\n    \"action\": \"Web Pilot\",\n    \"action_input\": \"https://en.wikipedia.org/wiki/Tharman_Shanmugaratnam\"\n}\n```"},"observation":"https://webreader.webpilotai.com/.well-known/ai-plugin.json"}]}
-//ChainEnd: {"text":"```json\n{\n    \"action\": \"Your AI Council\",\n    \"action_input\": {\n        \"query\": \"What are the latest events related to US Dollar de-dollarization in 2023 and what are the latest news and how it impacts Singapore and the world? And what does BRICS have to do with it?\",\n        \"agents\": [\"news\", \"finance\", \"politics\"]\n    }\n}\n```"}
-//ToolEnd: "https://my-plugin.arnasltlt.repl.co/.well-known/ai-plugin.json"
-//Exiting Tool run with output: "{
-//     "schema_version": "v1",
-//     "name_for_human": "Your AI Council",
-//     "name_for_model": "ai_council",
-//     "description_for_human": "The AI council assesses queries through various agents, offering insights from many perspectives.",
-//     "description_for_model": "AI council sends the user query over to the api which evaluates it from 5 different perspectives and returns an evaluation.",    
-//     "auth": {
-//       "type": "none"
-//     },
-//     "api": {
-//       "type": "openapi",
-//       "url": "https://my-plugin.arnasltlt.repl.co/.well-known/openapi.yaml",
-//       "is_user_authenticated": false
-//     },
-//     "logo_url": "https://th.bing.com/th/id/OIG.AuvaCNUrvRfupQEne.ZD?pid=ImgGn",
-//     "contact_email": "arnoldas@kemeklis.eu",
-//     "legal_info_url": "https://my-plugin.arnasltlt.repl.co"
-//   }"
 
 export default async function handler(req, res) {
     const startTime = new Date().getTime();
@@ -201,14 +44,12 @@ export default async function handler(req, res) {
         res.status(405).json({ message: 'Method Not Allowed' });
         return;
     }
-    //edge
 
     const { bot, question, history, toolsSelect } = req.body;
 
     console.info("req.body", req.body)
-
-    connect();
-    const toolsModel = await Tool.find({})
+    
+    const toolsModel = await getTools();
 
     try {
 
@@ -264,9 +105,6 @@ export default async function handler(req, res) {
                     apiSpec: toolsModel[i].url,
                     verbose: false,
                 })
-                // let t = await AIPluginTool.fromPluginUrl(toolsModel[i].url);
-                // t.name = toolsModel[i].label;
-                // t.description = toolsModel[i].description;
                 tools.push(t);
                 hasPlugin = true;
             }
@@ -282,7 +120,7 @@ export default async function handler(req, res) {
             tools, model, {
             agentType: "chat-conversational-react-description",
             returnIntermediateSteps: true,
-            verbose: false,
+            verbose: true,
             maxIterations: 3,
         });
 
@@ -290,165 +128,163 @@ export default async function handler(req, res) {
 
 
         let i = 0;
-        let tokens = "";
         let finalCount = 0;
 
         let isLogged = false;
-        let capturedLogs = [];
 
         console.log(getTimeElapsed(startTime))
 
         const handleResponse = async () => {
 
-            try {
-                const responseStream = await executor.call({
-                    input: bot + "\n" + question,
-                    chat_history: history,
-                    timeout: 60000,
-                    verbose: false,
-                },
+            const responseStream = await executor.call({
+                input: bot + "\r\n" + question,
+                chat_history: history,
+                timeout: 60000,
+                verbose: true,
+            },
 
-                    [
-                        {
-                            // handleLLMStart(llm, prompts) {
-                            //     console.log(">>LLMStart:", JSON.stringify(llm), JSON.stringify(prompts))
-                            //     tokens = tokens + "\n\n>>LLMStart:\n" + JSON.stringify(llm) + "\n" + JSON.stringify(prompts);
-                            //     res.write(tokens);
-                            // },
-                            // handleChatModelStart(llm, messages) {
-                            //     console.log(">>ChatModelStart", JSON.stringify(llm), JSON.stringify(messages))
-                            //     tokens = tokens + "\n\n>>>ChatModelStart\n" + JSON.stringify(llm) + "\n" + JSON.stringify(messages);
-                            //     res.write(tokens);
-                            // },
-                            handleLLMNewToken(token) {
-                                tokens = tokens + token;
-                                res.write(tokens);
-                            },
-                            // handleLLMEnd(output) {
-                            //     console.log(">>LLMEnd:", JSON.stringify(output))
-                            //     tokens = tokens + "\n\n>>LLMEnd:\n" + JSON.stringify(output)
-                            //     res.write(tokens)
-                            // },
-                            handleLLMError(err) {
-                                console.log(">>LLMError:", JSON.stringify(err))
-                                tokens = tokens + "\n\n>>LLMError:\n" + JSON.stringify(err)
-                                res.status(500).json({ error: err });
-                            },
-                            // handleText(text) {
-                            //     console.log(">>Text:", JSON.stringify(text))
-                            //     tokens = tokens + "\n\n>>Text:\n" + JSON.stringify(text)
-                            //     res.write(tokens)
-                            // },
-                            // handleAgentAction(action) {
-                            //     console.log(">>AgentAction", JSON.stringify(action))
-                            //     tokens = tokens + "\n\n>>AgentAction\n" + JSON.stringify(action)
-                            //     res.write(tokens)
-                            // },
-                            // handleAgentEnd(action) {
-                            //     console.log(">>AgentEnd:", JSON.stringify(action))
-                            //     tokens = tokens + "\n\n>>AgentEnd:\n" + JSON.stringify(action)
-                            //     res.write(tokens)
-                            // },
-                            // handleChainStart(chain) {
-                            //     console.log(">>ChainStart", JSON.stringify(chain))
-                            //     tokens = tokens + "\n\n>>ChainStart\n" + JSON.stringify(chain)
-                            //     res.write(tokens)
-                            // },
-                            handleChainEnd(outputs) {
-                                try {
-                                    console.log(">>ChainEnd:", JSON.stringify(outputs))
-                                    if (outputs?.text?.includes("Final Answer")) {
-
-                                        finalCount++;
-                                        setTimeout(() => {
-
-                                            if (!isLogged) {
-                                                tokens = formatJSONObjects(tokens);
-                                                tokens = tokens + "\n" + getTimeElapsed(startTime)
-                                                //tokens = tokens + "\n" + createDetailsSummary("Detailed Logs:" + capturedLogs.map(x => x).join("\n"), false);
-                                                res.write(tokens);
-                                                res.end();
-                                            }
-                                        }, 2000);
-
-                                    } else if (outputs.output) {
-
-                                        finalCount++;
-                                        setTimeout(() => {
-                                            tokens = formatJSONObjects(tokens);
-                                            tokens = tokens + "\n" + getTimeElapsed(startTime)
-                                            tokens = tokens + "\n" + createDetailsSummary("Detailed Logs:" + capturedLogs.map(x => x).join("\n"), false);
-                                            res.write(tokens);
-                                        }, 1000);
-                                        isLogged = true;
-                                    }
-                                } catch (error) {
-                                    tokens = tokens + "\nCannot Format ToolEnd: \n" + JSON.stringify(outputs);
-                                    res.write(tokens);
-                                }
-
-                            },
-                            handleChainError(err) {
-                                console.log(">>ChainError:", JSON.stringify(err))
-                                let errorMessage;
-                                if (err?.includes("429 error")) {
-                                    errorMessage = "\n\nI'm very sorry, exceeded free 100 calls per day to Google Custom Search, to increase quota it is $5/per 1000 calls" +
-                                        "\nPlease try without web search or another type of free web search (in progress).\n\n" + err
-                                } else {
-                                    errorMessage = "\n\n" + JSON.stringify(err)
-                                }
-                                tokens = tokens + "\n" + getTimeElapsed(startTime)
-                                tokens = tokens + "\n\nError: " + errorMessage + "\n\n";
-                                res.status(500).json({ error: err });
-                                //                        res.write(tokens);
-                            },
-                            // handleToolStart(tool, input) {
-                            //     console.log(">>ToolStart:", JSON.stringify(tool), JSON.stringify(input))
-                            //     tokens = tokens + "\n\n>>ToolStart:\n" + JSON.stringify(tool) + "\n" + JSON.stringify(input)
-                            //     res.write(tokens)
-                            // },
-                            handleToolEnd(output) {
-                                try {
-                                    console.log(">>ToolEnd:", JSON.stringify(output))
-                                    let output2;
-                                    let observations;
-                                    if (!output.includes("{")) {
-                                        observations = output
-                                    } else {
-                                        output2 = JSON.parse(output)
-                                        observations = output2.map((obs, index) => (
-                                            "\n" + 1 * (index + 1) + ". " + obs.title + "<br/>[" + obs.link + "](" + obs.link + ")<br/>" + obs.snippet)).join("\n\n");
-                                    }
-                                    tokens = tokens + "\n" + getTimeElapsed(startTime)
-                                    tokens = tokens + "\n\nObservations: " + observations + "\n\n";
-                                    res.write(tokens);
-
-                                } catch (error) {
-                                    // tokens = tokens + "\nCannot Format ToolEnd: \n" + output;
-                                    // res.write(tokens);
-                                }
-                            },
-                            handleToolError(err) {
-                                console.log(">>ToolError:", JSON.stringify(err))
-                                tokens = tokens + "\n" + getTimeElapsed(startTime)
-                                tokens = tokens + "\n\n>>ToolError:\n" + JSON.stringify(err)
-                                res.status(500).json({ error: err });
-                            },
+                [
+                    {
+                        // handleLLMStart(llm, prompts) {
+                        //     console.log("LLMStart:", JSON.stringify(llm), JSON.stringify(prompts))
+                        //     tokens = tokens + "\r\n\r\nLLMStart:\r\n" + JSON.stringify(llm) + "\r\n" + JSON.stringify(prompts);
+                        //     res.write(tokens);
+                        // },
+                        // handleChatModelStart(llm, messages) {
+                        //     console.log("ChatModelStart", JSON.stringify(llm), JSON.stringify(messages))
+                        //     tokens = tokens + "\r\n\r\n>ChatModelStart\r\n" + JSON.stringify(llm) + "\r\n" + JSON.stringify(messages);
+                        //     res.write(tokens);
+                        // },
+                        handleLLMNewToken(token) {
+                            if (token==="undefined") token ="";
+                            res.write(token);
                         },
-                    ]
-                )
+                        handleLLMEnd(output) {
+                            console.log(getTimeElapsed(startTime))
+                            console.log("LLMEnd:", JSON.stringify(output))
+                            const token = "\r\n\r\nLLMEnd:\r\n" + getTimeElapsed(startTime)+ JSON.stringify(output)
+                            res.write(token)
+                        },
+                        handleLLMError(err) {
+                            console.log("LLMError:", JSON.stringify(err))
+                            let token = "\r\n\r\nLLMError:\r\n" + getTimeElapsed(startTime) + JSON.stringify(err)
+                            res.write(token)
+                            res.end()
+                        },
+                        // handleText(text) {
+                        //     console.log("Text:", JSON.stringify(text))
+                        //     tokens = tokens + "\r\n\r\nText:\r\n" + JSON.stringify(text)
+                        //     res.write(tokens)
+                        // },
+                        // handleAgentAction(action) {
+                        //     console.log("AgentAction", JSON.stringify(action))
+                        //     tokens = tokens + "\r\n\r\nAgentAction\r\n" + JSON.stringify(action)
+                        //     res.write(tokens)
+                        // },
+                        // handleAgentEnd(action) {
+                        //     console.log("AgentEnd:", JSON.stringify(action))
+                        //     tokens = tokens + "\r\n\r\nAgentEnd:\r\n" + JSON.stringify(action)
+                        //     res.write(tokens)
+                        // },
+                        // handleChainStart(chain) {
+                        //     console.log("ChainStart", JSON.stringify(chain))
+                        //     tokens = tokens + "\r\n\r\nChainStart\r\n" + JSON.stringify(chain)
+                        //     res.write(tokens)
+                        // },
+                        handleChainEnd(outputs) {
+                            try {
+                                console.log("ChainEnd:", JSON.stringify(outputs))
+                                if (outputs?.text?.includes("Final Answer")) {
 
-            } catch (error) {
-                throw error
-            }
+                                    finalCount++;
+                                    setTimeout(async () => {
+
+                                        if (!isLogged) {
+                                            let token = "\r\n" + getTimeElapsed(startTime)
+                                            //tokens = tokens + "\r\n" + createDetailsSummary("Detailed Logs:" + capturedLogs.map(x => x).join("\r\n"), false);
+                                            res.write(token);
+                                            res.write("End of response")
+                                            res.end();
+                                        }
+                                    }, 2000);
+
+                                } else if (outputs.output) {
+
+                                    finalCount++;
+                                    setTimeout(async () => {
+                                        let token = "\r\n" + getTimeElapsed(startTime)
+                                            //tokens = tokens + "\r\n" + createDetailsSummary("Detailed Logs:" + capturedLogs.map(x => x).join("\r\n"), false);
+                                            res.write(token);
+                                            res.write("End of response")
+                                            res.end();
+                                    }, 1000);
+                                    isLogged = true;
+                                }
+                            } catch (error) {
+                                // tokens = tokens + "\r\nCannot Format ToolEnd: \r\n" + JSON.stringify(outputs);
+                                // await writer.ready;
+                                // await writer.write(encoder.encode(`${tokens}`));
+                            }
+
+                        },
+                        handleChainError(err) {
+                            console.log("ChainError:", JSON.stringify(err))
+                            let errorMessage;
+                            if (err?.includes("429 error")) {
+                                errorMessage = "\r\n\r\nI'm very sorry, exceeded free 100 calls per day to Google Custom Search, to increase quota it is $5/per 1000 calls" +
+                                    "\r\nPlease try without web search or another type of free web search (in progress).\r\n\r\n" + err
+                            } else {
+                                errorMessage = "\r\n\r\n" + JSON.stringify(err)
+                            }
+                            let token = "\r\n" + getTimeElapsed(startTime)
+                            token += "\r\n\r\nError: " + errorMessage + "\r\n\r\n";
+                            res.write(token)
+                            res.end()
+                        },
+                        // handleToolStart(tool, input) {
+                        //     console.log("ToolStart:", JSON.stringify(tool), JSON.stringify(input))
+                        //     tokens = tokens + "\r\n\r\nToolStart:\r\n" + JSON.stringify(tool) + "\r\n" + JSON.stringify(input)
+                        //     res.write(tokens)
+                        // },
+                        handleToolEnd(output) {
+                            try {
+                                console.log("ToolEnd:", JSON.stringify(output))
+                                let output2;
+                                let observations;
+                                if (!output.includes("{")) {
+                                    observations = output
+                                } else {
+                                    output2 = JSON.parse(output)
+                                    observations = output2.map((obs, index) => (
+                                        "\r\n" + 1 * (index + 1) + ". " + obs.title + "<br/>[" + obs.link + "](" + obs.link + ")<br/>" + obs.snippet)).join("\r\n\r\n");
+                                }
+                                let token = "\r\n" + getTimeElapsed(startTime)
+                                token += + "\r\n\r\nObservations: " + observations + "\r\n\r\n";
+                                res.write(token);
+
+                            } catch (error) {
+                                let token = "\r\nCannot Format ToolEnd: \r\n" + output;
+                                res.write(token);
+                            }
+                        },
+                        handleToolError(err) {
+                            console.log("ToolError:", JSON.stringify(err))
+                            let token = "\r\n" + getTimeElapsed(startTime)
+                            token += "\r\n\r\nToolError:\r\n" + JSON.stringify(err)
+                            res.write(token)
+                            res.end()
+                        },
+                    },
+                ]
+            )
+
         }
 
-        //do not return until all the tokens are received
-        const response = await handleResponse();
-        tokens = tokens + "\n" + getTimeElapsed(startTime)
-        res.write("Agent Chat:" + tokens)
-        return response;
-
+        await handleResponse();
+        if (!res.finished) {
+            res.write("\r\n\r\nEnd of response")
+            res.end()
+        };
 
     } catch (error) {
 

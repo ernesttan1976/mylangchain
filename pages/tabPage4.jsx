@@ -5,7 +5,7 @@ import styles from "../styles/Home.module.css"
 export default function TabPage4(props) {
 
 
-    const {toolsModel, setToolsModel} = props;
+    const { toolsModel, setToolsModel, setToolsSelect } = props;
 
     // useEffect(() => {
     //     async function getData() {
@@ -53,17 +53,23 @@ export default function TabPage4(props) {
         }
     }
 
-    async function handleDelete(id, index) {
+    async function handleDelete(id, index, value) {
         const response = await fetch('/api/tools/' + id, {
             method: "DELETE"
         });
         if (response.ok) {
             const data = await response.json();
             message.success(data.message)
+            setToolsSelect(prev=>{
+                if (!prev.indexOf(value)===-1){
+                    return [...prev.splice(prev.indexOf(value),1)]
+                } else {
+                    return prev;
+                }
+            })
             setToolsModel(prev => {
-                const newArray = prev.splice(index, 1); 
-                return [...newArray]
-        })
+                return [...prev.slice(0,index), ...prev.slice(index+1)]
+            })
         } else {
             message.error(response.statusText)
         }
@@ -77,10 +83,10 @@ export default function TabPage4(props) {
         localURL = "https://mylangchain.vercel.app/";
 
     }
-
+//target="_blank"
     return (
         <div className={styles.center}>
-            <Button className={styles.installpluginbutton}><a href={`https://getit.ai/gpt-plugins/?install_url=${localURL}api/installplugin/?install_plugin={manifestUrl}`} target="_blank">Install Plugins from GetIt.Ai</a></Button>
+            <Button className={styles.installpluginbutton}><a href={`https://getit.ai/gpt-plugins/?install_url=${localURL}api/installplugin/?install_plugin={manifestUrl}`}>Install Plugins from GetIt.Ai</a></Button>
             <form className={styles.table2}>
                 <table><thead><tr><th>Label</th><th>Value</th><th>Url</th><th>Description</th><th>Tag</th><th>Bg Color</th><th>Color</th><th>Actions</th></tr></thead>
                     <tbody>
@@ -94,7 +100,7 @@ export default function TabPage4(props) {
                                 <td><textarea rows={2} cols={30} type="text" name="tagname" value={tool.tagname} onChange={(ev) => handleChange(ev, index)} /></td>
                                 <td><textarea rows={2} cols={30} type="text" name="tagbgColor" value={tool.tagbgColor} onChange={(ev) => handleChange(ev, index)} /></td>
                                 <td><textarea rows={2} cols={30} type="text" name="tagcolor" value={tool.tagcolor} onChange={(ev) => handleChange(ev, index)} /></td>
-                                <td><Button type="submit" className={styles.savebutton} onClick={() => handleSave(tool._id, index)}>Save</Button><Button className={styles.savebutton} type="submit" onClick={() => handleDelete(tool._id)}>Delete</Button></td>
+                                <td><Button type="submit" className={styles.savebutton} onClick={() => handleSave(tool._id, index)}>Save</Button><Button className={styles.savebutton} type="submit" onClick={() => handleDelete(tool._id,index,tool.value)}>Delete</Button></td>
                             </tr>
                         ))}
                     </tbody></table>

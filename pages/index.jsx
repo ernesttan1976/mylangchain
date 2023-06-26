@@ -34,6 +34,103 @@ import TabPage2 from './tabPage2'
 import TabPage3 from './tabPage3'
 import TabPage4 from "./tabPage4"
 
+function convertLinksToAnchorTags(text) {
+  const urlRegex = /(https?:\/\/[^\s]+)/g;
+  const anchorTemplate = '<a href="$1" target="_blank">$1</a>';
+
+  return text.replace(urlRegex, anchorTemplate);
+}
+
+function mapMixedDataToPage(data, parentElement) {
+  const jsonData = JSON.parse(data);
+  console.log(jsonData)
+
+  const detailsContainer = document.createElement('details');
+  const summaryElement = document.createElement('summary');
+  summaryElement.textContent = 'Details';
+
+  detailsContainer.appendChild(summaryElement);
+
+  for (const key in jsonData) {
+    const value = jsonData[key];
+    const propertyContainer = document.createElement('div');
+
+    const keyElement = document.createElement('span');
+    keyElement.textContent = key;
+    keyElement.classList.add('property-key');
+    propertyContainer.appendChild(keyElement);
+
+    if (typeof value === "string") {
+      const valueElement = document.createElement('span');
+      valueElement.textContent = value;
+      valueElement.classList.add('property-value');
+      propertyContainer.appendChild(valueElement);
+
+    } else if (typeof value !== "string") {
+      if (Array.isArray(value)) {
+        const arrayContainer = document.createElement('div');
+        arrayContainer.classList.add('array-container');
+        propertyContainer.appendChild(arrayContainer);
+
+        value.forEach((item) => {
+          const itemContainer = document.createElement('div');
+          itemContainer.classList.add('array-item');
+          arrayContainer.appendChild(itemContainer);
+
+          mapMixedDataToPage(JSON.stringify(item), itemContainer);
+        });
+      } else {
+        mapMixedDataToPage(JSON.stringify(value), propertyContainer);
+      }
+    }
+
+    detailsContainer.appendChild(propertyContainer);
+  }
+
+  if (parentElement) {
+    parentElement.appendChild(detailsContainer);
+  } else {
+    document.body.appendChild(detailsContainer);
+  }
+}
+
+
+function parseAndCombineJSONObjects(string, treeRef) {
+  let startIndices = [];
+  let jsonObjects = [];
+  let level = 0;
+
+  // Find the indices of top-level { and } characters
+  for (let i = 0; i < string.length; i++) {
+    if (string[i] === '{') {
+      if (level === 0) startIndices.push(i);
+      level++;
+    } else if (string[i] === '}') {
+      level--;
+      if (level === 0) {
+        let startIndex = startIndices.pop();
+        let jsonObject = string.substring(startIndex, i + 1);
+        jsonObjects.push(jsonObject);
+      }
+    }
+  }
+
+  // Parse and recombine the JSON objects
+  for (let i = 0; i < jsonObjects.length; i++) {
+    try {
+      let parsedObject = JSON.parse(JSON.stringify('text\"=' + jsonObjects[i]));
+      mapMixedDataToPage(JSON.stringify({ ...parsedObject }), treeRef)
+      string = string.replace(jsonObjects[i], JSON.stringify(parsedObject, null, 2));
+    } catch (error) {
+      string = jsonObjects[i]
+      alert(error)
+      alert(string)
+    }
+  }
+
+  return string;
+}
+
 
 const Parrot = () => <Image src={"/parroticon.png"} width={30} height={30} alt="Parrot" />
 const Macaw = () => <Image src={"/bluemacaw.png"} width={25} height={25} alt="Macaw" />
@@ -49,7 +146,7 @@ export default function Home() {
   const [prompts, setPrompts] = useState([]);
   const [bot, setBot] = useState('');
   const [ocrResult, setOcrResult] = useState('');
-  const [toolsSelect, setToolsSelect] = useState(['WebPilot', 'Calculator','Pinecone Store']);
+  const [toolsSelect, setToolsSelect] = useState(['WebPilot', 'Calculator', 'Pinecone Store']);
   //['WebPilot', 'Calculator', 'Pinecone Store', 'Your AI Council']
   //Webpilot 2.8 s
   //Google 2 s
@@ -66,11 +163,16 @@ export default function Home() {
   const chatRef = useRef([]);
   const textAreaRef = useRef(null);
   const toolsRef = useRef(null);
+  const pageRef = useRef(null);
+  const treeRef = useRef(null);
 
   // Auto scroll chat to bottom
   useEffect(() => {
     const messageList = messageListRef.current;
-    messageList.scrollTop = messageList.scrollHeight-800;
+    messageList.scrollTop = messageList.scrollHeight;
+
+    // const page = pageRef.current;
+    // page.scrollTop = messageList.scrollHeight;
   }, [messages]);
 
   useEffect(() => {
@@ -155,13 +257,13 @@ export default function Home() {
 
 
 
-  function extractObjects(input) {
-    const regex = /(.*)``````json(.*)/; // matches any object in the input string
-    const matches = input.match(regex); // finds all matches of the regex in the input string
-    const question = JSON.parse(matches[0]); // parses the first match as a JSON object
-    const finalanswer = JSON.parse(matches[1]); // parses the second match as a JSON object
-    return [question, finalanswer];
-  }
+  // function extractObjects(input) {
+  //   const regex = /(.*)``````json(.*)/; // matches any object in the input string
+  //   const matches = input.match(regex); // finds all matches of the regex in the input string
+  //   const question = JSON.parse(matches[0]); // parses the first match as a JSON object
+  //   const finalanswer = JSON.parse(matches[1]); // parses the second match as a JSON object
+  //   return [question, finalanswer];
+  // }
 
   const handleSubmit = (e) => {
     e.preventDefault();
@@ -180,7 +282,7 @@ export default function Home() {
 
     setLoading(true);
     setMessages((prevMessages) => [...prevMessages, new HumanChatMessage(userInput)]);
-    setMessages((prevMessages) => [...prevMessages, new AIChatMessage("")]);
+    setMessages((prevMessages) => [...prevMessages, new AIChatMessage(">")]);
 
     const controller = new AbortController();
 
@@ -201,16 +303,24 @@ export default function Home() {
 
       const reader = response.body.getReader()
 
-
+      let tokens;
 
       while (true) {
         const { done, value } = await reader.read();
 
         const decoded = new TextDecoder().decode(value)
+        tokens += decoded;
 
-        setMessages((prevMessages) => [...prevMessages.slice(0, prevMessages.length - 1), new AIChatMessage(decoded)]);
+        setMessages((prevMessages) => [...prevMessages.slice(0, prevMessages.length - 1), new AIChatMessage(tokens)]);
+
 
         if (done) {
+          //console.log(tokens)
+          const t2 = tokens.replace(/undefined/g, '').replace(/```json/g, "").replace(/```/g, "").replace(/NaN/g, "").replace(/"\n"/g, "\r\n")
+          //console.log(t2)
+          const t3 = parseAndCombineJSONObjects(t2, treeRef.current)
+          console.log(t3)
+          setMessages((prevMessages) => [...prevMessages.slice(0, prevMessages.length - 1), new AIChatMessage(t3)]);
           break;
         }
       }
@@ -305,7 +415,7 @@ export default function Home() {
   }
 
   const onChangeTab = (key) => {
-    router.push('/?page='+key)
+    router.push('/?page=' + key)
   };
 
   const handleRadioChange = (e) => {
@@ -325,6 +435,7 @@ export default function Home() {
               <div ref={el => (chatRef.current[index] = el)} className={styles.markdownanswer}>
                 {/* Messages are being rendered in Markdown format */}
                 <ReactMarkdown linkTarget={"_blank"} children={message.text} rehypePlugins={[rehypeRaw]}></ReactMarkdown>
+                <div ref={treeRef} />
               </div>
               <div className={styles.verticalButtonGroup}>
                 <Button className={styles.copyButton} onClick={() => handleCopyHTML(index)}>
@@ -341,7 +452,7 @@ export default function Home() {
     </div>
     <div className={styles.center}>
       <form className={styles.form}>
-      {/* className={`${styles.cloudform} ${styles.leftform}`} */}
+        {/* className={`${styles.cloudform} ${styles.leftform}`} */}
         <label htmlFor="userInput" className={styles.label}>Prompt</label>
         <textarea
           disabled={loading}
@@ -432,7 +543,7 @@ export default function Home() {
     {
       key: '4',
       label: `Plugins`,
-      children: <TabPage4 toolsModel={toolsModel} setToolsModel={setToolsModel} />,
+      children: <TabPage4 toolsModel={toolsModel} setToolsModel={setToolsModel} setToolsSelect={setToolsSelect} />,
     },
   ];
 
@@ -549,7 +660,7 @@ export default function Home() {
                     ...tool,
                     label: <div style={{ display: "flex", flexDirection: "column" }} title={tool.description}>
                       <span style={{ display: "flex" }}>{tool.label}&nbsp;({tool.tagname})</span>
-                      </div>,
+                    </div>,
                     title: tool.label + " (" + tool.tagname + ")\n" + tool.description
                   }))}
                   value={toolsSelect}
@@ -558,8 +669,8 @@ export default function Home() {
             </div>
           </div>
         </div>
-        <main className={styles.main}>
-          <Tabs className={styles.tab} centered defaultActiveKey="1" activeKey={page} size={{sm: 'small', md: 'large'}} items={tabPages} onChange={onChangeTab} />
+        <main ref={pageRef} className={styles.main}>
+          <Tabs className={styles.tab} centered defaultActiveKey="1" activeKey={page} size={{ sm: 'small', md: 'large' }} items={tabPages} onChange={onChangeTab} />
         </main >
         <div className={styles.footer}>
           <p>Powered by <a href="https://js.langchain.com/" target="_blank">LangChain</a>. Frontend chat forked from <a href="https://twitter.com/chillzaza_" target="_blank">Zahid</a>. Experimented and adapted by <a href="https://www.linkedin.com/in/ernest-tan-dev/">Ernest</a>.</p>

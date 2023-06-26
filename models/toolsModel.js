@@ -1,6 +1,6 @@
 import mongoose from "mongoose";
 const { Schema } = mongoose;
-
+import {connect} from "../config/database"
 
 const toolSchema = new Schema({
     label: String,
@@ -87,9 +87,20 @@ const toolsSeedData = [
     },
 ];
 
-
+async function getTools(){
+    try {
+        connect();
+        const tools = await Tool.find({});
+        return tools;
+    
+    } catch(error) {
+        console.error("Error in getTool", error)
+        return null;
+    }
+}
 
 export {
     Tool,
     toolsSeedData,
+    getTools,
 };

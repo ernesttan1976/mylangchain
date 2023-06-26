@@ -43,6 +43,12 @@ export default async function definePrompts() {
         })
       },
       {
+        name: "Python Bot",
+        prompt: await promptTemplate.coding.format({
+          coding_language: "Python 3, FastAPI, Django, Flask, Tornado, CherryPy, Bottle",
+        })
+      },
+      {
         name: "Langchain Bot",
         prompt: await promptTemplate.coding.format({
           coding_language: "Langchain.JS / Large Language Models / Machine Learning / Natural Language Processing / Named Entity Recognition",
