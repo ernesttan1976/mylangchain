@@ -36,13 +36,14 @@ import TabPage4 from "./tabPage4"
 
 function convertLinksToAnchorTags(text) {
   const urlRegex = /(https?:\/\/[^\s]+)/g;
-  const anchorTemplate = '<a href="$1" target="_blank">$1</a>';
-
-  return text.replace(urlRegex, anchorTemplate);
+  return text.replace(urlRegex, (match, url) => {
+    const trimmedUrl = url.slice(0, -1);
+    return `[${trimmedUrl}](${trimmedUrl})`;
+    // return `<a href="${trimmedUrl}" target="_blank">${trimmedUrl}</a>`;
+  });
 }
 
-function mapMixedDataToPage(data, parentElement) {
-  const jsonData = JSON.parse(data);
+function mapMixedDataToPage(jsonData, parentElement) {
   console.log(jsonData)
 
   const detailsContainer = document.createElement('details');
@@ -65,23 +66,22 @@ function mapMixedDataToPage(data, parentElement) {
       valueElement.textContent = value;
       valueElement.classList.add('property-value');
       propertyContainer.appendChild(valueElement);
+      continue;
+    } else if (Array.isArray(value)) {
+      const arrayContainer = document.createElement('div');
+      arrayContainer.classList.add('array-container');
+      propertyContainer.appendChild(arrayContainer);
 
-    } else if (typeof value !== "string") {
-      if (Array.isArray(value)) {
-        const arrayContainer = document.createElement('div');
-        arrayContainer.classList.add('array-container');
-        propertyContainer.appendChild(arrayContainer);
+      value.forEach((item) => {
+        const itemContainer = document.createElement('div');
+        itemContainer.classList.add('array-item');
+        arrayContainer.appendChild(itemContainer);
 
-        value.forEach((item) => {
-          const itemContainer = document.createElement('div');
-          itemContainer.classList.add('array-item');
-          arrayContainer.appendChild(itemContainer);
+        mapMixedDataToPage(item, itemContainer);
+      });
+    } else if (typeof value === 'object') {
+      mapMixedDataToPage(value, propertyContainer);
 
-          mapMixedDataToPage(JSON.stringify(item), itemContainer);
-        });
-      } else {
-        mapMixedDataToPage(JSON.stringify(value), propertyContainer);
-      }
     }
 
     detailsContainer.appendChild(propertyContainer);
@@ -118,9 +118,13 @@ function parseAndCombineJSONObjects(string, treeRef) {
   // Parse and recombine the JSON objects
   for (let i = 0; i < jsonObjects.length; i++) {
     try {
-      let parsedObject = JSON.parse(JSON.stringify('text\"=' + jsonObjects[i]));
-      mapMixedDataToPage(JSON.stringify({ ...parsedObject }), treeRef)
-      string = string.replace(jsonObjects[i], JSON.stringify(parsedObject, null, 2));
+      //'\"text\"=' + 
+      let parsedObject = JSON.parse(jsonObjects[i]);
+      let htmlObject = getHTMLObject(parsedObject);
+      mapMixedDataToPage(parsedObject, treeRef)
+      string = string.replace(jsonObjects[i], htmlObject);
+//      string = string.replace(jsonObjects[i], "```json \r\n" + JSON.stringify(parsedObject, null, 2) + "\r\n```");
+
     } catch (error) {
       string = jsonObjects[i]
       alert(error)
@@ -129,6 +133,37 @@ function parseAndCombineJSONObjects(string, treeRef) {
   }
 
   return string;
+}
+
+function getHTMLObject(obj) {
+  const isActionInput = obj?.action && !obj?.action_input?.urls;
+  const isActionInputUrl = obj?.action && obj?.action_input?.urls;
+  const isGenerations = obj?.generations;
+
+  if (isActionInput) {
+    //.action
+    //.action_input
+    return "#### **"+ obj.action + "** \n\n> " + obj.action_input+"\n\n\n"
+  } else if (isActionInputUrl) {
+    //.action
+    //.action_input.urls.map =>
+    let str = "#### **"+obj.action+"** \n\n";
+    obj.action_input.urls.forEach((url,index) => {
+      str += (index+1) + `. [${url}](${url})\n\n`
+    })
+    return str;
+  } else if (isGenerations) {
+    //.generations[0].map=>.text
+    //.generations[0].map=>.message.data.content
+    let str = "#### **Responses**: \n\n";
+    obj.generations[0].forEach((item,index) => {
+      str += (index+1) + ". Response: \n```\n"+ item.text + "\n```\n\n"})
+    return str
+  } else {
+    //default
+    return "\n```\n" + JSON.stringify(parsedObject, null, 2) + "\n```\n\n"
+  }
+
 }
 
 
@@ -316,7 +351,7 @@ export default function Home() {
 
         if (done) {
           //console.log(tokens)
-          const t2 = tokens.replace(/undefined/g, '').replace(/```json/g, "").replace(/```/g, "").replace(/NaN/g, "").replace(/"\n"/g, "\r\n")
+          const t2 = tokens.replace(/undefined/g, '').replace(/```json/g, "").replace(/```/g, "").replace(/NaN/g, "")
           //console.log(t2)
           const t3 = parseAndCombineJSONObjects(t2, treeRef.current)
           console.log(t3)
