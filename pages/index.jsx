@@ -190,7 +190,7 @@ export default function Home() {
   //Keymate AI (no good answer)
   //URL Reader (no good answer)
   const [log, setLog] = useState('');
-  const [radio, setRadio] = useState(2);
+  const [radio, setRadio] = useState(1);
   const [birdIcon, setBirdIcon] = useState(<Image src="/parroticon.png" alt="AI" width="30" height="30" className={styles.boticon} priority={true} />)
   const [toolsModel, setToolsModel] = useState([]);
 
