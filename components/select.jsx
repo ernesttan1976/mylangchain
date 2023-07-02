@@ -117,7 +117,7 @@ const SelectComponent = ({ prompts, bot, setBot, setBotImage, setRadio }) => {
         defaultValue = {{
           value: "You are a search agent with access to sources in current affairs, calculator and Pinecone store.",
           label: <div key={index} style={{ display: "flex", flexDirection: "row" }}>
-          <img style={{ width: 100, height: 100 }} src="/images/agent007.png" />
+          <img style={{ width: 84, height: 84, borderRadius: 8, margin: 8 }} src="/images/agent007.png" />
           <div style={{ display: "flex", flexDirection: "column", marginLeft: 12 }}>
             <h4 style={{ display: "flex", justifyContent: "flex-left", marginBottom: 0 }}>{"Agent Bot"}</h4><span style={{ display: "flex", fontSize: "0.8rem", textWrap: "wrap", lineHeight: "1.2rem" }}>{"You are a search agent with access to sources in current affairs, calculator and Pinecone store."}</span>
           </div>
@@ -126,7 +126,7 @@ const SelectComponent = ({ prompts, bot, setBot, setBotImage, setRadio }) => {
         options={items?.map((item, index) => ({
           value: item.prompt,
           label: <div key={index} style={{ display: "flex", flexDirection: "row" }}>
-            <img style={{ width: 100, height: 100 }} src={item.image} />
+            <img style={{ width: 84, height: 84, borderRadius: 8, margin: 8  }} src={item.image} />
             <div style={{ display: "flex", flexDirection: "column", marginLeft: 12 }}>
               <h4 style={{ display: "flex", justifyContent: "flex-left", marginBottom: 0 }}>{item.name}</h4><span style={{ display: "flex", fontSize: "0.8rem", textWrap: "wrap", lineHeight: "1.2rem" }}>{item.prompt}</span>
             </div>
