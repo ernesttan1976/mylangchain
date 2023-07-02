@@ -80,3 +80,13 @@ summary {
   margin: 0 !important;
   margin-inline-start: 0 !important;
 }
+
+
+.ant-select-single.ant-select-lg:not(.ant-select-customize-input) .ant-select-selector {
+  height: 100px!important;
+
+}
+
+/* .select>.ant-select-selector {
+  height: 100px!important;
+} */

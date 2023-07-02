@@ -180,7 +180,10 @@ export default function Home() {
   const [loading, setLoading] = useState(false);
   const [messages, setMessages] = useState([]);
   const [prompts, setPrompts] = useState([]);
-  const [bot, setBot] = useState('');
+  const [bot, setBot] = useState("")
+  //const [bot, setBot] = useState("You are a search agent with access to sources in current affairs, calculator and Pinecone store.")
+  
+  const [botImage, setBotImage] = useState('/images/agent007.png');
   const [ocrResult, setOcrResult] = useState('');
   const [toolsSelect, setToolsSelect] = useState(['WebPilot', 'Calculator', 'Pinecone Store']);
   //['WebPilot', 'Calculator', 'Pinecone Store', 'Your AI Council']
@@ -683,6 +686,7 @@ export default function Home() {
         "algorithm": theme.darkAlgorithm,
       }}>
         <div className={styles.topnav}>
+
           <div className={styles.navlinkscolumn}>
             <div className={styles.navlinks}>
               <div className={styles.navlogo}>
@@ -696,30 +700,30 @@ export default function Home() {
               </div>
             </div>
             <div className={styles.navlinksrow}>
-              <Radio.Group value={radio} defaultValue={1} buttonStyle="solid" onChange={handleRadioChange}>
-                <Tooltip title={<p>Plain vanilla ChatGPT which you know and love</p>} color="#64e331"
-                  placement="top"
-                  trigger="hover"
-                  destroyTooltipOnHide={true}
-                  arrow={{ pointAtCenter: true }}
-                  zIndex={1}>
-                  <Radio.Button value={1} styles={{ width: 120 }}><Parrot />Normal Bot</Radio.Button>
-                </Tooltip>
-                <Tooltip title={<div>Agent bot is ChatGPT on sterioids<br />
-                  1. Updated web information<br />
-                  2. Accurate calculations<br />
-                  3. Query your documents</div>} color="#108ee9"
-                  placement="top"
-                  trigger="hover"
-                  destroyTooltipOnHide={true}
-                  arrow={{ pointAtCenter: true }}
-                  zIndex={1}>
-                  <Radio.Button value={2} styles={{ width: 120 }}><Macaw />Agent Bot </Radio.Button>
-                </Tooltip>
-              </Radio.Group>
+            <Radio.Group value={radio} defaultValue={1} buttonStyle="solid" onChange={handleRadioChange}>
+              <Tooltip title={<p>Plain vanilla ChatGPT which you know and love</p>} color="#64e331"
+                placement="top"
+                trigger="hover"
+                destroyTooltipOnHide={true}
+                arrow={{ pointAtCenter: true }}
+                zIndex={1}>
+                <Radio.Button value={1} styles={{ width: 120 }}><Parrot />Normal Bot</Radio.Button>
+              </Tooltip>
+              <Tooltip title={<div>Agent bot is ChatGPT on sterioids<br />
+                1. Updated web information<br />
+                2. Accurate calculations<br />
+                3. Query your documents</div>} color="#108ee9"
+                placement="top"
+                trigger="hover"
+                destroyTooltipOnHide={true}
+                arrow={{ pointAtCenter: true }}
+                zIndex={1}>
+                <Radio.Button value={2} styles={{ width: 120 }}><Macaw />Agent Bot </Radio.Button>
+              </Tooltip>
+            </Radio.Group>
             </div>
             <div className={styles.navlinksrow2}>
-              {prompts && <SelectComponent prompts={prompts} setBot={setBot} setRadio={setRadio} />}
+              {prompts && <SelectComponent prompts={prompts} bot={bot} setBotImage={setBotImage} setBot={setBot} setRadio={setRadio} />}
               <Tooltip title={<p>hmm...I need better answers<br />Agent + Tools</p>} color="#108ee9"
                 placement="top"
                 trigger="hover"
