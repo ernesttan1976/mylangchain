@@ -75,3 +75,8 @@ summary {
   align-items: center;
   font-size: 14px;
 }
+
+.ant-btn > .anticon + span {
+  margin: 0 !important;
+  margin-inline-start: 0 !important;
+}

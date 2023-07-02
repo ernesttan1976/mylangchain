@@ -158,12 +158,16 @@ export default async function handler(req, res) {
                         handleLLMNewToken(token) {
                             if (token==="undefined") token ="";
                             res.write(token);
+                            //.action
+                            //.action_input.urls.map =>
                         },
                         handleLLMEnd(output) {
                             console.log(getTimeElapsed(startTime))
                             console.log("LLMEnd:", JSON.stringify(output))
                             const token = "\r\n\r\nLLMEnd:\r\n" + getTimeElapsed(startTime)+ JSON.stringify(output)
                             res.write(token)
+                            //.generations[0].map=>.text
+                            //.generations[0].map=>.message.data.content
                         },
                         handleLLMError(err) {
                             console.log("LLMError:", JSON.stringify(err))
@@ -205,6 +209,8 @@ export default async function handler(req, res) {
                                             res.write(token);
                                             res.write("End of response")
                                             res.end();
+                                            //.action
+                                            //.action_input
                                         }
                                     }, 2000);
 

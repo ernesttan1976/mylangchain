@@ -5,7 +5,7 @@ import Image from 'next/image'
 import ReactMarkdown from 'react-markdown'
 import rehypeRaw from "rehype-raw";
 
-import { LoadingOutlined } from '@ant-design/icons';
+import { LoadingOutlined, SoundOutlined, PlaySquareOutlined, StopOutlined } from '@ant-design/icons';
 import { Spin, Tooltip, Radio } from 'antd';
 const antIcon = (
   <LoadingOutlined
@@ -123,7 +123,7 @@ function parseAndCombineJSONObjects(string, treeRef) {
       let htmlObject = getHTMLObject(parsedObject);
       mapMixedDataToPage(parsedObject, treeRef)
       string = string.replace(jsonObjects[i], htmlObject);
-//      string = string.replace(jsonObjects[i], "```json \r\n" + JSON.stringify(parsedObject, null, 2) + "\r\n```");
+      //      string = string.replace(jsonObjects[i], "```json \r\n" + JSON.stringify(parsedObject, null, 2) + "\r\n```");
 
     } catch (error) {
       string = jsonObjects[i]
@@ -143,21 +143,22 @@ function getHTMLObject(obj) {
   if (isActionInput) {
     //.action
     //.action_input
-    return "#### **"+ obj.action + "** \n\n> " + obj.action_input+"\n\n\n"
+    return "#### **" + obj.action + "** \n\n> " + obj.action_input + "\n\n\n"
   } else if (isActionInputUrl) {
     //.action
     //.action_input.urls.map =>
-    let str = "#### **"+obj.action+"** \n\n";
-    obj.action_input.urls.forEach((url,index) => {
-      str += (index+1) + `. [${url}](${url})\n\n`
+    let str = "#### **" + obj.action + "** \n\n";
+    obj.action_input.urls.forEach((url, index) => {
+      str += (index + 1) + `. [${url}](${url})\n\n`
     })
     return str;
   } else if (isGenerations) {
     //.generations[0].map=>.text
     //.generations[0].map=>.message.data.content
     let str = "#### **Responses**: \n\n";
-    obj.generations[0].forEach((item,index) => {
-      str += (index+1) + ". Response: \n```\n"+ item.text + "\n```\n\n"})
+    obj.generations[0].forEach((item, index) => {
+      str += (index + 1) + ". Response: \n```\n" + item.text + "\n```\n\n"
+    })
     return str
   } else {
     //default
@@ -193,6 +194,7 @@ export default function Home() {
   const [radio, setRadio] = useState(1);
   const [birdIcon, setBirdIcon] = useState(<Image src="/parroticon.png" alt="AI" width="30" height="30" className={styles.boticon} priority={true} />)
   const [toolsModel, setToolsModel] = useState([]);
+  const [talking, setTalking] = useState(false);
 
   const messageListRef = useRef(null);
   const chatRef = useRef([]);
@@ -232,8 +234,13 @@ export default function Home() {
 
     getPrompts();
 
+    window.speechSynthesis.addEventListener('voiceschanged', updateButtonDisabled);
+
   }, []);
 
+  function updateButtonDisabled() {
+    setTalking(window.speechSynthesis.speaking)
+  }
 
   useEffect(() => {
     // textAreaRef.current.focus();
@@ -449,6 +456,38 @@ export default function Home() {
     navigator.clipboard.writeText(chatLog);
   }
 
+  const handleTextToSpeech = async (index) => {
+    if (!talking) {
+      const chatLog = chatRef.current[index].textContent;
+      if (!window.speechSynthesis) {
+        alert("Speech Synthesis not supported")
+        return
+      }
+      setTalking(true)
+      const utterance = new SpeechSynthesisUtterance(chatLog)
+      utterance.onend = function (event) {
+        console.log('Speech synthesis completed');
+        setTalking(false)
+      };
+      let voices = await window.speechSynthesis.getVoices();
+      //console.log(voices)
+      // const c = [0,1,2,4,5,6] all english
+      const c = [2, 5] //women
+
+      utterance.voice = voices[2]
+      //0 to 2, default 1
+      utterance.pitch = 1.5
+      //0 to 10
+      utterance.rate = 1.5
+      window.speechSynthesis.speak(utterance)
+      //setTalking(false)
+
+    } else {
+      window.speechSynthesis.cancel()
+      setTalking(false)
+    }
+  }
+
   const onChangeTab = (key) => {
     router.push('/?page=' + key)
   };
@@ -478,6 +517,9 @@ export default function Home() {
                 </Button>
                 <Button className={styles.copyButton} onClick={() => handleCopyText(index)}>
                   <CopyOutlined />text
+                </Button>
+                <Button className={styles.talkButton} onClick={() => handleTextToSpeech(index)}>
+                  {!talking ? <PlaySquareOutlined /> : <StopOutlined />}{!talking ? 'speak' : 'stop'}{talking && <SoundOutlined className={styles.talk} />}
                 </Button>
               </div>
             </div>
@@ -605,8 +647,8 @@ export default function Home() {
           marginRight: 3,
           // fontSize: 14,
           padding: "2px 8px",
-          backgroundColor: toolsModel[toolsModel.findIndex(tool => (tool.value === value))]?.tagbgColor || 'transparent',
-          color: toolsModel[toolsModel.findIndex(tool => (tool.value === value))]?.tagcolor || 'white',
+          backgroundColor: toolsModel ? (toolsModel[toolsModel?.findIndex(tool => (tool.value === value))]?.tagbgColor) : 'transparent',
+          color: toolsModel ? (toolsModel[toolsModel?.findIndex(tool => (tool.value === value))]?.tagcolor) : 'white',
           borderRadius: 4,
         }}
         children={label}
@@ -691,7 +733,7 @@ export default function Home() {
                   placeholder="Agent Tools"
                   tagRender={tagRender}
                   onChange={handleAgentToolsChange}
-                  options={toolsModel.map((tool) => ({
+                  options={toolsModel?.map((tool) => ({
                     ...tool,
                     label: <div style={{ display: "flex", flexDirection: "column" }} title={tool.description}>
                       <span style={{ display: "flex" }}>{tool.label}&nbsp;({tool.tagname})</span>
