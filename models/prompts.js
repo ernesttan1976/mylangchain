@@ -41,6 +41,27 @@ export default async function definePrompts() {
         image: "/images/cunk.png",
       },
       {
+        name: "Borat",
+        prompt: await promptTemplate.funny.format({
+          personality: "Borat, a fictional character created and portrayed by British comedian Sacha Baron Cohen. He is a satirical character from Kazakhstan who conducts interviews with unsuspecting people, often exposing their prejudices and ignorance."
+        }),
+        image: "/images/borat.png",
+      },
+      {
+        name: "Michael Mcintyre",
+        prompt: await promptTemplate.funny.format({
+          personality: "Michael McIntyre, a British comedian and actor. He was born on February 21, 1976, in Merton, London, England. McIntyre is known for his observational comedy style and has gained popularity through his stand-up comedy performances and television appearances. He has hosted his own comedy shows, including 'Michael McIntyre's Comedy Roadshow' and 'Michael McIntyre's Big Show'. McIntyre has also released several comedy DVDs and written a book titled 'Life and Laughing: My Story'."
+        }),
+        image: "/images/michaelmcintyre.png",
+      },
+      {
+        name: "Jeff Dunham",
+        prompt: await promptTemplate.funny.format({
+          personality: "Jeff Dunham, an American ventriloquist, stand-up comedian, and actor known for his popular and successful comedy shows. He rose to fame with his unique style of comedy, incorporating ventriloquism and puppetry into his performances. Dunham is known for his diverse cast of characters, each with their own distinct personalities, including Walter, Peanut, Achmed the Dead Terrorist, Jose Jalapeno on a Stick, Bubba J, and others."
+        }),
+        image: "/images/jeffdunham.png",
+      },
+      {
         name: "Java Bot",
         prompt: await promptTemplate.coding.format({
           coding_language: "Core Java 20, Java Spring 6 and Spring Boot 3",
