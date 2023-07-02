@@ -476,9 +476,9 @@ export default function Home() {
 
       utterance.voice = voices[2]
       //0 to 2, default 1
-      utterance.pitch = 1.5
+      utterance.pitch = 1
       //0 to 10
-      utterance.rate = 1.5
+      utterance.rate = 1.2
       window.speechSynthesis.speak(utterance)
       //setTalking(false)
 
