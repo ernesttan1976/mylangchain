@@ -283,6 +283,19 @@ export default function Home() {
 
     setLoading(true);
 
+    await fetch('/api/log', {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json'
+      },
+      body: JSON.stringify({
+        bot: bot,
+        question: userInput,
+        history: history,
+      }),
+    });
+
+
     const response = await ApiChat(bot, userInput, history, setMessages);
 
     // Reset user input
@@ -330,6 +343,18 @@ export default function Home() {
     setMessages((prevMessages) => [...prevMessages, new AIChatMessage(">")]);
 
     const controller = new AbortController();
+
+      await fetch('/api/log', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json'
+        },
+        body: JSON.stringify({
+          bot: bot,
+          question: userInput,
+          toolsSelect: toolsSelect
+        }),
+      });
 
     try {
       const response = await fetch('/api/agentchat', {
