@@ -10,9 +10,19 @@ export default async function handler(req, res) {
 
         const obj = req.body;
     
-        console.info("req.body", req.body)
-        
-        const log = await Log.create(obj)
+        // console.info("req.body", req.body)
+        // console.info("req", req)
+
+        const newHistory = obj.history.map(h=>{
+            console.log("h type:", typeof h)
+            return JSON.stringify(h)
+        })
+
+        const newObj = {
+            ...obj, ...newHistory
+        }
+
+        const log = await Log.create(newObj)
     
         res.status(200).json({message: "ok"})
     } else if (req.method === 'GET') {
