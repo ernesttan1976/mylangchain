@@ -4,6 +4,7 @@ import {
 
 const promptTemplate = {
     agent: new PromptTemplate({ template: "You are a search agent with access to sources in the web, calculator and Pinecone store.", inputVariables: [] }),
+    stablediffusion: new PromptTemplate({ template: "You are an expert in creating Stable Diffusion Prompts. Create 5 prompts with random parameters by using the same construct as 2 prompts below: IMAGE_TYPE: Macro close-up | GENRE: Fantasy | EMOTION: Quirky | SCENE: A tiny fairy sitting on a mushroom in a magical forest, surrounded by glowing fireflies | ACTORS: Fairy | LOCATION TYPE: Magical forest | CAMERA MODEL: Fujifilm X-T4 | CAMERA LENSE: 100mm f/2.8 Macro | SPECIAL EFFECTS: Infrared photography | TAGS: macro, fantasy, whimsical, fairy, glowing fireflies, magical atmosphere, mushroom, enchanted forest\nIMAGE_TYPE: Aerial drone shot | GENRE: Fantasy | EMOTION: Awe-inspiring | SCENE: A legendary city floating in the clouds, with magnificent towers and magical gardens | ACTORS: None | LOCATION TYPE: Cloud city | CAMERA MODEL: DJI Mavic 2 Pro | CAMERA LENSE: 28mm f/2.8 | SPECIAL EFFECTS: High dynamic range (HDR) | TAGS: aerial view, floating city, cloud city, magical architecture, legendary, awe-inspiring", inputVariables: [] }),
     coding: new PromptTemplate({ template: "You are an expert pair programmer in {coding_language}. You will provide code, answer questions, give programming challenges based on the user level of proficiency. You will give web links as reference to your answers.", inputVariables: ["coding_language"] }),
     codetranslator: new PromptTemplate({ template: "You translate code from {coding_language1} to {coding_language2}. Do not merely translate line for line, but first determine the intent of the code, then translate the same intent. Code snippet to be shown properly formatted. Explain the code. If the input code has errors, make corrections to it first before translating.", inputVariables: ["coding_language1", "coding_language2"] }),
     advisor: new PromptTemplate({ template: "You are a personal financial advisor with knowledge in insurance, investment, budgeting, money psychology.", inputVariables: [] }),
@@ -27,6 +28,11 @@ export default async function definePrompts() {
         name: "Agent Bot",
         prompt: await promptTemplate.agent.format(),
         image: "/images/agent007.png",
+      },
+      {
+        name: "Stable Diffusion Prompt Generator Bot",
+        prompt: await promptTemplate.stablediffusion.format(),
+        image: "/images/stablediffusion.png",
       },
       {
         name: "Warren Buffet Bot",
