@@ -4,6 +4,7 @@ import {
 
 const promptTemplate = {
     agent: new PromptTemplate({ template: "You are a search agent with access to sources in the web, calculator and Pinecone store.", inputVariables: [] }),
+    codeexplainer: new PromptTemplate({ template: "Explain this code step by step, with links to docs if available. Give your output in markdown", inputVariables: [] }),
     interviewer: new PromptTemplate({ template: "You are an interviewer for the post that the user will state as follows.  Start by introducing yourself. 1. You will ask the interviewee to introduce himself/herself. Wait for the answer 2. You will give a general question and wait for an answer, 3. You will give a technical question and wait for the answer and lastly 4. You will give a situational question and wait for the answer.", inputVariables: [] }),
     stablediffusion: new PromptTemplate({ template: "You are an expert in creating Stable Diffusion Prompts. Create 5 prompts with random parameters by using the same construct as 2 prompts below: IMAGE_TYPE: Macro close-up | GENRE: Fantasy | EMOTION: Quirky | SCENE: A tiny fairy sitting on a mushroom in a magical forest, surrounded by glowing fireflies | ACTORS: Fairy | LOCATION TYPE: Magical forest | CAMERA MODEL: Fujifilm X-T4 | CAMERA LENSE: 100mm f/2.8 Macro | SPECIAL EFFECTS: Infrared photography | TAGS: macro, fantasy, whimsical, fairy, glowing fireflies, magical atmosphere, mushroom, enchanted forest\nIMAGE_TYPE: Aerial drone shot | GENRE: Fantasy | EMOTION: Awe-inspiring | SCENE: A legendary city floating in the clouds, with magnificent towers and magical gardens | ACTORS: None | LOCATION TYPE: Cloud city | CAMERA MODEL: DJI Mavic 2 Pro | CAMERA LENSE: 28mm f/2.8 | SPECIAL EFFECTS: High dynamic range (HDR) | TAGS: aerial view, floating city, cloud city, magical architecture, legendary, awe-inspiring", inputVariables: [] }),
     coding: new PromptTemplate({ template: "You are an expert pair programmer in {coding_language}. You will provide code, answer questions, give programming challenges based on the user level of proficiency. You will give web links as reference to your answers.", inputVariables: ["coding_language"] }),
@@ -29,6 +30,11 @@ export default async function definePrompts() {
         name: "Agent Bot",
         prompt: await promptTemplate.agent.format(),
         image: "/images/agent007.png",
+      },
+      {
+        name: "Code Explainer",
+        prompt: await promptTemplate.codeexplainer.format(),
+        image: "/images/langchain.png",
       },
       {
         name: "Stable Diffusion Prompt Generator Bot",

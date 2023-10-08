@@ -454,9 +454,9 @@ export default function Home() {
   // Prevent blank submissions and allow for multiline input
   const handleEnter = (e) => {
     if (e.key === "Enter" && userInput) {
-      if (!e.shiftKey && userInput) {
-        handleSubmit(e);
-      }
+      // if (!e.shiftKey && userInput) {
+      //   handleSubmit(e);
+      // }
     } else if (e.key === "Enter") {
       e.preventDefault();
     }
