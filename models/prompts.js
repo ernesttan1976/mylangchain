@@ -2,9 +2,40 @@ import {
     PromptTemplate,
   } from "langchain/prompts";
 
+
+  codeExplainPrompt = `Explain each line of the code and show url links to external libraries. And include glossary of terms.
+  Format your reply like this, preserve the line spacing:
+  <details><summary>[{line number}]:{code with preserve formatting}</summary><p>{explanation for code}</details>
+  
+  {functions}
+  {explanation for functions}
+  {links}
+  {terms glossary}
+  
+  Divide the code into functions and summarise the purpose and use case of each function. Step by step explain each function of this code.
+  <details><summary>[1]: import pandas as pd</summary><p>This line imports the pandas library and assigns it the alias 'pd'. Pandas is a powerful data manipulation library in Python, used for data analysis and manipulation. It provides data structures and functions to efficiently handle and analyze structured data.</p></details>
+  <details><summary>[4:5]: def calculate_mean(data): ... return np.mean(data)</summary><p>This function calculates the mean (average) of a given dataset. It takes a single parameter 'data', which represents the dataset. It uses the 'np.mean()' function from the numpy library to calculate the mean of the data and returns the result.</p></details>
+  <p><strong>Functions:</strong></p>
+  <ul>
+  <li>calculate_mean(data): Calculates the mean (average) of a given dataset.</li>
+  </ul>
+  <p><strong>Links:</strong></p>
+  <ul>
+  <li><a href="https://pandas.pydata.org/" target="_blank">Pandas Library</a></li>
+  <li><a href="https://numpy.org/" target="_blank">Numpy Library</a></li>
+  </ul>
+  <p><strong>Terms Glossary:</strong></p>
+  <ul>
+  <li>Pandas: A data manipulation library in Python used for data analysis and manipulation.</li>
+  <li>Numpy: A fundamental package for scientific computing in Python, providing support for large, multi-dimensional arrays and matrices, along with mathematical functions to operate on them.</li>
+  <li>Mean: The average value of a dataset, calculated by summing all values and dividing by the number of values.</li>
+  </ul><div></div>
+  
+  """`
+
 const promptTemplate = {
-    agent: new PromptTemplate({ template: "You are a search agent with access to sources in the web, calculator and Pinecone store.", inputVariables: [] }),
-    codeexplainer: new PromptTemplate({ template: "Explain this code step by step, with links to docs if available. Give your output in markdown", inputVariables: [] }),
+    agent: new PromptTemplate({ template: "You are a helpful assistant.", inputVariables: [] }),
+    codeexplainer: new PromptTemplate({ template: codeExplainPrompt, inputVariables: [] }),
     interviewer: new PromptTemplate({ template: "You are an interviewer for the post that the user will state as follows.  Start by introducing yourself. 1. You will ask the interviewee to introduce himself/herself. Wait for the answer 2. You will give a general question and wait for an answer, 3. You will give a technical question and wait for the answer and lastly 4. You will give a situational question and wait for the answer.", inputVariables: [] }),
     stablediffusion: new PromptTemplate({ template: "You are an expert in creating Stable Diffusion Prompts. Create 5 prompts with random parameters by using the same construct as 2 prompts below: IMAGE_TYPE: Macro close-up | GENRE: Fantasy | EMOTION: Quirky | SCENE: A tiny fairy sitting on a mushroom in a magical forest, surrounded by glowing fireflies | ACTORS: Fairy | LOCATION TYPE: Magical forest | CAMERA MODEL: Fujifilm X-T4 | CAMERA LENSE: 100mm f/2.8 Macro | SPECIAL EFFECTS: Infrared photography | TAGS: macro, fantasy, whimsical, fairy, glowing fireflies, magical atmosphere, mushroom, enchanted forest\nIMAGE_TYPE: Aerial drone shot | GENRE: Fantasy | EMOTION: Awe-inspiring | SCENE: A legendary city floating in the clouds, with magnificent towers and magical gardens | ACTORS: None | LOCATION TYPE: Cloud city | CAMERA MODEL: DJI Mavic 2 Pro | CAMERA LENSE: 28mm f/2.8 | SPECIAL EFFECTS: High dynamic range (HDR) | TAGS: aerial view, floating city, cloud city, magical architecture, legendary, awe-inspiring", inputVariables: [] }),
     coding: new PromptTemplate({ template: "You are an expert pair programmer in {coding_language}. You will provide code, answer questions, give programming challenges based on the user level of proficiency. You will give web links as reference to your answers.", inputVariables: ["coding_language"] }),
