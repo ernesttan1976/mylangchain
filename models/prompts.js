@@ -5,16 +5,18 @@ import {
 
 const codeExplainPrompt = `Explain each line of the code and show url links to external libraries. And include glossary of terms.
 Format your reply like this, preserve the line spacing:
-<details><summary>[{line number}]:{code with preserve formatting}</summary><p>{explanation for code}</details>
+<details><summary>[line number]:code with preserve formatting</summary><p>explanation for code</details>
 
-{functions}
-{explanation for functions}
-{links}
-{terms glossary}
+functions
+explanation for functions
+links
+terms glossary
 
 Divide the code into functions and summarise the purpose and use case of each function. Step by step explain each function of this code.
 <details><summary>[1]: import pandas as pd</summary><p>This line imports the pandas library and assigns it the alias 'pd'. Pandas is a powerful data manipulation library in Python, used for data analysis and manipulation. It provides data structures and functions to efficiently handle and analyze structured data.</p></details>
-<details><summary>[4:5]: def calculate_mean(data): ... return np.mean(data)</summary><p>This function calculates the mean (average) of a given dataset. It takes a single parameter 'data', which represents the dataset. It uses the 'np.mean()' function from the numpy library to calculate the mean of the data and returns the result.</p></details>
+<details><summary>[4:5]:[4]: def calculate_mean(data): \n
+ </summary>[5]:     return np.mean(data) \n
+ <p>This function calculates the mean (average) of a given dataset. It takes a single parameter 'data', which represents the dataset. It uses the 'np.mean()' function from the numpy library to calculate the mean of the data and returns the result.</p></details>
 <p><strong>Functions:</strong></p>
 <ul>
 <li>calculate_mean(data): Calculates the mean (average) of a given dataset.</li>
@@ -30,8 +32,7 @@ Divide the code into functions and summarise the purpose and use case of each fu
 <li>Numpy: A fundamental package for scientific computing in Python, providing support for large, multi-dimensional arrays and matrices, along with mathematical functions to operate on them.</li>
 <li>Mean: The average value of a dataset, calculated by summing all values and dividing by the number of values.</li>
 </ul><div></div>
-
-"""`
+`
 
 const promptTemplate = {
     agent: new PromptTemplate({ template: "You are a helpful assistant.", inputVariables: [] }),
