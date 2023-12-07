@@ -3,20 +3,23 @@ import {
   } from "langchain/prompts";
 
 
-const codeExplainPrompt = `Explain each line of the code and show url links to external libraries. And include glossary of terms.
-Format your reply like this, preserve the line spacing:
-<details><summary>[line number]:code with preserve formatting</summary><p>explanation for code</details>
+const codeExplainPrompt = `Explain each line of the code and show url links to external libraries. And include glossary of terms.\n
+Format your reply like this, preserve the line spacing:\n
+<pre><details><summary>[line number]:code with preserve formatting</summary>
+<p>explanation for code</p></details>\n</pre>
 
-functions
-explanation for functions
-links
-terms glossary
+## functions\n
+## explanation for functions\n
+## links\n
+## terms glossary\n
 
 Divide the code into functions and summarise the purpose and use case of each function. Step by step explain each function of this code.
-<details><summary>[1]: import pandas as pd</summary><p>This line imports the pandas library and assigns it the alias 'pd'. Pandas is a powerful data manipulation library in Python, used for data analysis and manipulation. It provides data structures and functions to efficiently handle and analyze structured data.</p></details>
-<details><summary>[4:5]:[4]: def calculate_mean(data): \n
- </summary>[5]:     return np.mean(data) \n
- <p>This function calculates the mean (average) of a given dataset. It takes a single parameter 'data', which represents the dataset. It uses the 'np.mean()' function from the numpy library to calculate the mean of the data and returns the result.</p></details>
+<pre><details><summary>[1]: import pandas as pd</summary>This line imports the pandas library and assigns it the alias 'pd'. Pandas is a powerful data manipulation library in Python, used for data analysis and manipulation. \nIt provides data structures and functions to efficiently handle and analyze structured data.</details></pre>
+<pre><details><summary>[4]: def calculate_mean(data):</summary>
+<p>This function calculates the mean (average) of a given dataset. It takes a single parameter 'data', which represents the dataset. </p></details></pre>
+<pre><details><summary>[5]:    return np.mean(data)</summary>
+<p>The 'np.mean()' function from the numpy library calculates the mean of the data and returns the result.</p></details>\n</pre>
+ 
 <p><strong>Functions:</strong></p>
 <ul>
 <li>calculate_mean(data): Calculates the mean (average) of a given dataset.</li>
