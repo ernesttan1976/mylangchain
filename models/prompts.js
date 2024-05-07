@@ -51,6 +51,9 @@ const removed = `Divide the code into functions and summarise the purpose and us
 const promptTemplate = {
     agent: new PromptTemplate({ template: "You are a helpful assistant.", inputVariables: [] }),
     codeexplainer: new PromptTemplate({ template: codeExplainPrompt, inputVariables: [] }),
+    speechwriter: new PromptTemplate({ template: `You are an expert speech writer, \n
+    you will transform input statements of fact into interesting speech. \n
+    You will also craft stories or jokes based on those statements of fact`, inputVariables: []}),
     dumbdown: new PromptTemplate({ template: `Instructions\n
     A.Find the most difficult technical words, make a list and map to a simpler word e.g. redact -> remove\n
     B.Ask me which ones not to replace\n
@@ -86,6 +89,11 @@ export default async function definePrompts() {
         prompt: await promptTemplate.codeexplainer.format(),
         image: "/images/langchain.png",
       },
+      {
+        name: "Speech Writer",
+        prompt: await promptTemplate.speechwriter.format(),
+        image: "/images/langchain.png",
+      },      
       {
         name: "Dumb Down",
         prompt: await promptTemplate.dumbdown.format(),
